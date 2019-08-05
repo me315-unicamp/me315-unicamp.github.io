@@ -17,7 +17,7 @@ subtitle:
 # Critérios de Avaliação e Datas Importantes
 
 - **Prova 1**: 09 de setembro de 2019
-- **Prova 2**: 17 de outubro de 2019
+- **Prova 2**: 14 de outubro de 2019
 - **Prova 3**: 25 de novembro de 2019
 - **Exame Final**: 09 de dezembro de 2019
 
