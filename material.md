@@ -11,3 +11,16 @@ subtitle:
 # Laboratórios
 
 - [Laboratório 01: Manipulação básica de dados e importação](laboratorios/lab01.html)
+
+# JupyterHub ME315
+
+Temos uma instalação de testes do JupyterHub para a disciplina, disponível no link [http://jupyter.ime.unicamp.br](http://jupyter.ime.unicamp.br).
+
+Para o **primeiro acesso**, siga os passos a seguir:
+
+1. Siga o [link](http://jupyter.ime.unicamp.br) para o JupyterHub ME315;
+2. Utilize o seu RA (6 dígitos) como nome de usuário;
+3. Digite a senha que deseja utilizar para esta ferramenta;
+4. Pronto...
+
+**Importante**: o sistema de autenticação não solicita confirmação de senha. Uma vez que você digita alguma senha (mesmo que seja em branco), esta será a senha utilizada permanentemente.
