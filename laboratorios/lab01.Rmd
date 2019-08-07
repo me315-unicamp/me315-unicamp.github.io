@@ -1,0 +1,180 @@
+---
+title: "Laboratório 01"
+subtitle: "Importação e Manipulação de Dados em R"
+author: "Benilton Carvalho, Guilherme Ludwig"
+date: ""
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, include=FALSE)
+```
+
+# Manipulação de Dados no Formato Tidy
+
+Um conjunto de dados no formato _tidy_ beneficia o analista de dados por permitir a manipulação dos mesmos  de uma maneira unificada. De modo similar, métodos estatísticos são habitualmente implementados para receber dados neste formato. Desta maneira, a importação e tratamento de dados visando o referido formato reduzirá a criação de bancos de dados temporários, evitando problemas difíceis de diagnosticar.
+
+Neste laboratório, você deverá criar e entregar um arquivo do tipo `Jupyter Notebook` que realize as atividades descritas abaixo. Você deverá nomear o arquivo de acordo com o seguinte padrão: `RA123456.ipynb`, onde `123456` representará o seu RA, usando 6 dígitos.
+
+Os conjuntos de dados apresentados correspondem ao número de casos de tuberculose observados em alguns países, juntamente com seus tamanhos populacionais.
+
+**Q1: Carregue o pacote `tidyverse`**
+
+```{r load_pkg}
+library(tidyverse)
+```
+
+**Q2: Apresente os bancos de dados `table1`, `table2`, `table3`, `table4a` e `table4b`, distribuídos juntamente com o pacote `tidyverse`. Para cada banco de dados, descreva textualmente se ele está no formato tidy e justifique cada uma de suas respostas.**
+
+```{r show_tables}
+table1
+table2
+table3
+table4a
+table4b
+```
+
+**Q3: Utilizando comandos do pacote `dplyr`, determine a taxa de ocorrência de tuberculose para cada 10.000 pessoas. Armazene o resultado em um objeto chamado `taxas` e, utilizando o pacote `digest`, determine a assinatura MD5 do objeto resultante.**
+
+```{r det_rate}
+taxas = table1 %>% mutate(rate=cases/population*10000)
+taxas
+library(digest)
+digest(taxas)
+```
+
+**Q4: Apresente, utilizando comandos do pacote `dplyr`, o número de casos de tuberculose por ano.***
+
+```{r num_casos}
+table1 %>% count(year, wt=cases)
+```
+
+**Q5: Apresente, utilizando comandos do pacote `dplyr`, o número de casos de tuberculose identificados em cada país.***
+
+```{r num_casos_anopais}
+table1 %>% group_by(country) %>% summarize(totalCasos=sum(cases))
+table1 %>% count(country, wt=cases)
+```
+
+**Q6: Utilizando comandos do pacote `dplyr`, apresente uma tabela que descreva a mudança no número de casos, em cada país, ao longo dos anos de 1999 e 2000.**
+
+```{r blah}
+table1 %>% group_by(country) %>% summarize(mudanca=cases[2]-cases[1])
+```
+
+**Q7: Apresente um gráfico de linhas, preparado via `ggplot2`, apresentando a mudança na taxa de casos (por 10.000 habitantes) estratificado por país.**
+
+```{r graf1}
+library(ggplot2)
+ggplot(table1, aes(year, cases/population*10000, colour=country)) + geom_line() + scale_x_continuous(breaks=c(1999, 2000)) + theme_bw()
+ggplot(taxas, aes(year, rate, colour=country)) + geom_line() + scale_x_continuous(breaks=c(1999, 2000)) + theme_bw()
+```
+
+**Q8: Calcule a taxa para as tabelas `table2` e `table4a+table4b`. Para isso, você precisará executar 4 passos:**
+
+- Extrair o número de casos de tuberculose por país, por ano;
+- Extrair o tamanho da população correspondente, por ano;
+- Dividir o número de casos pelo tamanho da população e multiplicar o resultado por 10.000;
+- Armazenar o resultado numa variável apropriada;
+
+**Q9: Refaça o gráfico da questão 7 para os dados apresentados em `table2`.**
+
+**Q10: Utilizando o comando `gather`, transforme `table4a` em um objeto no formato tidy. Armazene o resultado num objeto chamado `tidy4a`.**
+
+```{r tidy4a}
+tidy4a = table4a %>% gather(`1999`, `2000`, key='year', value='cases')
+```
+
+**Q11: Refaça o item 10 para o objeto `table4b`. Armazene o resultado num objeto chamado `tidy4b`.**
+
+```{r tidy4b}
+tidy4b = table4b %>% gather(`1999`, `2000`, key='year', value='population')
+```
+
+**Q12: Combine os objetos `tidy4a` e `tidy4b` em um único objeto, utilizando o comando `left_join`. Apresente uma explicação textual sobre o que faz o referido comando.**
+
+```{r leftjoin}
+left_join(tidy4a, tidy4b)
+```
+
+**Q13: Use o comando `spread` para tranformar o objeto `table2` em um objeto com formato tidy.**
+
+```{r spread}
+table2 %>% spread(key='type', value='count')
+```
+
+**Q14: Observe que a coluna `rate` do objeto `table3` é um texto mostrando a fração que formaria a taxa de casos de tuberculose. Transforme o objeto `table3` em um objeto com formato tidy separando a coluna 3 em duas outras colunas: `cases` e `population`, utilizando o comando `separate`. Utilize o argumento `convert` para transformar o resultado em um objeto numérico.**
+
+```{r sep}
+table3 %>% separate(rate, into=c('cases', 'population'), convert=TRUE)
+```
+
+# Importação de Dados
+
+No link [https://www.kaggle.com/usdot/flight-delays](https://www.kaggle.com/usdot/flight-delays), existem dados que descrevem o atraso de vôos nos Estados Unidos. Estas informações estão disponíveis em 3 arquivos, que serão obtidos a partir da descompactação do arquivo original:
+
+- airlines.csv;
+- airports.csv;
+- flights.csv;
+
+**Q15: Crie uma variável chamada `path`, que armazenará o caminho completo até os arquivos supracitados. Você tem acesso ao diretório `ME315/voos` e este possui os arquivos com que trabalharemos nesta sessão.**
+
+```{r path2files}
+path = '/Volumes/Disk2/github/me315-unicamp.github.io/dados'
+#path = '~/ME315/voos'
+dir(path)
+```
+
+**Q16: Importe os arquivos `airlines.csv`, `airports.csv` e `flights_small.csv.zip` utilizando o comando `read_csv` de maneira apropriada. Para o arquivo `flights_small.csv.zip`, importe apenas as colunas `MONTH, ORIGIN_AIRPORT, DESTINATION_AIRPORT, ARRIVAL_DELAY`.**
+
+```{r importcsv, cache=TRUE}
+library(readr)
+mycols = cols_only(MONTH='i',
+                   ORIGIN_AIRPORT='c',
+                   DESTINATION_AIRPORT='c',
+                   ARRIVAL_DELAY='i')
+airlines = read_csv(file.path(path, 'airlines.csv'))
+airports = read_csv(file.path(path, 'airports.csv'))
+flights = read_csv(file.path(path, 'flights_small.csv.zip'), col_types=mycols)
+```
+
+**Q17: Para cada mês, qual foi o vôo (no formato ORIGEM-DESTINO, ex., ANC-SEA) que apresentou o maior atraso médio na chegada (ARRIVAL_DELAY)? Para realização deste item, ignore todos os vôos que partiram de aeroportos cujos símbolos começam com o número 1. Armazene o resultado em um objeto chamado `atrasos` e denomine a coluna de atrasos médio de ATRASO.**
+
+```{r flights}
+atrasos = flights %>%
+  filter(!startsWith(ORIGIN_AIRPORT, '1')) %>% 
+  unite(col='VOO', c("ORIGIN_AIRPORT", "DESTINATION_AIRPORT"), sep='-') %>% 
+  select(MONTH, VOO, ARRIVAL_DELAY) %>% 
+  group_by(MONTH, VOO) %>% 
+  summarise(ATRASO=mean(ARRIVAL_DELAY)) %>% 
+  top_n(1)
+```
+
+**Q18: Para os vôos mais atrasados encontrados acima, modifique a tabela de forma a adicionar o nome completo de cada aeroporto (use o comando `left_join`) e também a cidade do aeroporto. Para isso, importe o arquivo `airports.csv`.** A tabela resultante deverá ter as seguintes colunas:
+
+_observação: sobrescreva o objeto `atrasos` com o resultado desta operação._
+
+- MONTH
+- ORIGEM
+- DESTINO
+- ATRASO
+- AIRPORT_ORIGEM
+- CITY_ORIGEM
+- AIRPORT_DESTINO
+- CITY_DESTINO
+
+```{r merge}
+airports = read_csv(file.path(path, 'airports.csv')) %>% 
+  select(IATA_CODE, AIRPORT, CITY)
+atrasos = atrasos %>% separate('VOO', into=c('ORIGEM', 'DESTINO'))
+atrasos = left_join(atrasos, airports, by=c("ORIGEM" = "IATA_CODE"))
+names(atrasos) = c("MONTH", "ORIGEM", "DESTINO", "ATRASO", "AIRPORT_ORIGEM", "CITY_ORIGEM")
+atrasos = left_join(atrasos, airports, by=c("DESTINO" = "IATA_CODE"))
+names(atrasos) = c("MONTH", "ORIGEM", "DESTINO", "ATRASO", "AIRPORT_ORIGEM", "CITY_ORIGEM", "AIRPORT_DESTINO", "CITY_DESTINO")
+```
+
+**Q19: Apresente o resultado obtido na questão acima.**
+
+```{r showatrasos}
+atrasos
+```
