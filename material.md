@@ -7,6 +7,7 @@ subtitle:
 # Slides utilizados em aulas
 
 - [Aula 01: Formatos tabulares](aulas/aula01.html)
+- [Aula 02: Importação de bases de dados volumosas](aulas/aula02.html)
 
 # Laboratórios
 
