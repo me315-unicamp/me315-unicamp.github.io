@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Dados Tabulares de Grande Volume</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Benilton Carvalho &amp; Guilherme Ludwig" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Dados Tabulares de Grande Volume
+## Inferência e Ciência de Dados
+### Benilton Carvalho &amp; Guilherme Ludwig
+
+---
+
+
+
+
+# `flights.csv.zip`
+
+
+
+- Possui 5714008 observações;
+- Tem 31 variáveis;
+- Ocupa 1GB de RAM;
+- Entre as variáveis:
+  * Dia, mês, ano, dia da semana;
+  * Cia aérea, número do vôo, registro do avião;
+  * Aeroportos de partida e de chegada;
+  * Horários de partida e chegada (reais e programados);
+  * Tempo de vôo e distância voada;
+  * Atraso na chegada.
+  
+---
+
+# Distância vs. Tempo de Vôo
+
+
+
+&lt;img src="aula02_files/figure-html/showplot-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Reta de Regressão
+
+$$
+Distancia_i = b_0 + b_1 \times Tempo_i + \epsilon_i
+$$
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; term &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; estimate &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; (Intercept) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -73.95665 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; AIR_TIME &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 311.46177 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+- Como estimar `\(b_0\)` e `\(b_1\)`?
+
+---
+
+# Estimadores via Mínimos Quadrados
+
+`\begin{eqnarray}
+y_i &amp; = &amp; b_0 + b_1 x_i + \epsilon_i \\
+\hat{b}_0 &amp; = &amp; \bar{y} - \hat{b}_1 \bar{x} \\
+\hat{b}_1 &amp; = &amp; \frac{\sum_i (x_i - \bar{x})(y_i - \bar{y})}{\sum_i (x_i-\bar{x})^2} \\
+&amp; = &amp; \frac{\sum x_i y_i - \frac{\sum x_i \sum y_i}{n}}{\sum x_i^2 - \frac{(\sum x_i)^2}{n}}
+\end{eqnarray}`
+
+- Precisamos pensar em meios de calcular estas estatísticas usando apenas partes do conjunto de dados;
+- Estas estatísticas "parciais" devem poder ser combinadas;
+- Estatísticas suficientes:
+  * `\(\sum x_i\)`;
+  * `\(\sum y_i\)`;
+  * `\(\sum x_i y_i\)`;
+  * `\(\sum x_i^2\)`;
+  * `\(n\)`;
+
+---
+
+# Particionando operações
+
+`\begin{eqnarray}
+\sum x_i y_i &amp; = &amp; \sum_{i=1}^{k_1} x_i y_i + \sum_{i=k_1+1}^{k_2} x_i y_i + \cdots \\
+\sum x_i &amp; = &amp; \sum_{i=1}^{k_1} x_i + \sum_{i=k_1+1}^{k_2} x_i + \cdots \\
+\sum x_i^2 &amp; = &amp; \sum_{i=1}^{k_1} x_i^2 + \sum_{i=k_1+1}^{k_2} x_i^2 + \cdots
+\end{eqnarray}`
+
+---
+
+# Para um bloco dos dados
+
+`\begin{eqnarray}
+\hat{b}_0 &amp; = &amp; \bar{y} - \hat{b}_1 \bar{x} \\
+\hat{b}_1 &amp; = &amp; \frac{\sum x_i y_i - \frac{\sum x_i \sum y_i}{n}}{\sum x_i^2 - \frac{(\sum x_i)^2}{n}}
+\end{eqnarray}`
+
+
+
+```r
+getStats = function(input, pos){
+  input %&gt;% filter(!is.na(AIR_TIME), !is.na(DISTANCE)) %&gt;%
+    mutate(AIR_TIME=AIR_TIME/60, DISTANCE=DISTANCE/1.6) %&gt;% 
+    summarise(Sxy=sum(AIR_TIME*DISTANCE), Sx=sum(AIR_TIME),
+              Sy=sum(DISTANCE), Sx2=sum(AIR_TIME^2), n=n())
+}
+computeStats = function(stats){
+  stats %&gt;% 
+    summarise(num = sum(Sxy)-(sum(Sx)*sum(Sy))/sum(n),
+              den = sum(Sx2)-(sum(Sx)^2)/sum(n),
+              b1 = num/den,
+              b0 = sum(Sy)/sum(n)-b1*sum(Sx)/sum(n)) %&gt;% 
+    select(b0, b1) %&gt;% gather(key='coef', value='valor') %&gt;% 
+    knitr::kable('html')
+}
+```
+
+---
+
+# Para um bloco dos dados
+
+
+```r
+in1 %&gt;% getStats() %&gt;% computeStats()
+```
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; coef &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; valor &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; b0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -73.95665 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; b1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 311.46177 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+# Processando Dados em Lote
+
+- O pacote `readr` possui funções de importação aprimoradas;
+- São funções mais rápidas e inteligentes;
+- Uma classe de funções é a de operação em porções de arquivos:
+  * `read_csv_chunked`;
+  * `read_csv2_chunked`;
+  * `read_delim_chunked`;
+  * `read_tsv_chunked`;
+- As funções `read_***_chunked` aceitam argumentos especiais:
+  * `chunk_size`: número de linhas a serem importadas por iteração;
+  * `callback`: função que é executada em cada porção dos dados;
+- O argumento `callback` deve instanciar:
+  * `DataFrameCallback`: se se deseja combinar resultados tabulares;
+  * `ListCallback`: se se deseja combinar resultados 'flexíveis';
+  * `SideEffectChunkCallback`: se se deseja visualizar efeitos colaterais.
+  
+---
+
+# Importação de Dados com Leitura em Lotes
+
+
+```r
+in2 = read_csv_chunked('../dados/flights.csv.zip',
+                       callback=DataFrameCallback$new(getStats),
+                       chunk_size = 1e6)
+```
+
+```
+## Parsed with column specification:
+## cols(
+##   .default = col_double(),
+##   AIRLINE = col_character(),
+##   TAIL_NUMBER = col_character(),
+##   ORIGIN_AIRPORT = col_character(),
+##   DESTINATION_AIRPORT = col_character(),
+##   SCHEDULED_DEPARTURE = col_character(),
+##   DEPARTURE_TIME = col_character(),
+##   WHEELS_OFF = col_character(),
+##   WHEELS_ON = col_character(),
+##   SCHEDULED_ARRIVAL = col_character(),
+##   ARRIVAL_TIME = col_character(),
+##   CANCELLATION_REASON = col_character()
+## )
+```
+
+```
+## See spec(...) for full column specifications.
+```
+
+---
+
+# Importação de Dados com Leitura em Lotes
+
+
+```r
+in2
+```
+
+```
+## # A tibble: 6 x 5
+##           Sxy       Sx         Sy      Sx2      n
+##         &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;    &lt;dbl&gt;  &lt;int&gt;
+## 1 1323121892. 1797787. 482227611. 4748642. 957394
+## 2 1392718440. 1872273. 506332984. 4951091. 989242
+## 3 1433684731. 1873591  512218232. 5025248. 981161
+## 4 1441177514. 1871883. 517199389. 4996242. 987786
+## 5 1387819679. 1849173  506928412. 4850165. 993158
+## 6 1170987680. 1545399. 419439209. 4160835. 805267
+```
+
+```r
+in2 %&gt;% computeStats()
+```
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; coef &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; valor &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; b0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -73.95665 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; b1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 311.46177 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+# Importação de Dados - Colunas Específicas
+
+- As funções de importação `read_***` possuem um argumento `col_types`;
+- Opções válidas para `col_types`:
+  * Especificação criada por `cols()`: todas as colunas;
+  * Especificação criada por `cols_only()`: apenas um subconjunto;
+- `cols()`: `cols(NOME=col_TIPO())`
+  * `cols(a=col_integer())`;
+  * `cols(a='i')`
+- `cols_only()`: `cols_only(NOME=col_TIPO())`
+  * `cols_only(a=col_integer())`
+  * `cols_only(a='i')`
+
+
+```r
+mycols = cols_only(AIR_TIME='i', DISTANCE='i')
+in3 = read_csv_chunked('../dados/flights.csv.zip',
+                       callback=DataFrameCallback$new(getStats),
+                       chunk_size = 1e6, col_types=mycols)
+```
+
+---
+
+# Importação de Dados - Colunas Específicas
+
+
+```r
+in3
+```
+
+```
+## # A tibble: 6 x 5
+##           Sxy       Sx         Sy      Sx2      n
+##         &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;    &lt;dbl&gt;  &lt;int&gt;
+## 1 1323121892. 1797787. 482227611. 4748642. 957394
+## 2 1392718440. 1872273. 506332984. 4951091. 989242
+## 3 1433684731. 1873591  512218232. 5025248. 981161
+## 4 1441177514. 1871883. 517199389. 4996242. 987786
+## 5 1387819679. 1849173  506928412. 4850165. 993158
+## 6 1170987680. 1545399. 419439209. 4160835. 805267
+```
+
+```r
+in3 %&gt;% computeStats()
+```
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; coef &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; valor &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; b0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -73.95665 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; b1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 311.46177 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+# Atividade para Laboratório
+
+- Lendo 1 milhão de observações por vez, determine o percentual de vôos, por Cia. Aérea, que apresentou atraso na chegada (`ARRIVAL_DELAY`) superior a 10 minutos.
+- As companhias a serem utilizadas são: AA, DL, UA e US.
+- A estatística de interesse deve ser calculada para cada um dos dias de 2015.
+- Para a determinação deste percentual de atrasos, apenas verbos do pacote `dplyr` e comandos de importação do pacote `readr` podem ser utilizados.
+- Os resultados para cada Cia. Aérea devem ser apresentados em um formato de calendário.
+
+---
+
+# Calendário Esperado
+
+&lt;img src="aula02_files/figure-html/lab03-1.png" style="display: block; margin: auto;" /&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

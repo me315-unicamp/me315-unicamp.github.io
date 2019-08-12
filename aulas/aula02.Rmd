@@ -1,0 +1,233 @@
+---
+title: "Dados Tabulares de Grande Volume"
+subtitle: "Inferência e Ciência de Dados"
+author: "Benilton Carvalho & Guilherme Ludwig"
+date: ""
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(broom)
+library(tidyr)
+library(ggcal)
+```
+
+# `flights.csv.zip`
+
+```{r import, include=FALSE, cache=TRUE}
+in1 = read_csv('../dados/flights.csv.zip')
+in1 = in1 %>%
+  filter(!is.na(AIR_TIME), !is.na(DISTANCE)) %>%
+  mutate(AIR_TIME=AIR_TIME/60, DISTANCE=DISTANCE/1.6)
+```
+
+- Possui `r nrow(in1)` observações;
+- Tem `r ncol(in1)` variáveis;
+- Ocupa 1GB de RAM;
+- Entre as variáveis:
+  * Dia, mês, ano, dia da semana;
+  * Cia aérea, número do vôo, registro do avião;
+  * Aeroportos de partida e de chegada;
+  * Horários de partida e chegada (reais e programados);
+  * Tempo de vôo e distância voada;
+  * Atraso na chegada.
+  
+---
+
+# Distância vs. Tempo de Vôo
+
+```{r genplot, include=FALSE, warning=FALSE, message=FALSE}
+fit = lm(DISTANCE ~ AIR_TIME, data=in1)
+gg = ggplot(in1, aes(AIR_TIME, DISTANCE)) + stat_binhex(show.legend = FALSE) 
+gg = gg + geom_smooth(method='lm', col='red')
+gg = gg + xlab("Tempo de Voo (h)") + ylab("Distancia (km)") + ggtitle("Distancia vs. Tempo de Voo")
+in1 = in1 %>% mutate(AIR_TIME=AIR_TIME*60, DISTANCE=DISTANCE*1.6)
+```
+
+```{r showplot, echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+gg + theme_bw()
+```
+
+---
+
+# Reta de Regressão
+
+$$
+Distancia_i = b_0 + b_1 \times Tempo_i + \epsilon_i
+$$
+
+```{r showfit, echo=FALSE}
+knitr::kable(tidy(fit)[, 1:2], 'html')
+```
+
+- Como estimar $b_0$ e $b_1$?
+
+---
+
+# Estimadores via Mínimos Quadrados
+
+\begin{eqnarray}
+y_i & = & b_0 + b_1 x_i + \epsilon_i \\
+\hat{b}_0 & = & \bar{y} - \hat{b}_1 \bar{x} \\
+\hat{b}_1 & = & \frac{\sum_i (x_i - \bar{x})(y_i - \bar{y})}{\sum_i (x_i-\bar{x})^2} \\
+& = & \frac{\sum x_i y_i - \frac{\sum x_i \sum y_i}{n}}{\sum x_i^2 - \frac{(\sum x_i)^2}{n}}
+\end{eqnarray}
+
+- Precisamos pensar em meios de calcular estas estatísticas usando apenas partes do conjunto de dados;
+- Estas estatísticas "parciais" devem poder ser combinadas;
+- Estatísticas suficientes:
+  * $\sum x_i$;
+  * $\sum y_i$;
+  * $\sum x_i y_i$;
+  * $\sum x_i^2$;
+  * $n$;
+
+---
+
+# Particionando operações
+
+\begin{eqnarray}
+\sum x_i y_i & = & \sum_{i=1}^{k_1} x_i y_i + \sum_{i=k_1+1}^{k_2} x_i y_i + \cdots \\
+\sum x_i & = & \sum_{i=1}^{k_1} x_i + \sum_{i=k_1+1}^{k_2} x_i + \cdots \\
+\sum x_i^2 & = & \sum_{i=1}^{k_1} x_i^2 + \sum_{i=k_1+1}^{k_2} x_i^2 + \cdots
+\end{eqnarray}
+
+---
+
+# Para um bloco dos dados
+
+\begin{eqnarray}
+\hat{b}_0 & = & \bar{y} - \hat{b}_1 \bar{x} \\
+\hat{b}_1 & = & \frac{\sum x_i y_i - \frac{\sum x_i \sum y_i}{n}}{\sum x_i^2 - \frac{(\sum x_i)^2}{n}}
+\end{eqnarray}
+
+
+```{r getblock}
+getStats = function(input, pos){
+  input %>% filter(!is.na(AIR_TIME), !is.na(DISTANCE)) %>%
+    mutate(AIR_TIME=AIR_TIME/60, DISTANCE=DISTANCE/1.6) %>% 
+    summarise(Sxy=sum(AIR_TIME*DISTANCE), Sx=sum(AIR_TIME),
+              Sy=sum(DISTANCE), Sx2=sum(AIR_TIME^2), n=n())
+}
+computeStats = function(stats){
+  stats %>% 
+    summarise(num = sum(Sxy)-(sum(Sx)*sum(Sy))/sum(n),
+              den = sum(Sx2)-(sum(Sx)^2)/sum(n),
+              b1 = num/den,
+              b0 = sum(Sy)/sum(n)-b1*sum(Sx)/sum(n)) %>% 
+    select(b0, b1) %>% gather(key='coef', value='valor') %>% 
+    knitr::kable('html')
+}
+```
+
+---
+
+# Para um bloco dos dados
+
+```{r show1}
+in1 %>% getStats() %>% computeStats()
+```
+
+---
+
+# Processando Dados em Lote
+
+- O pacote `readr` possui funções de importação aprimoradas;
+- São funções mais rápidas e inteligentes;
+- Uma classe de funções é a de operação em porções de arquivos:
+  * `read_csv_chunked`;
+  * `read_csv2_chunked`;
+  * `read_delim_chunked`;
+  * `read_tsv_chunked`;
+- As funções `read_***_chunked` aceitam argumentos especiais:
+  * `chunk_size`: número de linhas a serem importadas por iteração;
+  * `callback`: função que é executada em cada porção dos dados;
+- O argumento `callback` deve instanciar:
+  * `DataFrameCallback`: se se deseja combinar resultados tabulares;
+  * `ListCallback`: se se deseja combinar resultados 'flexíveis';
+  * `SideEffectChunkCallback`: se se deseja visualizar efeitos colaterais.
+  
+---
+
+# Importação de Dados com Leitura em Lotes
+
+```{r batch}
+in2 = read_csv_chunked('../dados/flights.csv.zip',
+                       callback=DataFrameCallback$new(getStats),
+                       chunk_size = 1e6)
+```
+
+---
+
+# Importação de Dados com Leitura em Lotes
+
+```{r res_batch}
+in2
+in2 %>% computeStats()
+```
+
+---
+
+# Importação de Dados - Colunas Específicas
+
+- As funções de importação `read_***` possuem um argumento `col_types`;
+- Opções válidas para `col_types`:
+  * Especificação criada por `cols()`: todas as colunas;
+  * Especificação criada por `cols_only()`: apenas um subconjunto;
+- `cols()`: `cols(NOME=col_TIPO())`
+  * `cols(a=col_integer())`;
+  * `cols(a='i')`
+- `cols_only()`: `cols_only(NOME=col_TIPO())`
+  * `cols_only(a=col_integer())`
+  * `cols_only(a='i')`
+
+```{r batch_col, warning=FALSE}
+mycols = cols_only(AIR_TIME='i', DISTANCE='i')
+in3 = read_csv_chunked('../dados/flights.csv.zip',
+                       callback=DataFrameCallback$new(getStats),
+                       chunk_size = 1e6, col_types=mycols)
+```
+
+---
+
+# Importação de Dados - Colunas Específicas
+
+```{r res_batch_col}
+in3
+in3 %>% computeStats()
+```
+
+---
+
+# Atividade para Laboratório
+
+- Lendo 1 milhão de observações por vez, determine o percentual de vôos, por Cia. Aérea, que apresentou atraso na chegada (`ARRIVAL_DELAY`) superior a 10 minutos.
+- As companhias a serem utilizadas são: AA, DL, UA e US.
+- A estatística de interesse deve ser calculada para cada um dos dias de 2015.
+- Para a determinação deste percentual de atrasos, apenas verbos do pacote `dplyr` e comandos de importação do pacote `readr` podem ser utilizados.
+- Os resultados para cada Cia. Aérea devem ser apresentados em um formato de calendário.
+
+---
+
+# Calendário Esperado
+
+```{r lab03, echo=FALSE, fig.align='center'}
+out1 = in1 %>%
+  select(MONTH, DAY, AIRLINE, ARRIVAL_DELAY) %>% 
+  filter(complete.cases(.)) %>% 
+  group_by(MONTH, DAY, AIRLINE) %>% 
+  summarise(P=mean(ARRIVAL_DELAY > 10)) %>% 
+  mutate(Data=as.Date(paste(2015, MONTH, DAY, sep='-')))
+with(out1 %>% filter(AIRLINE=='AA'),
+     ggcal(Data, P) + scale_fill_gradient2(low="#4575b4", mid="#ffffbf", high="#d73027", midpoint=0.50))
+```
