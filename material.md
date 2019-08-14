@@ -6,13 +6,13 @@ subtitle:
 
 # Slides utilizados em aulas
 
-- [Aula 01: Formatos tabulares](aulas/aula01.html)
-- [Aula 02: Importação de bases de dados volumosas](aulas/aula02.html)
+- [Aula 01: Formatos tabulares](aulas/aula01.pdf)
+- [Aula 02: Importação de bases de dados volumosas](aulas/aula02.pdf)
 
 # Laboratórios
 
-- [Laboratório 01: Manipulação básica de dados e importação](laboratorios/lab01.pdf)
-- [Laboratório 02: Importação em lote de dados volumosos](laboratorios/lab02.pdf)
+- [Laboratório 01: Manipulação básica de dados e importação](laboratorios/lab01.html)
+- [Laboratório 02: Importação em lote de dados volumosos](laboratorios/lab02.html)
 
 # JupyterHub ME315
 
