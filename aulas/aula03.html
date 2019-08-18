@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Introdução a dados relacionais</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Benilton Carvalho, Guilherme Ludwig" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Introdução a dados relacionais
+### Benilton Carvalho, Guilherme Ludwig
+
+---
+
+
+
+
+## Dados em múltiplas tabelas
+
+* É comum que dados estejam guardados em múltiplas tabelas. Esse modelo de banco de dados é conhecido como *Modelo Relacional* (https://en.wikipedia.org/wiki/Relational_model), em que os dados são acessados através de um *nome de tabela*, uma *chave* (*key*) e uma *coluna* (*features*).
+
+* Se espera que, em no mínimo uma tabela, a chave identifique unicamente cada observação.
+
+* O material da aula é baseado no capítulo 13 do livro *R for Data Science* (Wickham &amp; Grolemund, 2017). Leiam o capítulo para verem exemplos adicionais: http://r4ds.had.co.nz/relational-data.html
+
+---
+class: center, middle
+
+## Exemplo
+
+
+![](aula03/Relational_key.png)
+
+Exemplo de base relacional:
+
+Figura de https://en.wikipedia.org/wiki/Relational_model
+
+
+---
+
+## Consultas
+
+* Cada tabela, separadamente, funciona como os bancos de dados com que trabalhamos até agora.
+
+* Uma coluna em comum entre as tabelas será usada como chave, ligando a informação de cada linha. Porém, não há garantias que o valor seja único, nem sempre qual coluna servirá de chave é óbvio. 
+
+* Uma *consulta* (ou *query*) é um pedido do usuário ao *relational database management system* (RDBMS) que une informações de um grupo de indivíduos (baseados na chave) ao longo de várias tabelas.
+
+* Nós vamos, primeiramente, examinar a operação *join*, do pacote `dplyr`, para realizar consultas em pares de tabelas.
+
+---
+
+## Exemplo
+
+![](aula03/04-rdr.png)
+
+Professores e alunos da University of Washington, ciência da computação. 
+
+Dados: https://relational.fit.cvut.cz/dataset/UW-CSE
+
+Explicação: http://aiweb.cs.washington.edu/ai/mln/database.html
+
+---
+
+## Recuperando dados do MySQL server
+
+Código apenas para a reprodução do exemplo. SQL será abordado só em aulas futuras.
+
+&lt;!-- # https://relational.fit.cvut.cz/dataset/UW-CSE 
+# https://www.r-bloggers.com/accessing-mysql-through-r/ --&gt; 
+
+
+```r
+library(RMySQL)
+mydb &lt;- dbConnect(MySQL(), user='guest', password='relational', 
+                 dbname='UW_std', port = 3306, 
+                 host='relational.fit.cvut.cz')
+rs &lt;- dbSendQuery(mydb, "SELECT * FROM advisedBy")
+advisedBy &lt;- fetch(rs, n=-1)
+rs &lt;- dbSendQuery(mydb, "SELECT * FROM course")
+course &lt;- fetch(rs, n=-1)
+rs &lt;- dbSendQuery(mydb, "SELECT * FROM person")
+person &lt;- fetch(rs, n=-1)
+rs &lt;- dbSendQuery(mydb, "SELECT * FROM taughtBy")
+taughtBy &lt;- fetch(rs, n=-1)
+dbDisconnect(mydb)
+write.csv(advisedBy, "a03-advisedBy.csv", row.names = FALSE)
+write.csv(course, "a03-course.csv", row.names = FALSE)
+write.csv(person, "a03-person.csv", row.names = FALSE)
+write.csv(taughtBy, "a03-taughtBy.csv", row.names = FALSE)
+```
+
+
+
+
+---
+
+## advisedBy
+
+
+```r
+advisedBy %&gt;% as_tibble
+```
+
+```
+## # A tibble: 113 x 2
+##     p_id p_id_dummy
+##    &lt;int&gt;      &lt;int&gt;
+##  1    96          5
+##  2   118          5
+##  3   183          5
+##  4   263          5
+##  5   362          5
+##  6   266          7
+##  7   272          7
+##  8     6         29
+##  9   242         29
+## 10   303         29
+## # … with 103 more rows
+```
+
+`p_id` orienta `p_id_dummy`.
+
+---
+
+## course
+
+
+```r
+course %&gt;% as_tibble
+```
+
+```
+## # A tibble: 132 x 2
+##    course_id courseLevel
+##        &lt;int&gt; &lt;fct&gt;      
+##  1         5 Level_300  
+##  2        11 Level_300  
+##  3        18 Level_300  
+##  4       104 Level_300  
+##  5       124 Level_300  
+##  6       146 Level_300  
+##  7       147 Level_300  
+##  8       165 Level_300  
+##  9         8 Level_400  
+## 10        20 Level_400  
+## # … with 122 more rows
+```
+
+`level_100` (introdução), `level_300` (graduação, segundo ano), `level_400` (graduação, avançado) e `level_500` (pós-graduação).
+
+---
+
+## taughtBy
+
+
+```r
+taughtBy %&gt;% as_tibble
+```
+
+```
+## # A tibble: 189 x 2
+##    course_id  p_id
+##        &lt;int&gt; &lt;int&gt;
+##  1         0    40
+##  2         1    40
+##  3         2   180
+##  4         3   279
+##  5         4   107
+##  6         7   415
+##  7         8   297
+##  8         9   235
+##  9        11    52
+## 10        11    57
+## # … with 179 more rows
+```
+
+Qual curso em `course_id` e `p_id` de quem ensinou.
+
+---
+
+## person
+
+
+```r
+person %&gt;% as_tibble
+```
+
+```
+## # A tibble: 278 x 6
+##     p_id professor student hasPosition inPhase       yearsInProgram
+##    &lt;int&gt;     &lt;int&gt;   &lt;int&gt; &lt;fct&gt;       &lt;fct&gt;         &lt;fct&gt;         
+##  1     3         0       1 0           0             0             
+##  2     4         0       1 0           0             0             
+##  3     5         1       0 Faculty     0             0             
+##  4     6         0       1 0           Post_Quals    Year_2        
+##  5     7         1       0 Faculty_adj 0             0             
+##  6     9         0       1 0           Post_Generals Year_5        
+##  7    13         0       1 0           Post_Generals Year_7        
+##  8    14         0       1 0           Post_Generals Year_10       
+##  9    15         0       1 0           Post_Quals    Year_3        
+## 10    18         0       1 0           Pre_Quals     Year_3        
+## # … with 268 more rows
+```
+
+---
+
+## Tabelas não são 1-1
+
+
+```r
+# Same course, different faculty
+taughtBy %&gt;% filter(course_id == 11)
+```
+
+```
+##   course_id p_id
+## 1        11   52
+## 2        11   57
+## 3        11  298
+## 4        11  324
+## 5        11  331
+```
+
+```r
+# Same faculty, different course
+taughtBy %&gt;% filter(p_id == 40)
+```
+
+```
+##   course_id p_id
+## 1         0   40
+## 2         1   40
+```
+
+- `p_id` identifica indivíduos unicamente em `person`;
+- `course_id` identifica cursos unicamente em `courses`.
+
+---
+
+## Objetivo da aula de hoje
+
+* Como relacionar informação de diferentes tabelas?
+
+* Por exemplo, é mais comum que professores adjuntos ensinem classes de pós-graduação?
+
+* Nós sabemos trabalhar com tabelas isoladas. Para duas ou mais tabelas, consideraremos funções do tipo **JOIN**.
+
+* Primeiramente, consideraremos os chamados **mutating joins**, que combinam variáveis de diferentes tabelas. 
+
+---
+
+## Tipos de JOIN: setup
+
+Usando os diagramas de Wickham and Grolemund (2017), considere dados de duas tabelas:
+
+![](aula03/04-join-setup.png)
+
+A coluna colorida é a chave, `x` e `y` são colunas, tomando valores `x1`, `x2`, etc.
+
+---
+
+## Tipos de JOIN: setup 2
+
+
+```r
+(x &lt;- data.frame(key = c(1,2,3), val_x = c("x1","x2","x3")))
+```
+
+```
+##   key val_x
+## 1   1    x1
+## 2   2    x2
+## 3   3    x3
+```
+
+```r
+(y &lt;- data.frame(key = c(1,2,4), val_y = c("y1","y2","y4")))
+```
+
+```
+##   key val_y
+## 1   1    y1
+## 2   2    y2
+## 3   4    y4
+```
+
+---
+
+## INNER JOIN: inner_join
+
+![](aula03/04-join-inner.png)
+
+---
+
+## INNER JOIN: inner_join
+
+
+```r
+x %&gt;% inner_join(y, by = "key")
+```
+
+```
+##   key val_x val_y
+## 1   1    x1    y1
+## 2   2    x2    y2
+```
+
+---
+
+## OUTER JOIN: left_join
+
+![](aula03/04-join-left.png)
+
+---
+
+## OUTER JOIN: left_join
+
+
+```r
+x %&gt;% left_join(y, by = "key")
+```
+
+```
+##   key val_x val_y
+## 1   1    x1    y1
+## 2   2    x2    y2
+## 3   3    x3  &lt;NA&gt;
+```
+
+---
+
+## OUTER JOIN: right_join
+
+![](aula03/04-join-right.png)
+
+---
+
+## OUTER JOIN: right_join
+
+
+```r
+x %&gt;% right_join(y, by = "key")
+```
+
+```
+##   key val_x val_y
+## 1   1    x1    y1
+## 2   2    x2    y2
+## 3   4  &lt;NA&gt;    y4
+```
+
+---
+
+## OUTER JOIN: full_join
+
+![](aula03/04-join-outer.png)
+
+---
+
+## OUTER JOIN: full_join
+
+
+```r
+x %&gt;% full_join(y, by = "key")
+```
+
+```
+##   key val_x val_y
+## 1   1    x1    y1
+## 2   2    x2    y2
+## 3   3    x3  &lt;NA&gt;
+## 4   4  &lt;NA&gt;    y4
+```
+
+---
+
+## Exemplo: que professores dão quais aulas?
+
+Todos os professores de todos os cursos:
+
+
+```r
+person %&gt;% right_join(taughtBy, by = "p_id") %&gt;% as_tibble
+```
+
+```
+## # A tibble: 189 x 7
+##     p_id professor student hasPosition inPhase yearsInProgram course_id
+##    &lt;int&gt;     &lt;int&gt;   &lt;int&gt; &lt;fct&gt;       &lt;fct&gt;   &lt;fct&gt;              &lt;int&gt;
+##  1    40         1       0 Faculty     0       0                      0
+##  2    40         1       0 Faculty     0       0                      1
+##  3   180         1       0 Faculty     0       0                      2
+##  4   279         1       0 Faculty     0       0                      3
+##  5   107         1       0 Faculty     0       0                      4
+##  6   415         1       0 Faculty     0       0                      7
+##  7   297         1       0 Faculty_eme 0       0                      8
+##  8   235         1       0 Faculty     0       0                      9
+##  9    52         1       0 Faculty     0       0                     11
+## 10    57         1       0 0           0       0                     11
+## # … with 179 more rows
+```
+
+---
+
+## Exemplo: que professores dão quais aulas?
+
+Agora vou incluir o nível do curso.
+
+
+```r
+person %&gt;%
+  right_join(taughtBy, by='p_id') %&gt;%
+  left_join(course, by='course_id') %&gt;%
+  as_tibble() %&gt;% select(-professor, -student)
+```
+
+```
+## # A tibble: 189 x 6
+##     p_id hasPosition inPhase yearsInProgram course_id courseLevel
+##    &lt;int&gt; &lt;fct&gt;       &lt;fct&gt;   &lt;fct&gt;              &lt;int&gt; &lt;fct&gt;      
+##  1    40 Faculty     0       0                      0 Level_500  
+##  2    40 Faculty     0       0                      1 Level_500  
+##  3   180 Faculty     0       0                      2 Level_500  
+##  4   279 Faculty     0       0                      3 Level_500  
+##  5   107 Faculty     0       0                      4 Level_500  
+##  6   415 Faculty     0       0                      7 Level_500  
+##  7   297 Faculty_eme 0       0                      8 Level_400  
+##  8   235 Faculty     0       0                      9 Level_500  
+##  9    52 Faculty     0       0                     11 Level_300  
+## 10    57 0           0       0                     11 Level_300  
+## # … with 179 more rows
+```
+
+
+---
+
+## Exemplo: que professores dão quais aulas?
+
+Alguns estudantes ensinam classes avançadas.
+
+
+```r
+person %&gt;% right_join(taughtBy, by='p_id') %&gt;% 
+  left_join(course, by='course_id') %&gt;% 
+  filter(student == 1) %&gt;% 
+  as_tibble() %&gt;% select(-professor)
+```
+
+```
+## # A tibble: 9 x 7
+##    p_id student hasPosition inPhase    yearsInProgram course_id courseLevel
+##   &lt;int&gt;   &lt;int&gt; &lt;fct&gt;       &lt;fct&gt;      &lt;fct&gt;              &lt;int&gt; &lt;fct&gt;      
+## 1    99       1 0           Post_Quals Year_2                21 Level_400  
+## 2   204       1 0           Post_Gene… Year_6                38 Level_400  
+## 3   255       1 0           Post_Gene… Year_5                38 Level_400  
+## 4   263       1 0           Post_Gene… Year_6                49 Level_400  
+## 5    18       1 0           Pre_Quals  Year_3                51 Level_400  
+## 6     9       1 0           Post_Gene… Year_5               124 Level_300  
+## 7   278       1 0           Pre_Quals  Year_2               144 Level_500  
+## 8    75       1 0           Post_Gene… Year_6               165 Level_300  
+## 9   141       1 0           Post_Gene… Year_6               165 Level_300
+```
+
+---
+
+## Exemplo: que professores dão quais aulas?
+
+
+```r
+person %&gt;% right_join(taughtBy, by='p_id') %&gt;% 
+  left_join(course, by='course_id') %&gt;% 
+  filter(student == 0) %&gt;% group_by(hasPosition, courseLevel) %&gt;% 
+  tally()
+```
+
+```
+## # A tibble: 12 x 3
+## # Groups:   hasPosition [5]
+##    hasPosition courseLevel     n
+##    &lt;fct&gt;       &lt;fct&gt;       &lt;int&gt;
+##  1 0           Level_300       9
+##  2 0           Level_400       7
+##  3 0           Level_500       3
+##  4 Faculty     Level_300      17
+##  5 Faculty     Level_400      54
+##  6 Faculty     Level_500      80
+##  7 Faculty_adj Level_400       2
+##  8 Faculty_aff Level_400       1
+##  9 Faculty_aff Level_500       2
+## 10 Faculty_eme Level_300       1
+## 11 Faculty_eme Level_400       3
+## 12 Faculty_eme Level_500       1
+```
+
+---
+
+## Duplicated keys
+
+Como nós vimos no exemplo dos professores, chaves duplicadas em uma tabela não causam problema, desde que você escolha um join apropriado.
+
+![](aula03/04-join-one-to-many.png)
+
+Quando as chaves são únicas, elas são chamadas de **primary keys**; se há entradas repetidas, elas são chamadas de **foreign keys**. Os valores associados a primary keys são repetidos na tabela final.
+
+---
+
+## Duplicated keys
+
+Quando há mais de uma entrada para as duas tabelas, é executado um produto cartesiano das entradas. 
+
+![](aula03/04-join-many-to-many.png)
+
+Evite joins assim. Em tese, as bases relacionais devem ter pelo menos uma chave que unicamente determina as observações em cada tabela. 
+
+---
+
+## Sintaxe do parâmetro "by"
+
+A ação padrão das funções `*_join(x, y)` no `dplyr` é `by = NULL`, que realiza o join pela combinação de *todas* as colunas com nomes idênticos em x e y. Isso pode ser perigoso!
+
+
+```r
+x$newCol &lt;- c(1, 1, 2)
+y$newCol &lt;- c(1, 2, 2)
+full_join(x, y)
+```
+
+```
+## Joining, by = c("key", "newCol")
+```
+
+```
+##   key val_x newCol val_y
+## 1   1    x1      1    y1
+## 2   2    x2      1  &lt;NA&gt;
+## 3   3    x3      2  &lt;NA&gt;
+## 4   2  &lt;NA&gt;      2    y2
+## 5   4  &lt;NA&gt;      2    y4
+```
+
+```r
+x$newCol &lt;- NULL
+y$newCol &lt;- NULL
+```
+
+---
+
+## Sintaxe do parâmetro "by"
+
+Já `by = "colName"` une as observações pelo "colName" especificado.
+
+
+```r
+full_join(x, y, by = "key")
+```
+
+```
+##   key val_x val_y
+## 1   1    x1    y1
+## 2   2    x2    y2
+## 3   3    x3  &lt;NA&gt;
+## 4   4  &lt;NA&gt;    y4
+```
+
+Caso você queira comparar diferentes colunas, a sintaxe é `by = c("colunaX" = "colunaY")`. Note que o `R` remove `key` de `y` sem avisar!
+
+
+```r
+x$newKey &lt;- c(1,4,2)
+full_join(x, y, by = c("newKey" = "key"))
+```
+
+```
+##   key val_x newKey val_y
+## 1   1    x1      1    y1
+## 2   2    x2      4    y4
+## 3   3    x3      2    y2
+```
+
+```r
+x$newKey &lt;- NULL
+```
+
+---
+
+## Filtering joins
+
+Há dois importantes filtering joins:
+
+* `semi_join(x, y)` mantém todas as observações em `x` que estão presentes em `y`.
+* `anti_join(x, y)` remove todas as observações em `x` que estão presentes em `y`.
+
+Esses `*_join` retornam tabelas `x` filtradas, e não unem `x` e `y`.
+
+---
+
+## semi_join
+
+`semi_join(x,y)` só retorna elementos de `x` que também estão em `y`
+
+![](aula03/04-join-semi.png)
+
+Exemplo: 
+
+
+```r
+all.equal(x %&gt;% semi_join(y,  by = "key"),
+          x %&gt;% filter(key %in% y$key))
+```
+
+```
+## [1] TRUE
+```
+
+---
+
+## semi_join: duplicated keys
+
+Não há problema se as chaves forem duplicadas para o `semi_join`, isto é, o `semi_join` não duplica as linhas.
+
+![](aula03/04-join-semi-many.png)
+
+---
+
+## anti_join
+
+`anti_join(x,y)` só retorna elementos de `x` que **não** estão em `y`. É útil para detectar se há chaves faltantes em uma tabela.
+
+![](aula03/04-join-anti.png)
+
+
+```r
+all.equal(x %&gt;% anti_join(y,  by = "key"),
+          x %&gt;% filter(!(key %in% y$key)))
+```
+
+```
+## [1] TRUE
+```
+
+---
+
+# Referência
+
+* [R for Data Science - https://r4ds.had.co.nz/](https://r4ds.had.co.nz/)
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
