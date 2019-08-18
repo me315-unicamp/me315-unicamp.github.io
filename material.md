@@ -8,6 +8,7 @@ subtitle:
 
 - [Aula 01: Formatos tabulares](aulas/aula01.pdf)
 - [Aula 02: Importação de bases de dados volumosas](aulas/aula02.pdf)
+- [Aula 03: Dados relacionais](aulas/aula03.pdf)
 
 # Laboratórios
 
