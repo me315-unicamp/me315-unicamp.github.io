@@ -41,7 +41,7 @@ Considere novamente o problema de atrasos de vôos, disponível em [https://www.
 
 1. Importe, utilizando o pacote `readr`, cada um dos três arquivos disponíveis. Os objetos resultantes devem ser chamados `flights`, `airlines` e `airports`.
 
-    - Para o arquivo de aeroportos, importe apenas as colunas `IATA_CODE`, `CITY`, `STATE`
+    - Para o arquivo de aeroportos, importe apenas as colunas `IATA_CODE`, `CITY`, `STATE`, `LATITUDE`, `LONGITUDE`;
     - Para o arquivo de vôos:
         a. Importe apenas as colunas `DESTINATION_AIRPORT` e `ARRIVAL_DELAY`;
         b. Leia apenas 1 milhão de linhas por vez;
