@@ -226,7 +226,7 @@ read_excel(readxl_example("geometry.xlsx"), range = "A2:C4")
 
 # Importando Arquivo SAS
 
-```{r x1}
+```{r x1, message=FALSE}
 library(magrittr)
 library(tibble)
 library(rio)

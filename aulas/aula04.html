@@ -357,26 +357,6 @@ read_excel(readxl_example("geometry.xlsx"), range = "A2:C4")
 
 ```r
 library(magrittr)
-```
-
-```
-## 
-## Attaching package: 'magrittr'
-```
-
-```
-## The following object is masked from 'package:purrr':
-## 
-##     set_names
-```
-
-```
-## The following object is masked from 'package:tidyr':
-## 
-##     extract
-```
-
-```r
 library(tibble)
 library(rio)
 x1 = import("mtcars.sas7bdat")
@@ -486,7 +466,7 @@ dir(path)
 ```
 
 ```
-## [1] "mtcars.xlsx" "x1.sas7bdat" "x2.dta"      "x3.sav"
+## [1] "mtcars.xlsx" "x1.feather"  "x1.sas7bdat" "x2.dta"      "x3.sav"
 ```
 
 ---
@@ -501,7 +481,7 @@ list.files(path)
 ```
 
 ```
-## [1] "mtcars.xlsx" "x1.sas7bdat" "x2.dta"      "x3.sav"
+## [1] "mtcars.xlsx" "x1.feather"  "x1.sas7bdat" "x2.dta"      "x3.sav"
 ```
 
 ```r
