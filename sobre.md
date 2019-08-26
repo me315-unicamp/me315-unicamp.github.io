@@ -14,6 +14,13 @@ subtitle:
 - O aluno deverá proceder de forma respeitosa e honesta durante as provas bem como na resoluçãode qualquer outra atividade que seja parte da avaliação do curso.
 - O login usado para acessar o Moodle é intransferível, conforme [ConTIC-IN-01/2019](https://www.citic.unicamp.br/sites/default/files/normas/ConTIC-IN-01%202019%20-%20normas_uso_TIC.pdf).
 
+# Atendimentos PED
+
+- PED: André Felipe Berdusco Menezes
+- Dias: Segundas e Quartas
+- Horário: 12h00 - 13h00
+- Local: IMECC 224
+
 # Critérios de Avaliação e Datas Importantes
 
 - **Prova 1**: 09 de setembro de 2019
