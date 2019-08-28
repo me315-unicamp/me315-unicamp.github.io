@@ -16,6 +16,7 @@ subtitle:
 - [Laboratório 01: Manipulação básica de dados e importação](laboratorios/lab01.html)
 - [Laboratório 02: Importação em lote de dados volumosos](laboratorios/lab02.html)
 - [Laboratório 03: Dados relacionais](laboratorios/lab03.html)
+- [Laboratório 04: Dados retangulares - Excel](laboratorios/lab04.html)
 
 # JupyterHub ME315
 
