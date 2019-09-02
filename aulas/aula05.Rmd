@@ -1,0 +1,594 @@
+---
+title: "Revisão: Aulas 01 - 04"
+subtitle: "ME315"
+author: "Benilton S Carvalho"
+institute: "Departamento de Estatística / UNICAMP"
+date: ""
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(tidyverse)
+```
+
+---
+
+class: center, middle
+
+# Dados Tabulares
+
+---
+
+# Arquivos Tabulares
+
+- Arquivos tabulares têm forma retangular;
+
+- Exemplo clássico de arquivo tabular: planilha Excel;
+
+- Podem ser apresentados ao usuário/analista em diferentes versões;
+
+- Sugestão para realização de análises:
+  - Importação dos dados feita cautelosamente;
+  - Assim, minimiza-se trabalhos posteriores na formatação dos dados;
+  
+- Colunas costumam representar variáveis e linhas, observações;
+
+---
+
+# Formato Tidy
+
+- Anteriormente, i.e. no SAS, conhecido como formato longo;
+
+- É o melhor formato para análises estatísticas;
+
+- Pode não ser o formato mais compacto, mas é o mais versátil;
+
+- Métodos comumente implementados para ciência de dados costumam utilizar como entrada dados no formato tidy;
+
+---
+
+# Formato Tidy
+
+- Cada linha é uma única observação;
+
+- Cada coluna é o nome de uma variável;
+
+- Cada célula é um valor;
+
+|Produto | Dia     |Valor|
+|--------|---------|----:|
+|Gasolina| Segunda | 4.19|
+|Gasolina| Terça   | 4.19|
+|Gasolina| Quarta  | 4.09|
+|Etanol  | Segunda | 3.39|
+|Etanol  | Terça   | 3.39|
+|Etanol  | Quarta  | 3.09|
+
+---
+
+# Formato não-tidy
+
+- Nomes de colunas possuem o valor de uma variável;
+
+|Produto | Segunda | Terça | Quarta|
+|--------|--------:|------:|------:|
+|Gasolina|  4.19   | 4.19  | 4.09  |
+|Etanol  |  3.39   | 3.39  | 3.09  |
+
+
+---
+
+# Formato não-tidy
+
+- Valores em uma coluna correspondem a duas variáveis;
+
+- Uma célula pode corresponder a mais de um valor;
+
+|Produto-dia     |Valor|
+|----------------|----:|
+|Gasolina-Segunda| 4.19|
+|Gasolina-Terça  | 4.19|
+|Gasolina-Quarta | 4.09|
+|Etanol-Segunda  | 3.39|
+|Etanol-Terça    | 3.39|
+|Etanol-Quarta   | 3.09|
+
+---
+
+# Arquivos Delimitados (CSV)
+
+- Arquivo no formato texto;
+
+- Cabeçalho opcional;
+
+- Separador (*) é vírgula;
+
+- Separador decimal deve ser diferente de vírgula (por exemplo, ponto)
+
+- Será problemático em países que utilizam a vírgula como separador decimal;
+
+```
+Produto,Dia,Valor
+Gasolina,Segunda,4.19
+Gasolina,Terça,4.19
+Gasolina,Quarta,4.09
+Etanol,Segunda,3.39
+Etanol,Terça,3.39
+Etanol,Quarta,3.09
+```
+
+---
+
+class: center, middle
+
+# Importação por Partes e de Colunas Específicas
+
+---
+
+# Registros de Vôos nos EUA
+
+- Possui mais de 5 milhões de observações e 31 variáveis;
+
+- Ocupa 1GB de RAM;
+
+- Entre as variáveis:
+  * Dia, mês, ano, dia da semana;
+  * Cia aérea, número do vôo, registro do avião;
+  * Aeroportos de partida e de chegada;
+  * Horários de partida e chegada (reais e programados);
+  * Tempo de vôo e distância voada;
+  * Atraso na chegada.
+
+---
+
+# Importação do Arquivo de Vôos
+
+```{r import_flights, cache=TRUE}
+library(tidyverse)
+in1 = read_csv('../dados/flights.csv.zip')
+```
+
+---
+
+# Manipulação de Tempo e Distância
+
+```{r show_flights}
+in1 %>%
+  filter(!is.na(AIR_TIME), !is.na(DISTANCE)) %>%
+  mutate(AIR_TIME=AIR_TIME/60, DISTANCE=DISTANCE*1.6) %>%
+  select(AIR_TIME, DISTANCE)
+```
+
+---
+
+# Reta de Regressão
+
+$$
+Distancia_i = b_0 + b_1 \times Tempo_i + \epsilon_i
+$$
+
+---
+
+# Estimadores via Mínimos Quadrados
+
+\begin{eqnarray}
+y_i & = & b_0 + b_1 x_i + \epsilon_i \\
+\hat{b}_0 & = & \bar{y} - \hat{b}_1 \bar{x} \\
+\hat{b}_1 & = & \frac{\sum_i (x_i - \bar{x})(y_i - \bar{y})}{\sum_i (x_i-\bar{x})^2} \\
+& = & \frac{\sum x_i y_i - \frac{\sum x_i \sum y_i}{n}}{\sum x_i^2 - \frac{(\sum x_i)^2}{n}}
+\end{eqnarray}
+
+- Precisamos pensar em meios de calcular estas estatísticas usando apenas partes do conjunto de dados;
+- Estas estatísticas "parciais" devem poder ser combinadas;
+- Estatísticas suficientes:
+  * $\sum x_i$;
+  * $\sum y_i$;
+  * $\sum x_i y_i$;
+  * $\sum x_i^2$;
+  * $n$;
+
+---
+
+# Particionando operações
+
+\begin{eqnarray}
+\sum x_i y_i & = & \sum_{i=1}^{k_1} x_i y_i + \sum_{i=k_1+1}^{k_2} x_i y_i + \cdots \\
+\sum x_i & = & \sum_{i=1}^{k_1} x_i + \sum_{i=k_1+1}^{k_2} x_i + \cdots \\
+\sum x_i^2 & = & \sum_{i=1}^{k_1} x_i^2 + \sum_{i=k_1+1}^{k_2} x_i^2 + \cdots
+\end{eqnarray}
+
+---
+
+# Para um bloco dos dados
+
+\begin{eqnarray}
+\hat{b}_0 & = & \bar{y} - \hat{b}_1 \bar{x} \\
+\hat{b}_1 & = & \frac{\sum x_i y_i - \frac{\sum x_i \sum y_i}{n}}{\sum x_i^2 - \frac{(\sum x_i)^2}{n}}
+\end{eqnarray}
+
+
+```{r getblock}
+getStats = function(input, pos){
+  input %>% filter(!is.na(AIR_TIME), !is.na(DISTANCE)) %>%
+    mutate(AIR_TIME=AIR_TIME/60, DISTANCE=DISTANCE*1.6) %>% 
+    summarise(Sxy=sum(AIR_TIME*DISTANCE), Sx=sum(AIR_TIME),
+              Sy=sum(DISTANCE), Sx2=sum(AIR_TIME^2), n=n())
+}
+computeStats = function(stats){
+  stats %>% 
+    summarise(num = sum(Sxy)-(sum(Sx)*sum(Sy))/sum(n),
+              den = sum(Sx2)-(sum(Sx)^2)/sum(n),
+              b1 = num/den,
+              b0 = sum(Sy)/sum(n)-b1*sum(Sx)/sum(n)) %>% 
+    select(b0, b1) %>% gather(key='coef', value='valor') %>% 
+    knitr::kable('html')
+}
+```
+
+---
+
+# Para um bloco dos dados
+
+```{r show1}
+in1 %>% getStats() %>% computeStats()
+```
+
+---
+
+# Processando Dados em Lote
+
+- O pacote `readr` possui funções de importação aprimoradas;
+- São funções mais rápidas e inteligentes;
+- Uma classe de funções é a de operação em porções de arquivos:
+  * `read_csv_chunked`;
+  * `read_csv2_chunked`;
+  * `read_delim_chunked`;
+  * `read_tsv_chunked`;
+- As funções `read_***_chunked` aceitam argumentos especiais:
+  * `chunk_size`: número de linhas a serem importadas por iteração;
+  * `callback`: função que é executada em cada porção dos dados;
+- O argumento `callback` deve instanciar:
+  * `DataFrameCallback`: se se deseja combinar resultados tabulares;
+  * `ListCallback`: se se deseja combinar resultados 'flexíveis';
+  * `SideEffectChunkCallback`: se se deseja visualizar efeitos colaterais.
+  
+---
+
+# Importação de Dados com Leitura em Lotes
+
+```{r batch}
+in2 = read_csv_chunked('../dados/flights.csv.zip',
+                       callback=DataFrameCallback$new(getStats),
+                       chunk_size = 1e6)
+```
+
+---
+
+# Importação de Dados com Leitura em Lotes
+
+```{r res_batch}
+in2
+in2 %>% computeStats()
+```
+
+---
+
+# Importação de Dados - Colunas Específicas
+
+- As funções de importação `read_***` possuem um argumento `col_types`;
+- Opções válidas para `col_types`:
+  * Especificação criada por `cols()`: todas as colunas;
+  * Especificação criada por `cols_only()`: apenas um subconjunto;
+- `cols()`: `cols(NOME=col_TIPO())`
+  * `cols(a=col_integer())`;
+  * `cols(a='i')`
+- `cols_only()`: `cols_only(NOME=col_TIPO())`
+  * `cols_only(a=col_integer())`
+  * `cols_only(a='i')`
+
+```{r batch_col, warning=FALSE}
+mycols = cols_only(AIR_TIME='i', DISTANCE='i')
+in3 = read_csv_chunked('../dados/flights.csv.zip',
+                       callback=DataFrameCallback$new(getStats),
+                       chunk_size = 1e6, col_types=mycols)
+```
+
+---
+
+# Importação de Dados - Colunas Específicas
+
+```{r res_batch_col}
+in3
+in3 %>% computeStats()
+```
+
+---
+
+class: center, middle
+
+# Dados Relacionais
+
+---
+
+## Dados em múltiplas tabelas
+
+* É comum que dados estejam guardados em múltiplas tabelas. Esse modelo de banco de dados é conhecido como *Modelo Relacional* (https://en.wikipedia.org/wiki/Relational_model), em que os dados são acessados através de um *nome de tabela*, uma *chave* (*key*) e uma *coluna* (*features*).
+
+* Se espera que, em no mínimo uma tabela, a chave identifique unicamente cada observação.
+
+---
+class: center, middle
+
+## Exemplo
+
+
+![](aula03/Relational_key.png)
+
+Exemplo de base relacional:
+
+Figura de https://en.wikipedia.org/wiki/Relational_model
+
+
+---
+
+## Consultas
+
+* Cada tabela, separadamente, funciona como os bancos de dados com que trabalhamos até agora.
+
+* Uma coluna em comum entre as tabelas será usada como chave, ligando a informação de cada linha. Porém, não há garantias que o valor seja único, nem sempre qual coluna servirá de chave é óbvio. 
+
+* Uma *consulta* (ou *query*) é um pedido do usuário ao *relational database management system* (RDBMS) que une informações de um grupo de indivíduos (baseados na chave) ao longo de várias tabelas.
+
+* Nós vamos, primeiramente, examinar a operação *join*, do pacote `dplyr`, para realizar consultas em pares de tabelas.
+
+---
+
+## Exemplo
+
+![](aula03/04-rdr.png)
+
+Professores e alunos da University of Washington, ciência da computação. 
+
+Dados: https://relational.fit.cvut.cz/dataset/UW-CSE
+
+Explicação: http://aiweb.cs.washington.edu/ai/mln/database.html
+
+
+```{r echo=FALSE}
+advisedBy <- read.csv("aula03/a04-advisedBy.csv", row.names = NULL)
+course <- read.csv("aula03/a04-course.csv", row.names = NULL)
+person <- read.csv("aula03/a04-person.csv", row.names = NULL)
+taughtBy <- read.csv("aula03/a04-taughtBy.csv", row.names = NULL)
+```
+
+---
+
+## Tabelas não são 1-1
+
+```{r}
+# Same course, different faculty
+taughtBy %>% filter(course_id == 11)
+# Same faculty, different course
+taughtBy %>% filter(p_id == 40)
+```
+
+- `p_id` identifica indivíduos unicamente em `person`;
+- `course_id` identifica cursos unicamente em `courses`.
+
+---
+
+## Operações com Duas Tabelas
+
+Usando os diagramas de Wickham and Grolemund (2017), considere dados de duas tabelas:
+
+![](aula03/04-join-setup.png)
+
+A coluna colorida é a chave, `x` e `y` são colunas, tomando valores `x1`, `x2`, etc.
+
+---
+
+## Tipos de JOIN: setup 2
+
+```{r}
+(x <- data.frame(key = c(1,2,3), val_x = c("x1","x2","x3")))
+(y <- data.frame(key = c(1,2,4), val_y = c("y1","y2","y4")))
+```
+
+---
+
+## INNER JOIN: inner_join
+
+![](aula03/04-join-inner.png)
+
+---
+
+## INNER JOIN: inner_join
+
+```{r}
+x %>% inner_join(y, by = "key")
+```
+
+---
+
+## OUTER JOIN: left_join
+
+![](aula03/04-join-left.png)
+
+---
+
+## OUTER JOIN: left_join
+
+```{r}
+x %>% left_join(y, by = "key")
+```
+
+---
+
+## OUTER JOIN: right_join
+
+![](aula03/04-join-right.png)
+
+---
+
+## OUTER JOIN: right_join
+
+```{r}
+x %>% right_join(y, by = "key")
+```
+
+---
+
+## OUTER JOIN: full_join
+
+![](aula03/04-join-outer.png)
+
+---
+
+## OUTER JOIN: full_join
+
+```{r}
+x %>% full_join(y, by = "key")
+```
+
+---
+
+## Duplicated keys
+
+Quando há mais de uma entrada para as duas tabelas, é executado um produto cartesiano das entradas. 
+
+![](aula03/04-join-many-to-many.png)
+
+Evite joins assim. Em tese, as bases relacionais devem ter pelo menos uma chave que unicamente determina as observações em cada tabela. 
+
+---
+
+## Sintaxe do parâmetro "by"
+
+A ação padrão das funções `*_join(x, y)` no `dplyr` é `by = NULL`, que realiza o join pela combinação de *todas* as colunas com nomes idênticos em x e y. Isso pode ser perigoso!
+
+```{r}
+x$newCol <- c(1, 1, 2)
+y$newCol <- c(1, 2, 2)
+full_join(x, y)
+x$newCol <- NULL
+y$newCol <- NULL
+```
+
+---
+
+## Sintaxe do parâmetro "by"
+
+Já `by = "colName"` une as observações pelo "colName" especificado.
+
+```{r}
+full_join(x, y, by = "key")
+```
+
+Caso você queira comparar diferentes colunas, a sintaxe é `by = c("colunaX" = "colunaY")`. Note que o `R` remove `key` de `y` sem avisar!
+
+```{r}
+x$newKey <- c(1,4,2)
+full_join(x, y, by = c("newKey" = "key"))
+x$newKey <- NULL
+```
+
+---
+
+## Filtering joins
+
+Há dois importantes filtering joins:
+
+* `semi_join(x, y)` mantém todas as observações em `x` que estão presentes em `y`.
+* `anti_join(x, y)` remove todas as observações em `x` que estão presentes em `y`.
+
+Esses `*_join` retornam tabelas `x` filtradas, e não unem `x` e `y`.
+
+---
+
+## semi_join
+
+`semi_join(x,y)` só retorna elementos de `x` que também estão em `y`
+
+![](aula03/04-join-semi.png)
+
+---
+
+## semi_join: duplicated keys
+
+Não há problema se as chaves forem duplicadas para o `semi_join`, isto é, o `semi_join` não duplica as linhas.
+
+![](aula03/04-join-semi-many.png)
+
+---
+
+## anti_join
+
+`anti_join(x,y)` só retorna elementos de `x` que **não** estão em `y`. É útil para detectar se há chaves faltantes em uma tabela.
+
+![](aula03/04-join-anti.png)
+
+---
+
+class: center, middle
+
+# Importação de Arquivos Excel
+
+---
+
+# Arquivos Excel e Pacote `readxl`
+
+- Em um arquivo Excel:
+    - Células que você vê podem não existir;
+    - Células que você não vê podem existir;
+- Pacote `readxl`:
+    - Funciona em qualquer ambiente (Windows, Linux, Mac) sem dependências externas;
+    - Permite a leitura de arquivos Excel (.xls ou .xlsx);
+    - Lê apenas células com conteúdo;
+    - Células vazias em colunas existentes são preenchidas com `NA`;
+    - Resultados são `tibble`.
+
+---
+
+# `readxl` busca identificar geometria
+
+<img src="imgs_aula04/geometria.png" width=80%>
+
+```{r readxl_geom}
+library(readxl)
+read_excel(readxl_example("geometry.xlsx"))
+```
+
+---
+
+# `readr` pode ler faixas de dados
+
+<img src="imgs_aula04/geometria.png" width=80%>
+
+---
+
+# `readr` e faixas de dados
+
+```{r readxl_range}
+library(readxl)
+read_excel(readxl_example("geometry.xlsx"), range = "A2:C4")
+```
+
+---
+
+# Leitura por partes com `readxl`
+
+- `cell_rows()`
+    * `cell_rows(1:10)`
+- `cell_cols()`
+    * `cell_cols(4:8)`
+- `anchored()`
+    * `anchored("C5", c(3, 4))`
+- `cell_limits()`
+    * `cell_limits(c(5, 3), c(NA, NA))`
