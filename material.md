@@ -11,6 +11,7 @@ subtitle:
 - [Aula 03: Dados relacionais](aulas/aula03.pdf)
 - [Aula 04: Importação de outros formatos retangulares](aulas/aula04.pdf)
 - [Aula 05: Revisão](aulas/aula05.pdf)
+- [Aula 06: SQLite](aulas/aula06.pdf)
 
 # Laboratórios
 
