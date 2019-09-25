@@ -1,0 +1,52 @@
+---
+title: "Laboratório Especial"
+author: "Benilton Carvalho"
+date: "16-20 de Setembro de 2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Atividade
+
+Ao longo desta semana, você deverá desenvolver código em R, utilizando-se de `tidyverse`, `ggplot`, `leaftlet`, `ggcal` e outros pacotes disponibilizados em [HTML Widgets](https://www.htmlwidgets.org/) para responder uma questão relacionada ao conjunto de dados `flights`. Para tanto, considere os seguintes fatos:
+
+- Cias Aéreas (`AIRLINE`) possuem diferentes aeronaves (codificadas em `TAIL_NUMBER`);
+- (Exemplo hipotético) No dia 01/01/2015, a aeronave `N431WN` viaja de BWI para JFK;
+- (Exemplo hipotético) No dia 02/01/2015, a aeronave `N431WN` viaja de JFK para ORD`;
+- E assim sucessivamente...
+
+No caso apontado acima, pode-se ver que a aeronave `N431WN` realizou um trajeto (provavelmente único) durante todo o ano de 2015. Nos dias exemplificados, o trajeto foi BWI-JFK-ORD.
+
+# Parte 1:
+
+Crie uma função que:
+
+a. Receba um valor de `TAIL_NUMBER` (por exemplo, `N431WN`);
+b. Produza uma tabela (tidy) com todos os trajetos realizados pela aeronave (ordenadas por data e hora, contendo todas as colunas do arquivo `flights.csv.zip`);
+c. Produza um mapa que apresente todo o trajeto voado pela aeronave ao longo de todo o ano; o trajeto deve ser apresentado de maneira linear no tempo (i.e., segue a sequência do tempo, como no exemplo hipotético dado acima);
+d. O mapa deve ser decorado com estatísticas do seu interesse (por exemplo, velocidade média do vôo como espessura da linha que conecta os aeroportos envolvidos no trajeto);
+
+
+# Parte 2:
+
+a. Seu código deve ser bem comentado;
+b. Os nomes das variáveis devem ser esclarecedores (por exemplo, `x` é um nome ruim);
+c. Seu código será avaliado por 5 de seus colegas;
+d. A parte de avaliação (descrita em c.) acontecerá na semana de 23 a 27 de setembro (com entrega obrigatória no dia 27);
+
+# Observações:
+
+1. A função terá o argumento `tail_number` e `arquivo`;
+2. O argumento `tail_number` será o código identificador do avião de interesse (por ex., `N431WN`);
+3. O argumento `arquivo` será o nome do arquivo com caminho completo (por ex., `file.path("dados", "flights.csv.zip")`);
+4. A função se chamará `analisa_aeronave`;
+5. O arquivo deve ser lido por partes;
+6. O mapa deve utilizar as coordenadas exatas dos aeroportos envolvidos (presentes no arquivo `airports`);
+7. A função deve retornar uma lista (nomeada) com dois valores: a tabela utilizada para o gráfico e o gráfico propriamente dito;
+8. O Jupyter não será suficiente para a realização da tarefa; utilize o RStudio; o laboratório continuará disponível nos horários da aula;
+9. O código deverá ser submetido via Moodle até o dia 23 de setembro, às 10 da manhã (em área exclusiva a ser disponibilizada oportunamente).
