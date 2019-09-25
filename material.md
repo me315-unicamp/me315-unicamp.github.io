@@ -19,6 +19,8 @@ subtitle:
 - [Laboratório 02: Importação em lote de dados volumosos](laboratorios/lab02.html)
 - [Laboratório 03: Dados relacionais](laboratorios/lab03.html)
 - [Laboratório 04: Dados retangulares - Excel](laboratorios/lab04.html)
+- [Laboratório 05: Laboratório Especial](laboratorios/labEsp.pdf)
+- [Laboratório 06: SQLite](laboratorios/lab06.pdf)
 
 # JupyterHub ME315
 
