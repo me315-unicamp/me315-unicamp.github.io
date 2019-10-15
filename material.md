@@ -23,7 +23,7 @@ subtitle:
 - [Laboratório 05: Laboratório Especial](laboratorios/labEsp.pdf)
 - [Laboratório 06: SQLite Parte I](laboratorios/lab06.html)
 - [Laboratório 07: SQLite Parte II](laboratorios/lab07.html)
-- [Laboratório 07: SQLite Parte III](laboratorios/lab08.html)
+- [Laboratório 08: SQLite Parte III](laboratorios/lab08.html)
 
 # JupyterHub ME315
 
