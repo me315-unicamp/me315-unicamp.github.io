@@ -21,8 +21,9 @@ subtitle:
 - [Laboratório 03: Dados relacionais](laboratorios/lab03.html)
 - [Laboratório 04: Dados retangulares - Excel](laboratorios/lab04.html)
 - [Laboratório 05: Laboratório Especial](laboratorios/labEsp.pdf)
-- [Laboratório 06: SQLite](laboratorios/lab06.html)
+- [Laboratório 06: SQLite Parte I](laboratorios/lab06.html)
 - [Laboratório 07: SQLite Parte II](laboratorios/lab07.html)
+- [Laboratório 07: SQLite Parte III](laboratorios/lab08.html)
 
 # JupyterHub ME315
 
