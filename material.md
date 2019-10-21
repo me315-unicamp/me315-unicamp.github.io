@@ -13,6 +13,7 @@ subtitle:
 - [Aula 05: Revisão](aulas/aula05.pdf)
 - [Aula 06: SQLite - Consulta de Conteúdo](aulas/aula06.pdf)
 - [Aula 07: SQLite - Alteração de Conteúdo](aulas/aula07.pdf)
+- [Aula 08: MongoDB](aulas/aula08.pdf)
 
 # Laboratórios
 

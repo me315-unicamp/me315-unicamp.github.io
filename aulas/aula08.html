@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>MongoDB</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Benilton Carvalho &amp; Guilherme Ludwig" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# MongoDB
+### Benilton Carvalho &amp; Guilherme Ludwig
+
+---
+
+
+
+
+## Introdução ao MongoDB
+
+- Código aberto;
+- Gratuito;
+- Alta performance;
+- Sem esquemas;
+- Orientado a documentos;
+- Implementado em C++;
+
+---
+
+## Orientado a Documentos
+
+- Orientado a documentos JSON;
+- Lembrete:
+    - documentos JSON possuem estrutura hierárquica;
+    - podem ser facilmente utilizados pelo R ou outras ferramentas para realização de analítica;
+    - suportam hierarquias complexas e mantém índices; 
+
+---
+
+## Popularidade no StackOverflow em 2017
+
+![](aula08_files/figure-html/uso_nosql-1.png)&lt;!-- --&gt;
+
+---
+
+## Efeitos Práticos
+
+- Cada documento é autossuficiente;
+- Cada documento possui todas as informações de que possa precisar;
+- Lembrete:
+    - em SQL, evitam-se repetições e combinam-se tabelas via chaves;
+- Evitam-se JOINs;
+- Desenha-se a base de dados de forma que as *queries* busquem apenas uma chave e retornem todas as informações necessárias;
+- Preço: espaço em disco;
+
+---
+
+## Utilização de MongoDB
+
+- Foco em *big data*;
+- Escalonamento horizontal (*sharding*) - desempenho;
+- Escalonamento vertical (*replica sets*) - multicore;
+- Se os dados não possuem formato fixo, MongoDB é uma boa opção;
+- (J/B)SON não possuem esquemas;
+- Opção natural para sistemas web. Exemplo: Comércio eletrônico - detalhes de produtos;
+
+---
+
+## Quando não utilizar MongoDB?
+
+- Quando relacionamentos entre múltiplas entidades for essencial;
+- Quando existirem múltiplas chaves externas e JOINs;
+- Expectativas em MongoDB:
+    - Documentos autossuficientes;
+    - Mínimo de chaves;
+    - etc;
+    
+---
+
+## Disponibilidade
+
+- MongoDB Atlas - Database as a Service (AWS, GCP, Azure);
+- Linux;
+- MacOS;
+- RHEL;
+- Windows;
+
+---
+
+## Uso do pacote `mongolite`
+
+- Sempre monta-se uma conexão via `mongo()`;
+- O arquivo pode ser remoto ou local;
+- Contagem de registros via `con$count()`;
+- Remoção de coleção via `con$drop()`;
+- Inserção de coleção via `con$insert()`;
+
+
+```r
+library(tibble)
+library(mongolite)
+myurl = "mongodb://readwrite:test@mongo.opencpu.org:43942/jeroen_test"
+con &lt;- mongo("mtcars", url = myurl)
+if(con$count() &gt; 0) con$drop()
+con$insert(mtcars)
+```
+
+```
+## List of 5
+##  $ nInserted  : num 32
+##  $ nMatched   : num 0
+##  $ nRemoved   : num 0
+##  $ nUpserted  : num 0
+##  $ writeErrors: list()
+```
+
+```r
+stopifnot(con$count() == nrow(mtcars))
+```
+
+---
+
+## Uso do pacote `mongolite`
+
+- Seleção de dados presentes no banco de dados fia `con$find()`;
+- No pacote `mongolite`, remover o objeto de conexão, `con`, já desconecta a sua sessão do banco de dados;
+- Mas também existe o método `disconnect()` para realizar a desconexão;
+
+
+```r
+mydata &lt;- con$find()
+stopifnot(all.equal(mydata, mtcars))
+con$drop()
+rm(con)
+```
+
+---
+
+## Coleções Maiores e Seleções mais Complexas
+
+- Inserção de um conjunto de dados mais volumoso;
+
+
+```r
+library(nycflights13)
+## subconjunto pq o servidor eh publico
+flights = flights[sample(nrow(flights), 10000), ]
+m &lt;- mongo(collection = "nycflights", url=myurl)
+m$drop()
+m$insert(flights)
+```
+
+```
+## List of 5
+##  $ nInserted  : num 10000
+##  $ nMatched   : num 0
+##  $ nRemoved   : num 0
+##  $ nUpserted  : num 0
+##  $ writeErrors: list()
+```
+
+---
+
+## Seleções mais Complexas
+
+- `find()` é análogo ao `SELECT * FROM tabela`;
+- É possível ordenar os dados já na seleção;
+- As chamadas devem acontecer usando formato JSON;
+
+
+```r
+m$count('{"month":1, "day":1}')
+```
+
+```
+## [1] 19
+```
+
+```r
+jan1 &lt;- m$find('{"month":1,"day":1}', sort='{"distance":-1}')
+head(jan1) %&gt;% as_tibble()
+```
+
+```
+## # A tibble: 6 x 19
+##    year month   day dep_time sched_dep_time dep_delay arr_time
+##   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;
+## 1  2013     1     1     1720           1725        -5     2121
+## 2  2013     1     1     1937           1905        32     2250
+## 3  2013     1     1      628            630        -2     1016
+## 4  2013     1     1     1059           1053         6     1342
+## 5  2013     1     1     1730           1730         0     2126
+## 6  2013     1     1     1959           2000        -1     2310
+## # … with 12 more variables: sched_arr_time &lt;int&gt;, arr_delay &lt;dbl&gt;,
+## #   carrier &lt;chr&gt;, flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,
+## #   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;,
+## #   time_hour &lt;dttm&gt;
+```
+
+---
+
+## Ordenação em Grandes Bases
+
+- Bases volumosas exigem a existência de um índice para permitir a ordenação;
+- O índice pode ser adicionado via `index()`;
+- `find()` aceita o argumento `sort=`.
+
+
+```r
+# criacao de indice eh essencial para grandes volumes de dados
+m$index(add = "distance")
+```
+
+```
+##   v key._id key.distance       name                     ns
+## 1 2       1           NA       _id_ jeroen_test.nycflights
+## 2 2      NA            1 distance_1 jeroen_test.nycflights
+```
+
+```r
+allflights &lt;- m$find(sort='{"distance":-1}')
+```
+
+---
+
+## Seleção de Colunas Específicas
+
+- Utiliza-se `find()`;
+- Adiciona-se o argumento `fields=`, que recebe a lista (em JSON) das variáveis de interesse;
+- Ao especificar colunas de interesse, o MongoDB retorna uma coluna adicional, `_id`, que corresponde a um identificador interno do banco de dados;
+
+
+```r
+# Select columns
+jan1 &lt;- m$find('{"month":1,"day":1}',
+               fields = '{"_id":0, "distance":1, "carrier":1}')
+head(jan1)
+```
+
+```
+##   carrier distance
+## 1      EV      266
+## 2      UA     2227
+## 3      DL     1096
+## 4      UA      997
+## 5      US      214
+## 6      DL     1035
+```
+
+---
+
+## Identificação de Ocorrências Únicas
+
+- O método `distinct()` retorna o que são valores únicos de um certo campo;
+- Ele pode receber condições para serem avaliadas durante a execução;
+
+
+```r
+# List unique values
+m$distinct("carrier")
+```
+
+```
+##  [1] "WN" "AA" "US" "9E" "EV" "MQ" "DL" "UA" "B6" "VX" "FL" "AS" "HA" "YV"
+## [15] "OO" "F9"
+```
+
+```r
+m$distinct("carrier", '{"distance":{"$gt":3000}}')
+```
+
+```
+## [1] "UA" "HA"
+```
+
+---
+
+## Tabulação de Dados em MongoDB
+
+- O método `aggregate()` permite a tabulação de dados;
+- Ele exige, em seu primeiro argumento, a apresentação de um *pipeline* para cálculos desejados;
+
+
+```r
+# Tabulate
+m$aggregate('[{"$group": {"_id":"$carrier",
+                          "count": {"$sum":1},
+                          "average":{"$avg":"$distance"}}
+            }]')
+```
+
+```
+##    _id count   average
+## 1   F9    14 1620.0000
+## 2   OO     2  453.5000
+## 3   AS    10 2402.0000
+## 4   9E   536  551.2071
+## 5   US   632  572.6487
+## 6   HA     9 4983.0000
+## 7   AA  1024 1362.7559
+## 8   WN   359  995.4624
+## 9   VX   149 2507.6510
+## 10  YV    11  343.5455
+## 11  FL   103  672.7087
+## 12  EV  1549  578.9542
+## 13  MQ   794  558.2166
+## 14  DL  1480 1259.4176
+## 15  UA  1709 1532.4037
+## 16  B6  1619 1060.2767
+```
+
+```r
+m$drop()
+```
+
+---
+
+## Criando sua instância para testes: mlab.com
+
+![mongodb01](imagens_aula08/mongodb01.png)
+---
+
+## Criando sua instância para testes: CREATE ACCOUNT
+
+![mongodb01](imagens_aula08/mongodb02.png)
+
+---
+
+## Criando sua instância para testes: FREE
+
+![mongodb01](imagens_aula08/mongodb03.png)
+
+---
+
+## Criando sua instância para testes: CREATE
+
+![mongodb01](imagens_aula08/mongodb04.png)
+
+---
+
+## Criando sua instância para testes: Espere até criação
+
+![mongodb01](imagens_aula08/mongodb05.png)
+
+---
+
+## Criando sua instância para testes: Cluster pronto
+
+![mongodb01](imagens_aula08/mongodb06.png)
+
+---
+
+## Criando sua instância para testes: Acesso
+
+![mongodb01](imagens_aula08/mongodb07.png)
+
+---
+
+## Criando sua instância para testes: Conexão
+
+![mongodb01](imagens_aula08/mongodb08.png)
+
+---
+
+## Criando sua instância para testes: Application
+
+![mongodb01](imagens_aula08/mongodb09.png)
+
+---
+
+## Criando sua instância para testes: Info para conexão
+
+![mongodb01](imagens_aula08/mongodb10.png)
+---
+
+## Criando sua instância para testes: ADD
+
+![mongodb01](imagens_aula08/mongodb11.png)
+
+---
+
+## Criando sua instância para testes: Banco e coleção
+
+![mongodb01](imagens_aula08/mongodb12.png)
+
+---
+
+## Criando sua instância para testes: Estrutura
+
+![mongodb01](imagens_aula08/mongodb13.png)
+
+---
+
+## Acesso via R
+
+
+```r
+library(mongolite)
+myurl = "mongodb+srv://benilton:minhasenha123@cluster0-s8gg0.mongodb.net"
+myconn = mongo(collection="meuteste",
+               db="testemongodb",
+               url=myurl)
+library(ggplot2)
+myconn$insert(diamonds)
+```
+
+---
+
+## Criando sua instância para testes: Dados
+
+![mongodb01](imagens_aula08/mongodb14.png)
+---
+
+## Criando sua instância para testes: Manipulação Extra
+
+![mongodb01](imagens_aula08/mongodb15.png)
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

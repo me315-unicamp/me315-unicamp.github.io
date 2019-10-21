@@ -1,0 +1,316 @@
+---
+title: "MongoDB"
+subtitle: ""
+author: "Benilton Carvalho & Guilherme Ludwig"
+date: ""
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+## Introdução ao MongoDB
+
+- Código aberto;
+- Gratuito;
+- Alta performance;
+- Sem esquemas;
+- Orientado a documentos;
+- Implementado em C++;
+
+---
+
+## Orientado a Documentos
+
+- Orientado a documentos JSON;
+- Lembrete:
+    - documentos JSON possuem estrutura hierárquica;
+    - podem ser facilmente utilizados pelo R ou outras ferramentas para realização de analítica;
+    - suportam hierarquias complexas e mantém índices; 
+
+---
+
+## Popularidade no StackOverflow em 2017
+
+```{r uso_nosql, echo=FALSE, message=FALSE, warning=FALSE, fig.width=12}
+dat = data.frame(banco=c("MySQL", "SQL Server", "SQLite", "PostgreSQL", "MongoDB", "Oracle", "Redis", "Cassandra"),
+                 perc=c(55.6, 38.6, 26.6, 26.5, 21, 16.5, 14.1, 3.1))
+library(ggpubr)
+ggbarplot(dat, "banco", "perc", x.text.angle = 45, sort.val='desc',
+          xlab='Plataformas', ylab='% Usuários',
+          ggtheme = theme_minimal(30))
+```
+
+---
+
+## Efeitos Práticos
+
+- Cada documento é autossuficiente;
+- Cada documento possui todas as informações de que possa precisar;
+- Lembrete:
+    - em SQL, evitam-se repetições e combinam-se tabelas via chaves;
+- Evitam-se JOINs;
+- Desenha-se a base de dados de forma que as *queries* busquem apenas uma chave e retornem todas as informações necessárias;
+- Preço: espaço em disco;
+
+---
+
+## Utilização de MongoDB
+
+- Foco em *big data*;
+- Escalonamento horizontal (*sharding*) - desempenho;
+- Escalonamento vertical (*replica sets*) - multicore;
+- Se os dados não possuem formato fixo, MongoDB é uma boa opção;
+- (J/B)SON não possuem esquemas;
+- Opção natural para sistemas web. Exemplo: Comércio eletrônico - detalhes de produtos;
+
+---
+
+## Quando não utilizar MongoDB?
+
+- Quando relacionamentos entre múltiplas entidades for essencial;
+- Quando existirem múltiplas chaves externas e JOINs;
+- Expectativas em MongoDB:
+    - Documentos autossuficientes;
+    - Mínimo de chaves;
+    - etc;
+    
+---
+
+## Disponibilidade
+
+- MongoDB Atlas - Database as a Service (AWS, GCP, Azure);
+- Linux;
+- MacOS;
+- RHEL;
+- Windows;
+
+---
+
+## Uso do pacote `mongolite`
+
+- Sempre monta-se uma conexão via `mongo()`;
+- O arquivo pode ser remoto ou local;
+- Contagem de registros via `con$count()`;
+- Remoção de coleção via `con$drop()`;
+- Inserção de coleção via `con$insert()`;
+
+```{r mongo1}
+library(tibble)
+library(mongolite)
+myurl = "mongodb://readwrite:test@mongo.opencpu.org:43942/jeroen_test"
+con <- mongo("mtcars", url = myurl)
+if(con$count() > 0) con$drop()
+con$insert(mtcars)
+stopifnot(con$count() == nrow(mtcars))
+```
+
+---
+
+## Uso do pacote `mongolite`
+
+- Seleção de dados presentes no banco de dados fia `con$find()`;
+- No pacote `mongolite`, remover o objeto de conexão, `con`, já desconecta a sua sessão do banco de dados;
+- Mas também existe o método `disconnect()` para realizar a desconexão;
+
+```{r mongo2}
+mydata <- con$find()
+stopifnot(all.equal(mydata, mtcars))
+con$drop()
+rm(con)
+```
+
+---
+
+## Coleções Maiores e Seleções mais Complexas
+
+- Inserção de um conjunto de dados mais volumoso;
+
+```{r mongo3}
+library(nycflights13)
+## subconjunto pq o servidor eh publico
+flights = flights[sample(nrow(flights), 10000), ]
+m <- mongo(collection = "nycflights", url=myurl)
+m$drop()
+m$insert(flights)
+```
+
+---
+
+## Seleções mais Complexas
+
+- `find()` é análogo ao `SELECT * FROM tabela`;
+- É possível ordenar os dados já na seleção;
+- As chamadas devem acontecer usando formato JSON;
+
+```{r mongo4}
+m$count('{"month":1, "day":1}')
+jan1 <- m$find('{"month":1,"day":1}', sort='{"distance":-1}')
+head(jan1) %>% as_tibble()
+```
+
+---
+
+## Ordenação em Grandes Bases
+
+- Bases volumosas exigem a existência de um índice para permitir a ordenação;
+- O índice pode ser adicionado via `index()`;
+- `find()` aceita o argumento `sort=`.
+
+```{r mongo5}
+# criacao de indice eh essencial para grandes volumes de dados
+m$index(add = "distance")
+allflights <- m$find(sort='{"distance":-1}')
+```
+
+---
+
+## Seleção de Colunas Específicas
+
+- Utiliza-se `find()`;
+- Adiciona-se o argumento `fields=`, que recebe a lista (em JSON) das variáveis de interesse;
+- Ao especificar colunas de interesse, o MongoDB retorna uma coluna adicional, `_id`, que corresponde a um identificador interno do banco de dados;
+
+```{r mongo6}
+# Select columns
+jan1 <- m$find('{"month":1,"day":1}',
+               fields = '{"_id":0, "distance":1, "carrier":1}')
+head(jan1)
+```
+
+---
+
+## Identificação de Ocorrências Únicas
+
+- O método `distinct()` retorna o que são valores únicos de um certo campo;
+- Ele pode receber condições para serem avaliadas durante a execução;
+
+```{r mongo7}
+# List unique values
+m$distinct("carrier")
+m$distinct("carrier", '{"distance":{"$gt":3000}}')
+```
+
+---
+
+## Tabulação de Dados em MongoDB
+
+- O método `aggregate()` permite a tabulação de dados;
+- Ele exige, em seu primeiro argumento, a apresentação de um *pipeline* para cálculos desejados;
+
+```{r mongo8}
+# Tabulate
+m$aggregate('[{"$group": {"_id":"$carrier",
+                          "count": {"$sum":1},
+                          "average":{"$avg":"$distance"}}
+            }]')
+m$drop()
+```
+
+---
+
+## Criando sua instância para testes: mlab.com
+
+![mongodb01](imagens_aula08/mongodb01.png)
+---
+
+## Criando sua instância para testes: CREATE ACCOUNT
+
+![mongodb01](imagens_aula08/mongodb02.png)
+
+---
+
+## Criando sua instância para testes: FREE
+
+![mongodb01](imagens_aula08/mongodb03.png)
+
+---
+
+## Criando sua instância para testes: CREATE
+
+![mongodb01](imagens_aula08/mongodb04.png)
+
+---
+
+## Criando sua instância para testes: Espere até criação
+
+![mongodb01](imagens_aula08/mongodb05.png)
+
+---
+
+## Criando sua instância para testes: Cluster pronto
+
+![mongodb01](imagens_aula08/mongodb06.png)
+
+---
+
+## Criando sua instância para testes: Acesso
+
+![mongodb01](imagens_aula08/mongodb07.png)
+
+---
+
+## Criando sua instância para testes: Conexão
+
+![mongodb01](imagens_aula08/mongodb08.png)
+
+---
+
+## Criando sua instância para testes: Application
+
+![mongodb01](imagens_aula08/mongodb09.png)
+
+---
+
+## Criando sua instância para testes: Info para conexão
+
+![mongodb01](imagens_aula08/mongodb10.png)
+---
+
+## Criando sua instância para testes: ADD
+
+![mongodb01](imagens_aula08/mongodb11.png)
+
+---
+
+## Criando sua instância para testes: Banco e coleção
+
+![mongodb01](imagens_aula08/mongodb12.png)
+
+---
+
+## Criando sua instância para testes: Estrutura
+
+![mongodb01](imagens_aula08/mongodb13.png)
+
+---
+
+## Acesso via R
+
+```{r, eval=FALSE}
+library(mongolite)
+myurl = "mongodb+srv://benilton:minhasenha123@cluster0-s8gg0.mongodb.net"
+myconn = mongo(collection="meuteste",
+               db="testemongodb",
+               url=myurl)
+library(ggplot2)
+myconn$insert(diamonds)
+```
+
+---
+
+## Criando sua instância para testes: Dados
+
+![mongodb01](imagens_aula08/mongodb14.png)
+---
+
+## Criando sua instância para testes: Manipulação Extra
+
+![mongodb01](imagens_aula08/mongodb15.png)
