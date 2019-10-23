@@ -1,0 +1,206 @@
+---
+title: "MongoDB"
+author: "Benilton Carvalho, Guilherme Ludwig"
+date: ""
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, eval=FALSE, message=FALSE, warning=FALSE)
+```
+
+## MongoDB
+
+O **MongoDB** é um banco de dados NoSQL focado em alta performance e amplamente utilizado em aplicações web e cenários envolvendo *big data*. O software é livre e gratuito, podendo ser obtido diretamente em [https://www.mongodb.com/](https://www.mongodb.com/).
+
+
+## Objetivos
+
+Ao fim deste laboratório, você deverá ser capaz de:
+
+  - Conectar-se a um banco de dados do tipo MongoDB utilizando o R como interface;
+  - Realizar pesquisas simples;
+  - Realizar consultas em campos aninhados;
+  - Inserir dados em coleções;
+  - Importar dados;
+  - Exportar dados;
+  - Determinar estatísticas de interesse por meio de operações agregadas.
+
+## Instalação de pacotes essenciais
+
+O pacote essencial para esta atividade é o `mongolite`. Ele deve estar instalado antes de você iniciar a atividade. Confirme, após a instalação, que ele funcionamento apropriadamente (dica: tente carregar o pacote). Se você estiver utilizando MS Windows para esta atividade, você pode se beneficiar do script apresentado abaixo. Se o sistema perguntar sobre instalar novos pacotes a partir do código-fonte (*install newer version from source*), responda `n` (para indicar `não`).
+
+```{r, eval=FALSE, echo=TRUE}
+options(install.packages.check.source = "no")
+install.packages('mongolite', type='win.binary', dependencies = TRUE)
+```
+
+## Requerimentos
+
+Para este laboratório, serão utilizadas algumas observações do conjunto de dados `diamonds` disponibilizado via `ggplot2`. Adicionalmente, este laboratório assume que você já criou um usuário e senha na plataforma MongoDB Atlas (resultado do apontamento via mlab.com).
+
+## Atividade
+
+1. Conecte-se à plataforma MongoDB Atlas (https://www.mongodb.com/) usando as credenciais escolhidas por você na criação da conta (este login/senha costuma ser diferente do usuário/senha do banco de dados).
+
+2. No menu à esquerda, escolha a opção **Network Access**, sob **Security**, clique em **+ ADD IP ADDRESS** e escolha **ADD CURRENT IP ADDRESS** (isso permitirá acesso a partir do endereço IP que seu computador está utilizando neste momento). Você, alternativamente, poderá escolher **ALLOW ACCESS FROM ANYWHERE**, o que é muito menos seguro. Finalize clicando em **CONFIRM**.
+
+3. Ainda no menu à esquerda, escolha a opção **Clusters** (em **ATLAS**). Clique em **Connect** e escolha **Connect Your Application**. Copie a expressão em **Connection String Only**. Observe que a expressão inicia-se com `mongodb+srv://`, que indica o protocolo de conexão. Em seguida, há o nome do usuário (no exemplo abaixo, `benilton`), seguido do símbolo `:` e da senha (em texto puro, aqui representada como `<password>`). Após a senha, o símbolo `@` indica que a informação seguinte indicará o nome do servidor a ser utilizado (`cluster0-s8gg0.mongodb.net`). Após o nome do servidor a informação remanescente deverá ser removida (pois trata-se de um código de exemplo).
+
+Desta maneira, a informação originalmente disponível:
+
+```
+mongodb+srv://benilton:<password>@cluster0-s8gg0.mongodb.net/test?retryWrites=true&w=majority
+```
+
+deve ser transformada em
+
+```
+mongodb+srv://benilton:SenhaReal@cluster0-s8gg0.mongodb.net
+```
+
+e armazenada numa variável chamada `myurl` na sua sessão R:
+
+```{r}
+myurl = "mongodb+srv://benilton:senhasegura123@cluster0-s8gg0.mongodb.net"
+```
+
+3. Conecte-se à URL identificada por você na questão anterior. Crie um banco de dados chamado `me315mongodb` e, dentro deste, uma coleção chamada `diamantes`.
+
+```{r}
+library(mongolite)
+con = mongo(collection = "diamantes", db = "me315mongodb", url=myurl)
+```
+
+
+4. Exiba o conteúdo de `con`. Explore o método `insert()` e descreva textualmente que tipo de objeto o argumento `data` pode receber.
+
+5. Explore o conjunto de dados `diamonds` que é distribuído por meio do pacote `ggplot2`. Quantas observações e quantas colunas possui este conjunto de dados? Configure a semente aleatória do `R` para ser o valor numérico do seu RA, sorteie aleatoriamente 500 observações e as armazene no objeto `mydiamonds`.
+
+```{r explore}
+library(tidyverse)
+ggplot2::diamonds
+dim(ggplot2::diamonds)
+set.seed(970308)
+mydiamonds = ggplot2::diamonds %>% sample_n(500)
+```
+
+6. Grave a tabela acima na coleção MongoDB criada anteriormente.
+
+```{r insert}
+con$insert(mydiamonds)
+```
+
+7. Recupere do banco de dados as informações de todos os diamantes cuja variável `cut` seja igual a `Premium` e custem menos de USD 1.000,00. Armazene o resultado na variável `p1000a`. Quantos diamantes 'premium' custam menos de 1.000 dólares na sua amostra?
+
+```{r query1}
+p1000a = con$find('{"cut":"Premium", "price":{"$lt": 1000}}')
+p1000a %>% as_tibble()
+```
+
+8. Para a consulta acima, refaça a chamada via MongoDB, de forma a obter apenas as colunas `cut`, `clarity` e `price`. Armazene o resultado na variável `p1000b`.
+
+```{r query2}
+p1000b = con$find('{"cut":"Premium", "price":{"$lt": 1000}}',
+                 fields='{"_id":0, "cut":1, "clarity":1, "price":1}')
+p1000b %>% as_tibble()
+```
+
+8. Refaça a consulta anterior e retorne apenas os 5 diamantes mais caros presentes nesta amostra. O resultado deve ser armazenado na variável `p1000c`.
+
+```{r query3}
+p1000c = con$find('{"cut":"Premium", "price":{"$lt": 1000}}',
+                 fields='{"_id":0, "cut":1, "clarity":1, "price":1}',
+                 sort='{"price":-1}', limit=5)
+p1000c %>% as_tibble()
+```
+
+10. Consulte o banco de dados (500 observações) para identificar quais são os 400 diamantes mais caros presentes na sua amostra. Qual foi o tempo total de execução desta consulta?
+
+```{r query4}
+system.time(caro <- con$find(sort='{"price":-1}', limit=400))
+caro %>% head
+```
+
+11. Crie um índice para a variável `price`.
+
+```{r index}
+con$index('{"price": -1}')
+```
+
+12. Consulte novamente qual é o diamante mais caro e meça o tempo de execução, agora que um índice foi criado.
+
+```{r query5}
+system.time(caro2 <- con$find(sort='{"price":-1}', limit=400))
+caro2 %>% head
+```
+
+**Observação**: Diferenças entre os tempos de execução das questões serão mínimas, assumindo que aconteçam. Estas diferenças poderão ser notadas mais explicitamente se o servidor do MongoDB for local. Pelo fato de estarmos utilizando um servidor público via internet, a maior parte do tempo mensurado é devido à conexão propriamente dita.
+
+13. Utilize o método `iterate()` para trabalhar com lotes de linhas do banco de dados. Armazene o resultado de `iterate()` na variável `it`. Observe que o método `iterate` possui um argumento `limit`, que determina o número máximo de documentos da coleção a serem considerados. Explore a documentação do método e realize a iteração apenas para diamantes de `cut="Premium"`, ordenando por preço (de maneira decresente). Aplique o método `batch(n)`, com `n=53`, para determinar as estatísticas suficientes da média de preços. Saiba que, muito provavelmente, ao chegar ao fim do banco de dados, o número de observações no seu subconjunto será inferior ao tamanho do lote.
+
+```{r query6}
+# se o lote terá tamanho 53, quantos lotes no total serão necessários?
+n = 53
+themax = con$count()
+lotes = ceiling(themax/n)
+it = con$iterate('{"cut":"Premium"}', sort='{"price":-1}', limit=themax)
+lst = vector('list', lotes)
+i = 1
+fim = FALSE
+while(!fim){
+  x = it$batch(n)
+  x = do.call('rbind', lapply(x, as.data.frame))
+  if (nrow(x) < n) fim=TRUE
+  lst[[i]] = data.frame(soma=sum(x$price), n=nrow(x))
+  i = i+1
+}
+lst = lst[1:(i-1)]
+lst = do.call('rbind', lst)
+lst %>% summarise(media=sum(soma)/sum(n))
+```
+
+14. Utilize o método `aggregate()` para determinar o número de diamantes e o respectivo preço médio, estratificando pela variável `cut`. Renomeie as colunas para que sejam, respectivamente, `tipo`, `n` e `media`. Use o `ggplot2` para apresentar um gráfico de barras com o preço.
+
+```{r query7}
+res = con$aggregate('[{"$group":
+                        {"_id":"$cut",
+                           "n":{"$sum":1},
+                       "media":{"$avg":"$price"}
+                        }
+                    }]')
+names(res) = c("tipo", "n", "media")
+library(ggplot2)
+ggplot(res, aes(tipo, media)) + geom_bar(stat='identity') + theme_bw()
+```
+
+15. Utilizando o método `export()`, exporte o banco de dados para um arquivo no seu computador (chamado `meusdiamantes.json`). O arquivo deve ser gravado no formato JSON. Explore o arquivo e confirme a validade do seu formato.
+
+```{r query8}
+con$export(file("meusdiamantes.json"))
+```
+
+14. Exporte o banco de dados para um arquivo no seu computador. O arquivo deve ser gravado no formato BSON e chamado `meusdiamantes.bson`. Explore o arquivo e confirme a validade do seu formato. Compare os tamanhos de ambos os arquivos.
+
+```{r query9}
+con$export(file("meusdiamantes.bson"), bson=TRUE)
+```
+
+15. Remova do banco de dados a coleção com que você está trabalhando. Conte o número de observações existentes no banco de dados após a remoção.
+
+```{r rmcol}
+con$drop()
+con$count()
+```
+
+16. Utilizando o método `import()`, importe o arquivo BSON criado por você diretamente para o banco de dados. Conte o número de observações existentes após a importação.
+
+```{r query10}
+con$import(file('meusdiamantes.bson'), bson=TRUE)
+con$count()
+```
+
+
+```{r clean1}
+con$drop()
+```
