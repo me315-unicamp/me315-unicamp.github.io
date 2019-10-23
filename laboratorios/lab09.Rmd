@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, eval=FALSE, message=FALSE, warning=FALSE)
+knitr::opts_chunk$set(echo = TRUE, eval=TRUE, message=FALSE, warning=FALSE)
 ```
 
 ## MongoDB
@@ -28,12 +28,16 @@ Ao fim deste laboratório, você deverá ser capaz de:
 
 ## Instalação de pacotes essenciais
 
+* Se você for utilizar o RStudio, no Windows
+
 O pacote essencial para esta atividade é o `mongolite`. Ele deve estar instalado antes de você iniciar a atividade. Confirme, após a instalação, que ele funcionamento apropriadamente (dica: tente carregar o pacote). Se você estiver utilizando MS Windows para esta atividade, você pode se beneficiar do script apresentado abaixo. Se o sistema perguntar sobre instalar novos pacotes a partir do código-fonte (*install newer version from source*), responda `n` (para indicar `não`).
 
 ```{r, eval=FALSE, echo=TRUE}
 options(install.packages.check.source = "no")
 install.packages('mongolite', type='win.binary', dependencies = TRUE)
 ```
+
+* **Recomendação**: utilize o servidor jupyter.ime.unicamp.br (regras de firewall para acessar o servidor externo estão funcionando)
 
 ## Requerimentos
 
@@ -43,7 +47,12 @@ Para este laboratório, serão utilizadas algumas observações do conjunto de d
 
 1. Conecte-se à plataforma MongoDB Atlas (https://www.mongodb.com/) usando as credenciais escolhidas por você na criação da conta (este login/senha costuma ser diferente do usuário/senha do banco de dados).
 
-2. No menu à esquerda, escolha a opção **Network Access**, sob **Security**, clique em **+ ADD IP ADDRESS** e escolha **ADD CURRENT IP ADDRESS** (isso permitirá acesso a partir do endereço IP que seu computador está utilizando neste momento). Você, alternativamente, poderá escolher **ALLOW ACCESS FROM ANYWHERE**, o que é muito menos seguro. Finalize clicando em **CONFIRM**.
+2. No menu à esquerda, escolha a opção **Network Access**, sob **Security**, clique em **+ ADD IP ADDRESS**.
+    a. Se você estiver em um computador fora da UNICAMP, escolha **ADD CURRENT IP ADDRESS** (isso permitirá acesso a partir do endereço IP que seu computador está utilizando neste momento e também deve funcionar nos laboratórios do IMECC).
+    b. Se você estiver utilizando a máquina (jupyter.ime.unicamp.br), adicione manualmente o endereço 143.106.77.33
+    c. Você, alternativamente, poderá escolher **ALLOW ACCESS FROM ANYWHERE**, o que é muito menos seguro, por permitir que qualquer máquina (no mundo) acesse o banco de dados, desde que use o login/senha corretos.
+
+    * Finalize clicando em **CONFIRM**.
 
 3. Ainda no menu à esquerda, escolha a opção **Clusters** (em **ATLAS**). Clique em **Connect** e escolha **Connect Your Application**. Copie a expressão em **Connection String Only**. Observe que a expressão inicia-se com `mongodb+srv://`, que indica o protocolo de conexão. Em seguida, há o nome do usuário (no exemplo abaixo, `benilton`), seguido do símbolo `:` e da senha (em texto puro, aqui representada como `<password>`). Após a senha, o símbolo `@` indica que a informação seguinte indicará o nome do servidor a ser utilizado (`cluster0-s8gg0.mongodb.net`). Após o nome do servidor a informação remanescente deverá ser removida (pois trata-se de um código de exemplo).
 
@@ -62,7 +71,7 @@ mongodb+srv://benilton:SenhaReal@cluster0-s8gg0.mongodb.net
 e armazenada numa variável chamada `myurl` na sua sessão R:
 
 ```{r}
-myurl = "mongodb+srv://benilton:senhasegura123@cluster0-s8gg0.mongodb.net"
+myurl = "mongodb+srv://dbenilton:senhadificil@cluster0-s8gg0.mongodb.net"
 ```
 
 3. Conecte-se à URL identificada por você na questão anterior. Crie um banco de dados chamado `me315mongodb` e, dentro deste, uma coleção chamada `diamantes`.
@@ -75,20 +84,18 @@ con = mongo(collection = "diamantes", db = "me315mongodb", url=myurl)
 
 4. Exiba o conteúdo de `con`. Explore o método `insert()` e descreva textualmente que tipo de objeto o argumento `data` pode receber.
 
-5. Explore o conjunto de dados `diamonds` que é distribuído por meio do pacote `ggplot2`. Quantas observações e quantas colunas possui este conjunto de dados? Configure a semente aleatória do `R` para ser o valor numérico do seu RA, sorteie aleatoriamente 500 observações e as armazene no objeto `mydiamonds`.
+5. Explore o conjunto de dados `diamonds` que é distribuído por meio do pacote `ggplot2`. Quantas observações e quantas colunas possui este conjunto de dados?
 
 ```{r explore}
 library(tidyverse)
 ggplot2::diamonds
 dim(ggplot2::diamonds)
-set.seed(970308)
-mydiamonds = ggplot2::diamonds %>% sample_n(500)
 ```
 
 6. Grave a tabela acima na coleção MongoDB criada anteriormente.
 
 ```{r insert}
-con$insert(mydiamonds)
+con$insert(ggplot2::diamonds)
 ```
 
 7. Recupere do banco de dados as informações de todos os diamantes cuja variável `cut` seja igual a `Premium` e custem menos de USD 1.000,00. Armazene o resultado na variável `p1000a`. Quantos diamantes 'premium' custam menos de 1.000 dólares na sua amostra?
