@@ -14,6 +14,8 @@ subtitle:
 - [Aula 06: SQLite - Consulta de Conteúdo](aulas/aula06.pdf)
 - [Aula 07: SQLite - Alteração de Conteúdo](aulas/aula07.pdf)
 - [Aula 08: MongoDB](aulas/aula08.pdf)
+- [Aula 09: Shiny](aulas/aula09.pdf)
+- [Aula 10: Web Scrapping](aulas/aula10.pdf)
 
 # Laboratórios
 
