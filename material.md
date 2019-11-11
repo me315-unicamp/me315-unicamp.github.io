@@ -16,6 +16,7 @@ subtitle:
 - [Aula 08: MongoDB](aulas/aula08.pdf)
 - [Aula 09: Shiny](aulas/aula09.pdf)
 - [Aula 10: Web Scrapping](aulas/aula10.pdf)
+- [Aula 11: Introdução ao Python](aulas/aula11.pdf)
 
 # Laboratórios
 
