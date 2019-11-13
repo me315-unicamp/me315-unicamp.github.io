@@ -1,0 +1,112 @@
+---
+title: "Web Scraping"
+author: "Benilton Carvalho"
+date: ""
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introdução
+
+Web Scraping uma estratégia de mineração de dados, na qual ferramentas são utilizadas para acessar sítios eletrônicos, extrair informações de interesse e estruturá-las de maneira apropriada. Em R, um dos pacotes mais utilizados é o `rvest`, construído em cima dos pacotes `httr` e `xml2`, permitindo acesso ao conteúdo de páginas web. Este acesso, entretanto, pode depender de customizações específicas, caso a página não siga uma estrutura fixa.
+
+## Atividade
+
+1. Visite o site Chance de Gol ( http://www.chancedegol.com.br ) e explore a tabela de jogos realizados;
+2. Proponha uma estrutura (de tabela em R) para acomodar os dados em questão:
+  * O placar como apresentado permite manipulação matemática?
+  * A data está em formato adequado para operações?
+  * As probabilidades de vitória estão em formato apropriado para manipulação matemática?
+3. Sabendo que os dados mantidos pelo site estão disponíveis a partir do ano de 2001, explore as informações disponíveis para:
+  * Ano 2001: http://www.chancedegol.com.br/br01.htm
+  * Ano 2010: http://www.chancedegol.com.br/br10.htm
+  * Ano 2018: http://www.chancedegol.com.br/br18.htm
+  * Ano 2019: http://www.chancedegol.com.br/br19.htm
+4. As tabelas estão em conformidade com aquela avaliada no Item 2?
+  * Todos os campos apresentam o mesmo formato?
+  * Que campos não apresentam a mesma estrutura?
+5. Crie funções que tornem os campos apresentados no Item 4. homogêneos entre os anos.
+6. Crie uma função que, utilizando o ano de entrada, crie uma tabela (classe `tibble`) contendo as informações disponibilizadas para todos os jogos do campeonato brasileiro realizados naquele ano.
+7. Crie uma base de dados consolidada, contendo todos os placares de jogos realizados em todos os Campeonatos Brasileiros realizados de 2001 a 2018.
+8. Crie uma função que, utilizando a base do Item 7., apresente os percentuais de vitória (ou empate) para jogos de quaisquer dois times dados como entrada pelo usuário. Por exemplo, se a entrada dada for "Flamengo" e "Vasco", então a função deve retornar a seguinte tabela de resposta:
+
+|          	| n  	| prop 	|
+|----------	|----	|------	|
+| Empate   	| 10 	| 0.36 	|
+| Flamengo 	|  9 	| 0.32 	|
+| Vasco    	|  9 	| 0.32 	|
+
+# Dicas
+
+Comandos do `rvest` que podem ser empregados incluem:
+
+- `read_html`
+- `html_nodes`
+- `html_table`
+
+
+```{r eval=FALSE, echo=FALSE, include=FALSE}
+library(rvest)
+library(lubridate)
+este_ano = 2019
+
+url = sprintf("http://www.chancedegol.com.br/br%02d.htm", este_ano-2000)
+wp = read_html(url)
+tbls = wp %>%
+  html_nodes("table") %>%
+  html_table(header=TRUE)
+
+## x = "51,8 %"
+perc_num = function(x)
+  as.numeric(str_remove(str_replace(x, ",", "."), " *%"))/100
+
+tbl = tbls[[1]] %>%
+  setNames(c("data", "mandante", "placar", "visitante", "prob_m", "prob_e", "prob_v")) %>% 
+  as_tibble(.name_repair = "minimal") %>% 
+  separate(data, c("dia", "mes", "ano"), sep="/") %>% 
+  mutate(ano=este_ano, data=mdy(paste(mes, dia, ano, sep="-"))) %>% 
+  separate(placar, c("gol_mandante", "gol_visitante"), sep="x") %>% 
+  mutate(prob_m=perc_num(prob_m), prob_e=perc_num(prob_e), prob_v=perc_num(prob_v),
+         gol_mandante=as.integer(gol_mandante), gol_visitante=as.integer(gol_visitante)) %>% 
+  select(data, mandante, gol_mandante, gol_visitante, prob_m, prob_e, prob_v)
+
+
+extrai_jogos = function(este_ano){
+  url = sprintf("http://www.chancedegol.com.br/br%02d.htm", este_ano-2000)
+  wp = read_html(url)
+  tbls = wp %>%
+    html_nodes("table") %>%
+    html_table(header=TRUE)
+  
+  ## x = "51,8 %"
+  perc_num = function(x)
+    as.numeric(str_remove(str_replace(x, ",", "."), " *%"))/100
+  
+  tbl = tbls[[1]] %>%
+    setNames(c("data", "mandante", "placar", "visitante", "prob_m", "prob_e", "prob_v")) %>% 
+    as_tibble(.name_repair = "minimal") %>% 
+    separate(data, c("dia", "mes", "ano"), sep="/") %>% 
+    mutate(ano=este_ano, data=mdy(paste(mes, dia, ano, sep="-"))) %>% 
+    separate(placar, c("gol_mandante", "gol_visitante"), sep="x") %>% 
+    mutate(prob_m=perc_num(prob_m), prob_e=perc_num(prob_e), prob_v=perc_num(prob_v),
+           gol_mandante=as.integer(gol_mandante), gol_visitante=as.integer(gol_visitante)) %>% 
+    select(data, mandante, gol_mandante, gol_visitante, visitante, prob_m, prob_e, prob_v)
+  
+  tbl
+}
+
+anos_interesse = 2001:2018
+lst = lapply(anos_interesse, extrai_jogos)
+obj = do.call(bind_rows, lst)
+
+obj %>% filter(mandante %in% c("São Paulo", "Corinthians"),
+               visitante %in% c("São Paulo", "Corinthians")) %>% 
+  select(-prob_m, -prob_e, -prob_v) %>% 
+  mutate(resultado = ifelse(gol_mandante > gol_visitante, mandante,
+                            ifelse(gol_mandante < gol_visitante, visitante, "Empate"))) %>% 
+  group_by(resultado) %>% tally() %>% mutate(prop=n/sum(n))
+```
+

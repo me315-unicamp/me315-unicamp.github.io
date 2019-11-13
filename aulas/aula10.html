@@ -1048,41 +1048,19 @@ dbGetQuery(db, "SELECT * FROM person LIMIT 4")
 
 ```r
 library(doMC) ## se windows library(doParallel)
-```
-
-```
-## Loading required package: foreach
-```
-
-```
-## 
-## Attaching package: 'foreach'
-```
-
-```
-## The following objects are masked from 'package:purrr':
-## 
-##     accumulate, when
-```
-
-```
-## Loading required package: iterators
-```
-
-```
-## Loading required package: parallel
-```
-
-```r
 registerDoMC(4) ## se windows registerDoParallel(nproc)
-f &lt;- function(x) if(length(x) == 0) return(NA_character_) else return(x)
+f &lt;- function(x){
+  if(length(x) == 0){
+    return(NA_character_) 
+  } else {
+    return(x)
+  }
+}
 out = foreach(i=seq_along(li), .combine=rbind) %dopar% {
   webpage &lt;- read_html(li[i])
-  
-  table &lt;- webpage %&gt;%  html_nodes("table.vcard") %&gt;% html_table(header = FALSE)
-  
+  table &lt;- webpage %&gt;%  html_nodes("table.vcard") %&gt;%
+    html_table(header = FALSE)
   if(length(table) == 0) return(NULL)
-  
   table &lt;- table[[1]]
   data.frame(id = i, 
              Born = f(table[grep("Born", table$X1), 2]),

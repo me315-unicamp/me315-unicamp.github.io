@@ -250,17 +250,21 @@ dbGetQuery(db, "SELECT * FROM person LIMIT 4")
 
 ## Extraindo tabelas (demora alguns minutos...)
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 library(doMC) ## se windows library(doParallel)
 registerDoMC(4) ## se windows registerDoParallel(nproc)
-f <- function(x) if(length(x) == 0) return(NA_character_) else return(x)
+f <- function(x){
+  if(length(x) == 0){
+    return(NA_character_) 
+  } else {
+    return(x)
+  }
+}
 out = foreach(i=seq_along(li), .combine=rbind) %dopar% {
   webpage <- read_html(li[i])
-  
-  table <- webpage %>%  html_nodes("table.vcard") %>% html_table(header = FALSE)
-  
+  table <- webpage %>%  html_nodes("table.vcard") %>%
+    html_table(header = FALSE)
   if(length(table) == 0) return(NULL)
-  
   table <- table[[1]]
   data.frame(id = i, 
              Born = f(table[grep("Born", table$X1), 2]),

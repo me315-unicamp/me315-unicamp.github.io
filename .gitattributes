@@ -2,3 +2,4 @@
 dados/*.zip filter=lfs diff=lfs merge=lfs -text
 _site/dados/*.zip filter=lfs diff=lfs merge=lfs -text
 dados/uwmadison.sqlite3 filter=lfs diff=lfs merge=lfs -text
+dados/baby-names.csv filter=lfs diff=lfs merge=lfs -text
