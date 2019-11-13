@@ -29,6 +29,7 @@ subtitle:
 - [Laboratório 07: SQLite Parte II](laboratorios/lab07.html)
 - [Laboratório 08: SQLite Parte III](laboratorios/lab08.html)
 - [Laboratório 09: MongoDB](laboratorios/lab09.html)
+- [Laboratório 10: Web Scraping](laboratorios/lab10.html)
 
 # JupyterHub ME315
 
