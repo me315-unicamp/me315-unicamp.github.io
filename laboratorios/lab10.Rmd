@@ -51,62 +51,34 @@ Comandos do `rvest` que podem ser empregados incluem:
 ```{r eval=FALSE, echo=FALSE, include=FALSE}
 library(rvest)
 library(lubridate)
-este_ano = 2019
 
-url = sprintf("http://www.chancedegol.com.br/br%02d.htm", este_ano-2000)
-wp = read_html(url)
-tbls = wp %>%
-  html_nodes("table") %>%
-  html_table(header=TRUE)
-
-## x = "51,8 %"
 perc_num = function(x)
   as.numeric(str_remove(str_replace(x, ",", "."), " *%"))/100
 
-tbl = tbls[[1]] %>%
-  setNames(c("data", "mandante", "placar", "visitante", "prob_m", "prob_e", "prob_v")) %>% 
-  as_tibble(.name_repair = "minimal") %>% 
-  separate(data, c("dia", "mes", "ano"), sep="/") %>% 
-  mutate(ano=este_ano, data=mdy(paste(mes, dia, ano, sep="-"))) %>% 
-  separate(placar, c("gol_mandante", "gol_visitante"), sep="x") %>% 
-  mutate(prob_m=perc_num(prob_m), prob_e=perc_num(prob_e), prob_v=perc_num(prob_v),
-         gol_mandante=as.integer(gol_mandante), gol_visitante=as.integer(gol_visitante)) %>% 
-  select(data, mandante, gol_mandante, gol_visitante, prob_m, prob_e, prob_v)
-
-
 extrai_jogos = function(este_ano){
   url = sprintf("http://www.chancedegol.com.br/br%02d.htm", este_ano-2000)
-  wp = read_html(url)
-  tbls = wp %>%
+  tbls = read_html(url) %>%
     html_nodes("table") %>%
     html_table(header=TRUE)
   
-  ## x = "51,8 %"
-  perc_num = function(x)
-    as.numeric(str_remove(str_replace(x, ",", "."), " *%"))/100
-  
-  tbl = tbls[[1]] %>%
-    setNames(c("data", "mandante", "placar", "visitante", "prob_m", "prob_e", "prob_v")) %>% 
-    as_tibble(.name_repair = "minimal") %>% 
+  tbls[[1]] %>%
+    setNames(c("data", "mandante", "placar", "visitante", "prob_m", "prob_e", "prob_v")) %>%
+    as_tibble() %>% 
     separate(data, c("dia", "mes", "ano"), sep="/") %>% 
-    mutate(ano=este_ano, data=mdy(paste(mes, dia, ano, sep="-"))) %>% 
+    mutate(data=mdy(paste(mes, dia, este_ano, sep="-"))) %>% 
     separate(placar, c("gol_mandante", "gol_visitante"), sep="x") %>% 
-    mutate(prob_m=perc_num(prob_m), prob_e=perc_num(prob_e), prob_v=perc_num(prob_v),
-           gol_mandante=as.integer(gol_mandante), gol_visitante=as.integer(gol_visitante)) %>% 
+    mutate_at(vars(starts_with("prob")), perc_num) %>%
+    mutate_at(vars(starts_with("gol")), as.integer) %>% 
     select(data, mandante, gol_mandante, gol_visitante, visitante, prob_m, prob_e, prob_v)
-  
-  tbl
 }
 
-anos_interesse = 2001:2018
-lst = lapply(anos_interesse, extrai_jogos)
-obj = do.call(bind_rows, lst)
+obj = do.call(bind_rows, lapply(2001:2018, extrai_jogos))
 
-obj %>% filter(mandante %in% c("São Paulo", "Corinthians"),
-               visitante %in% c("São Paulo", "Corinthians")) %>% 
+times = c("Atlético MG", "Fluminense")
+obj %>% filter(mandante %in% times, visitante %in% times) %>% 
   select(-prob_m, -prob_e, -prob_v) %>% 
   mutate(resultado = ifelse(gol_mandante > gol_visitante, mandante,
                             ifelse(gol_mandante < gol_visitante, visitante, "Empate"))) %>% 
-  group_by(resultado) %>% tally() %>% mutate(prop=n/sum(n))
+  group_by(resultado) %>% tally() %>% mutate(prop=round(n/sum(n), 2))
 ```
 
