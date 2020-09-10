@@ -1,0 +1,353 @@
+---
+title: "Webscraping Básico"
+subtitle: ""
+author: "Benilton Carvalho & Guilherme Ludwig"
+date: ""
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+# Export to PDF with 
+# library(webshot) # install_phantomjs() 
+# webshot("aula13.html", "aula13.pdf")
+# http://material.curso-r.com/scrape/
+options(htmltools.dir.version = FALSE, warning = FALSE)
+```
+
+## Webscraping
+
+- É possível "raspar" (*scrape*) informações de páginas da internet e guardá-las em um banco de dados para análise posterior;
+- Esta prática é chamada de *webscraping*;
+- Utilizaremos os pacotes:
+  * `tidyverse`: que disponibiliza o operador `%>%`;
+  * `rvest`: que simplifica algumas operações dos pacotes `xml2` e `httr`;
+  * `RSQLite`: que permite o uso do SQLite dentro do R.
+
+```{r load_pkg, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(rvest)
+library(RSQLite)
+```
+
+---
+
+## Idéias
+
+Uma página da web é um documento que pode ser exibido por um navegador. Estes documentos normalmente exibem resultados de consultas à bancos de dados, que são nosso principal interesse nesta disciplina. Em geral:
+
+- Páginas simples podem ser acessadas através do R com o pacote `rvest`.
+- Páginas dinâmicas que exijam autenticação do usuário, na forma de *cookies*, podem ser acessadas por meio do  pacote `httr`.
+- Nosso objetivo é coletar dados com o `rvest` e armazená-los em um banco de dados.
+
+---
+
+## HTML
+
+É preciso o conhecimento de HTML! Em geral, páginas HTML são texto estruturado, interpretado pelo navegador. Veja exemplos em: https://www.w3schools.com/html/html_basic.asp
+
+```
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Um título</h1>
+<p>Um parágrafo</p>
+<img src="foto.jpg" alt="Uma foto legal">
+<a href="http://www.uol.com.br">Link para  o site do UOL</a>
+
+</body>
+</html>
+```
+
+Para o `rvest`, os itens `<h1>`, `<p>`, `<img>` e `<a>` são nós (em inglês, *node*). O nó tipo `h1` é um cabeçalho, o `p` é parágrafo, enquanto o `img` é imagem e o `a` indica um link.
+
+---
+
+## Ainda sobre HTML
+
+Um nó `table` (`rvest`) define tabelas em HTML.
+
+```
+<!DOCTYPE html>
+<html>
+<body>
+
+ <table>
+  <tr>
+    <th>Curso</th>
+    <th>Código</th>
+  </tr>
+  <tr>
+    <td>Estatística</td>
+    <td>02</td>
+  </tr>
+  <tr>
+    <td>Matemática</td>
+    <td>01</td>
+  </tr>
+</table>
+
+</body>
+</html>
+```
+
+---
+
+## Ainda sobre HTML
+
+Um nó `li` (`rvest`) define listas em HTML.
+
+```
+<!DOCTYPE html>
+<html>
+<body>
+
+<ul>
+  <li>Café</li>
+  <li>Chá</li>
+  <li>Leite</li>
+</ul> 
+
+</body>
+</html>
+```
+
+---
+
+## Exemplo: wikipedia
+
+A *wikipedia* é particularmente interessante para scraping, pois ela possui muitas páginas com listas, de onde podemos começar nossas buscas. Por exemplo,
+
+https://en.wikipedia.org/wiki/List_of_statisticians
+
+Podemos estar interessados em compilar uma lista com nome, *alma mater*, data de nascimento (e local), e data de falecimento (caso já tenha falecido) de estatísticos famosos.
+
+---
+
+## Lista de Estatísticos
+
+![](13_list_stats.png)
+
+---
+
+## Página: George Box
+
+![](13_gep_box.png)
+
+---
+
+## Tabela de Interesse
+
+![](13_vcard.png)
+
+---
+
+## SelectorGadget
+
+Uma ferramenta recomendada pelo `rvest` é o chamado `SelectorGadget` (https://selectorgadget.com/), que mostra o nome de um "selector" em CSS. Há uma extensão para o navegador Chrome que permite que você use o SelectorGadget em qualquer página.
+
+Com o selector correto, você pode acessá-lo usando `html_nodes()`. Selectors interessantes incluem `"table.<nome>"` e `"li"`. É preciso inspecionar as páginas de interesse caso a caso.
+
+---
+
+## Usando SelectorGadget (Chrome)
+
+![](13_selectorGadget.png)
+
+---
+
+## Tabela de interesse
+
+```{r}
+url = "https://en.wikipedia.org/wiki/George_E._P._Box"
+webpage <- read_html(url)
+
+table <- webpage %>%
+  html_node(".vcard") %>% 
+  html_table(header = FALSE) %>% 
+  as_tibble()
+
+table
+```
+
+---
+
+## Conteúdo (limpeza com regex)
+
+```{r}
+table %>% mutate(X1 = str_replace_all(X1, "\\s", " "),
+                 X2 = str_replace_all(X2, "\\s", " "),
+                 X2 = str_replace_all(X2, "\\[[[:digit:]]\\]", " "),
+                 X2 = str_replace_all(X2, "&nbsp;", " "))
+```
+
+---
+
+## Procurando Links
+
+Inspecionando a página no navegador, é possível observar que, dentro de `body #content` (o conteúdo da página), os links estão guardados no node `"li"`.
+
+```{r}
+url = "https://en.wikipedia.org/wiki/List_of_statisticians"
+listPages <- read_html(url)
+links <- listPages %>%
+  html_nodes("li")
+```
+
+---
+
+## Procurando Links
+
+```{r}
+links
+```
+
+---
+
+## "Sajid Ali Khan, Rawalakot" até "Zipf, George Kingsley"
+
+```{r}
+estat1 = links %>%
+  as.character %>%
+  grep("Sajid Ali Khan, Rawalakot", .)
+estatN = links %>%
+  as.character %>%
+  grep("Zipf, George Kingsley", .)
+estat1
+estatN
+links <- links[estat1:estatN]
+```
+
+---
+
+## Páginas individuais
+
+O objeto `links` possui os endereços no formato XML e não se restringem apenas aos endereços.
+
+```{r}
+links
+```
+
+---
+
+## Páginas individuais
+
+Devemos lembrar que os endereços nos links são armazenados no nó `<a>`.
+
+```{r}
+links %>%
+  html_nodes("a")
+```
+
+---
+
+## Páginas Individuais
+
+No slide anterior, você deve observar que, dentro do nó `<a>`, existe um atributo `href`, que possui o link relativo (dentro da página da Wikipedia) para cada uma das páginas.
+
+```{r}
+links %>%
+  html_nodes("a") %>%
+  html_attr("href") # Salvar title também!
+```
+
+---
+
+## Criando os links completos
+
+Como visto anteriormente, o atributo `href` refere-se ao endereço **relativo** ao endereço padrão da Wikipedia. Para montar o endereço completo, é preciso adicionar a expressão `https://en.wikipedia.org` antes do endereço relativo.
+
+```{r}
+li <- links %>% html_nodes("a") %>% html_attr("href") 
+li <- paste0("https://en.wikipedia.org", li)
+li %>% head()
+names <- links %>% html_nodes("a") %>%  html_attr("title")
+names %>% head()
+```
+
+Mas verifiquem links que:
+
+- Apontem, em `names`, para *Florence Nightingale*, *Harold Wilson*, *Robert P. Abelson* (nota) ou *page does not exist*;
+- Possuam, em `li`, as expressões *redlink*, *mshkhan*, *orghttp*.
+
+---
+
+## Curadoria Manual
+
+```{r}
+bad = c("page does not exist", "Florence Nightingale",
+        "Harold Wilson", "Robert P. Abelson")
+bad1 = unlist(sapply(bad, grep, names))
+bad2 = unlist(sapply(c("mshkhan", "redlink", "orghttp"), grep, li))
+(remove = c(bad1, bad2))
+rm(bad, bad1, bad2)
+```
+
+---
+
+## Curadoria Manual
+
+```{r}
+names = names[-remove]
+li = li[-remove]
+pessoas = tibble(nome=names, link=li)
+pessoas %>% head()
+```
+
+---
+
+## Função para Extração de Tabela
+
+```{r}
+f <- function(x){
+  ifelse(length(x) == 0, NA_character_, x)
+}
+
+extraiTabela = function(mylink){
+  table <- read_html(mylink) %>% html_node(".vcard") 
+  if (is.na(html_name(table))) return(NULL)
+  if (html_name(table) != "table") return(NULL)
+  table = table %>% html_table(header = FALSE) %>% 
+          mutate(X1 = str_replace_all(X1, "\\s", " "),
+                 X2 = str_replace_all(X2, "\\s", " "),
+                 X2 = str_replace_all(X2, "\\[[[:digit:]]\\]", " "),
+                 X2 = str_replace_all(X2, "&nbsp;", " "))
+  tibble(link = mylink, 
+        Born = f(table[grep("Born", table$X1), 2]),
+        Died = f(table[grep("Died", table$X1), 2]),
+        AlmaMater = f(table[grep("Alma", table$X1), 2]))
+}
+```
+
+
+---
+
+## Extraindo tabelas (demora alguns minutos...)
+
+```{r, message=FALSE, warning=FALSE}
+library(doMC) ## se windows library(doParallel)
+registerDoMC(4) ## se windows registerDoParallel(nproc)
+out = foreach(thislink=li, .combine=rbind) %dopar% {
+  extraiTabela(thislink)
+}
+final = pessoas %>% inner_join(out, by='link')
+final[, 1:3] %>% head
+```
+
+---
+
+```{r}
+final[, -(1:3)] %>% head
+```
+
+---
+
+class: inverse, center, middle
+
+Obrigado!

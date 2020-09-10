@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Webscraping Básico</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Benilton Carvalho &amp; Guilherme Ludwig" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Webscraping Básico
+### Benilton Carvalho &amp; Guilherme Ludwig
+
+---
+
+
+
+
+## Webscraping
+
+- É possível "raspar" (*scrape*) informações de páginas da internet e guardá-las em um banco de dados para análise posterior;
+- Esta prática é chamada de *webscraping*;
+- Utilizaremos os pacotes:
+  * `tidyverse`: que disponibiliza o operador `%&gt;%`;
+  * `rvest`: que simplifica algumas operações dos pacotes `xml2` e `httr`;
+  * `RSQLite`: que permite o uso do SQLite dentro do R.
+
+
+```r
+library(tidyverse)
+library(rvest)
+library(RSQLite)
+```
+
+---
+
+## Idéias
+
+Uma página da web é um documento que pode ser exibido por um navegador. Estes documentos normalmente exibem resultados de consultas à bancos de dados, que são nosso principal interesse nesta disciplina. Em geral:
+
+- Páginas simples podem ser acessadas através do R com o pacote `rvest`.
+- Páginas dinâmicas que exijam autenticação do usuário, na forma de *cookies*, podem ser acessadas por meio do  pacote `httr`.
+- Nosso objetivo é coletar dados com o `rvest` e armazená-los em um banco de dados.
+
+---
+
+## HTML
+
+É preciso o conhecimento de HTML! Em geral, páginas HTML são texto estruturado, interpretado pelo navegador. Veja exemplos em: https://www.w3schools.com/html/html_basic.asp
+
+```
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+
+&lt;h1&gt;Um título&lt;/h1&gt;
+&lt;p&gt;Um parágrafo&lt;/p&gt;
+&lt;img src="foto.jpg" alt="Uma foto legal"&gt;
+&lt;a href="http://www.uol.com.br"&gt;Link para  o site do UOL&lt;/a&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+```
+
+Para o `rvest`, os itens `&lt;h1&gt;`, `&lt;p&gt;`, `&lt;img&gt;` e `&lt;a&gt;` são nós (em inglês, *node*). O nó tipo `h1` é um cabeçalho, o `p` é parágrafo, enquanto o `img` é imagem e o `a` indica um link.
+
+---
+
+## Ainda sobre HTML
+
+Um nó `table` (`rvest`) define tabelas em HTML.
+
+```
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+
+ &lt;table&gt;
+  &lt;tr&gt;
+    &lt;th&gt;Curso&lt;/th&gt;
+    &lt;th&gt;Código&lt;/th&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Estatística&lt;/td&gt;
+    &lt;td&gt;02&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Matemática&lt;/td&gt;
+    &lt;td&gt;01&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+```
+
+---
+
+## Ainda sobre HTML
+
+Um nó `li` (`rvest`) define listas em HTML.
+
+```
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Café&lt;/li&gt;
+  &lt;li&gt;Chá&lt;/li&gt;
+  &lt;li&gt;Leite&lt;/li&gt;
+&lt;/ul&gt; 
+
+&lt;/body&gt;
+&lt;/html&gt;
+```
+
+---
+
+## Exemplo: wikipedia
+
+A *wikipedia* é particularmente interessante para scraping, pois ela possui muitas páginas com listas, de onde podemos começar nossas buscas. Por exemplo,
+
+https://en.wikipedia.org/wiki/List_of_statisticians
+
+Podemos estar interessados em compilar uma lista com nome, *alma mater*, data de nascimento (e local), e data de falecimento (caso já tenha falecido) de estatísticos famosos.
+
+---
+
+## Lista de Estatísticos
+
+![](13_list_stats.png)
+
+---
+
+## Página: George Box
+
+![](13_gep_box.png)
+
+---
+
+## Tabela de Interesse
+
+![](13_vcard.png)
+
+---
+
+## SelectorGadget
+
+Uma ferramenta recomendada pelo `rvest` é o chamado `SelectorGadget` (https://selectorgadget.com/), que mostra o nome de um "selector" em CSS. Há uma extensão para o navegador Chrome que permite que você use o SelectorGadget em qualquer página.
+
+Com o selector correto, você pode acessá-lo usando `html_nodes()`. Selectors interessantes incluem `"table.&lt;nome&gt;"` e `"li"`. É preciso inspecionar as páginas de interesse caso a caso.
+
+---
+
+## Usando SelectorGadget (Chrome)
+
+![](13_selectorGadget.png)
+
+---
+
+## Tabela de interesse
+
+
+```r
+url = "https://en.wikipedia.org/wiki/George_E._P._Box"
+webpage &lt;- read_html(url)
+
+table &lt;- webpage %&gt;%
+  html_node(".vcard") %&gt;% 
+  html_table(header = FALSE) %&gt;% 
+  as_tibble()
+
+table
+```
+
+```
+## # A tibble: 17 x 2
+##    X1              X2                                                           
+##    &lt;chr&gt;           &lt;chr&gt;                                                        
+##  1 George Box      George Box                                                   
+##  2 ""              ""                                                           
+##  3 Born            (1919-10-18)18 October 1919Gravesend, Kent, England          
+##  4 Died            28 March 2013(2013-03-28) (aged 93)Madison, Wisconsin        
+##  5 Residence       United Kingdom, United States                                
+##  6 Alma mater      University College London                                    
+##  7 Known for       "“All models are wrong”\nResponse-surface methodology\nEVOP\…
+##  8 Awards          "Shewhart Medal (1968)\nWilks Memorial Award (1972)\nR. A. F…
+##  9 Scientific car… Scientific career                                            
+## 10 Fields          "Statistics\nDesign of experiments\nBayesian statistics\nTim…
+## 11 Institutions    "ICI\nPrinceton University\nUniversity of Wisconsin–Madison" 
+## 12 Thesis          Departures from Independence and Homoskedasticity in the Ana…
+## 13 Doctoral advis… "Egon Pearson\nH. O. Hartley[2]"                             
+## 14 Doctoral stude… John F. MacGregor[2]Greta M. Ljung                           
+## 15 Influences      Ronald Fisher                                                
+## 16 Influenced      Norman Draper  George C. Tiao                                
+## 17 ""              ""
+```
+
+---
+
+## Conteúdo (limpeza com regex)
+
+
+```r
+table %&gt;% mutate(X1 = str_replace_all(X1, "\\s", " "),
+                 X2 = str_replace_all(X2, "\\s", " "),
+                 X2 = str_replace_all(X2, "\\[[[:digit:]]\\]", " "),
+                 X2 = str_replace_all(X2, "&amp;nbsp;", " "))
+```
+
+```
+## # A tibble: 17 x 2
+##    X1              X2                                                           
+##    &lt;chr&gt;           &lt;chr&gt;                                                        
+##  1 George Box      George Box                                                   
+##  2 ""              ""                                                           
+##  3 Born            (1919-10-18)18 October 1919Gravesend, Kent, England          
+##  4 Died            28 March 2013(2013-03-28) (aged 93)Madison, Wisconsin        
+##  5 Residence       United Kingdom, United States                                
+##  6 Alma mater      University College London                                    
+##  7 Known for       “All models are wrong” Response-surface methodology EVOP Box…
+##  8 Awards          Shewhart Medal (1968) Wilks Memorial Award (1972) R. A. Fish…
+##  9 Scientific car… Scientific career                                            
+## 10 Fields          Statistics Design of experiments Bayesian statistics Time se…
+## 11 Institutions    ICI Princeton University University of Wisconsin–Madison     
+## 12 Thesis          Departures from Independence and Homoskedasticity in the Ana…
+## 13 Doctoral advis… "Egon Pearson H. O. Hartley "                                
+## 14 Doctoral stude… John F. MacGregor Greta M. Ljung                             
+## 15 Influences      Ronald Fisher                                                
+## 16 Influenced      Norman Draper  George C. Tiao                                
+## 17 ""              ""
+```
+
+---
+
+## Procurando Links
+
+Inspecionando a página no navegador, é possível observar que, dentro de `body #content` (o conteúdo da página), os links estão guardados no node `"li"`.
+
+
+```r
+url = "https://en.wikipedia.org/wiki/List_of_statisticians"
+listPages &lt;- read_html(url)
+links &lt;- listPages %&gt;%
+  html_nodes("li")
+```
+
+---
+
+## Procurando Links
+
+
+```r
+links
+```
+
+```
+## {xml_nodeset (742)}
+##  [1] &lt;li&gt;&lt;a href="/wiki/Outline_of_statistics" title="Outline of statistics"&gt; ...
+##  [2] &lt;li&gt;&lt;a class="mw-selflink selflink"&gt;Statisticians&lt;/a&gt;&lt;/li&gt;
+##  [3] &lt;li&gt;&lt;a href="/wiki/Glossary_of_probability_and_statistics" title="Glossa ...
+##  [4] &lt;li&gt;&lt;a href="/wiki/Notation_in_probability_and_statistics" title="Notati ...
+##  [5] &lt;li&gt;&lt;a href="/wiki/List_of_statistics_journals" title="List of statistic ...
+##  [6] &lt;li&gt;&lt;a href="/wiki/Lists_of_statistics_topics" title="Lists of statistic ...
+##  [7] &lt;li&gt;&lt;a href="/wiki/List_of_statistics_articles" title="List of statistic ...
+##  [8] &lt;li&gt;\n&lt;a href="/wiki/File:Nuvola_apps_edu_mathematics_blue-p.svg" class= ...
+##  [9] &lt;li&gt;&lt;a href="/wiki/Category:Statistics" title="Category:Statistics"&gt;Cate ...
+## [10] &lt;li class="nv-view"&gt;&lt;a href="/wiki/Template:Statistics_topics_sidebar" t ...
+## [11] &lt;li class="nv-talk"&gt;&lt;a href="/wiki/Template_talk:Statistics_topics_sideb ...
+## [12] &lt;li class="nv-edit"&gt;&lt;a class="external text" href="https://en.wikipedia. ...
+## [13] &lt;li&gt;&lt;a href="#A"&gt;A&lt;/a&gt;&lt;/li&gt;
+## [14] &lt;li&gt;&lt;a href="#B"&gt;B&lt;/a&gt;&lt;/li&gt;
+## [15] &lt;li&gt;&lt;a href="#C"&gt;C&lt;/a&gt;&lt;/li&gt;
+## [16] &lt;li&gt;&lt;a href="#D"&gt;D&lt;/a&gt;&lt;/li&gt;
+## [17] &lt;li&gt;&lt;a href="#E"&gt;E&lt;/a&gt;&lt;/li&gt;
+## [18] &lt;li&gt;&lt;a href="#F"&gt;F&lt;/a&gt;&lt;/li&gt;
+## [19] &lt;li&gt;&lt;a href="#G"&gt;G&lt;/a&gt;&lt;/li&gt;
+## [20] &lt;li&gt;&lt;a href="#H"&gt;H&lt;/a&gt;&lt;/li&gt;
+## ...
+```
+
+---
+
+## "Sajid Ali Khan, Rawalakot" até "Zipf, George Kingsley"
+
+
+```r
+estat1 = links %&gt;%
+  as.character %&gt;%
+  grep("Sajid Ali Khan, Rawalakot", .)
+estatN = links %&gt;%
+  as.character %&gt;%
+  grep("Zipf, George Kingsley", .)
+estat1
+```
+
+```
+## [1] 40
+```
+
+```r
+estatN
+```
+
+```
+## [1] 679
+```
+
+```r
+links &lt;- links[estat1:estatN]
+```
+
+---
+
+## Páginas individuais
+
+O objeto `links` possui os endereços no formato XML e não se restringem apenas aos endereços.
+
+
+```r
+links
+```
+
+```
+## {xml_nodeset (640)}
+##  [1] &lt;li&gt;\n&lt;a href="/w/index.php?title=Sajid_Ali_Khan&amp;amp;action=edit&amp;amp;red ...
+##  [2] &lt;li&gt;\n&lt;a href="/wiki/Odd_Aalen" title="Odd Aalen"&gt;Aalen, Odd Olai&lt;/a&gt; (1 ...
+##  [3] &lt;li&gt;\n&lt;a href="/wiki/Edith_Abbott" title="Edith Abbott"&gt;Abbott, Edith&lt;/a ...
+##  [4] &lt;li&gt;\n&lt;a href="/wiki/Robert_P._Abelson" class="mw-redirect" title="Rober ...
+##  [5] &lt;li&gt;\n&lt;a href="/wiki/Moses_Abramovitz" title="Moses Abramovitz"&gt;Abramovi ...
+##  [6] &lt;li&gt;\n&lt;a href="/wiki/Gottfried_Achenwall" title="Gottfried Achenwall"&gt;Ac ...
+##  [7] &lt;li&gt;\n&lt;a href="/wiki/Abraham_Manie_Adelstein" title="Abraham Manie Adels ...
+##  [8] &lt;li&gt;\n&lt;a href="/wiki/Riaz_Ahsan" title="Riaz Ahsan"&gt;Ahsan, Riaz&lt;/a&gt; (195 ...
+##  [9] &lt;li&gt;\n&lt;a href="/wiki/Beatrice_Aitchison" title="Beatrice Aitchison"&gt;Aitc ...
+## [10] &lt;li&gt;\n&lt;a href="/wiki/John_Aitchison" title="John Aitchison"&gt;Aitchison, J ...
+## [11] &lt;li&gt;\n&lt;a href="/wiki/Alexander_Aitken" title="Alexander Aitken"&gt;Aitken,  ...
+## [12] &lt;li&gt;\n&lt;a href="/wiki/Hirotsugu_Akaike" class="mw-redirect" title="Hirots ...
+## [13] &lt;li&gt;\n&lt;a href="/wiki/Mir_Masoom_Ali" title="Mir Masoom Ali"&gt;Ali, Mir Mas ...
+## [14] &lt;li&gt;\n&lt;a href="/wiki/R._G._D._Allen" title="R. G. D. Allen"&gt;Allen, R. G. ...
+## [15] &lt;li&gt;&lt;a href="/wiki/David_B._Allison" title="David B. Allison"&gt;Allison, D ...
+## [16] &lt;li&gt;\n&lt;a href="/wiki/Doug_Altman" title="Doug Altman"&gt;Altman, Doug&lt;/a&gt; ( ...
+## [17] &lt;li&gt;\n&lt;a href="/wiki/Takeshi_Amemiya" title="Takeshi Amemiya"&gt;Amemiya, T ...
+## [18] &lt;li&gt;\n&lt;a href="/wiki/Oskar_Anderson" title="Oskar Anderson"&gt;Anderson, Os ...
+## [19] &lt;li&gt;&lt;a href="/wiki/Theodore_Wilbur_Anderson" title="Theodore Wilbur Ande ...
+## [20] &lt;li&gt;\n&lt;a href="/wiki/Francis_Anscombe" class="mw-redirect" title="Franci ...
+## ...
+```
+
+---
+
+## Páginas individuais
+
+Devemos lembrar que os endereços nos links são armazenados no nó `&lt;a&gt;`.
+
+
+```r
+links %&gt;%
+  html_nodes("a")
+```
+
+```
+## {xml_nodeset (640)}
+##  [1] &lt;a href="/w/index.php?title=Sajid_Ali_Khan&amp;amp;action=edit&amp;amp;redlink=1 ...
+##  [2] &lt;a href="/wiki/Odd_Aalen" title="Odd Aalen"&gt;Aalen, Odd Olai&lt;/a&gt;
+##  [3] &lt;a href="/wiki/Edith_Abbott" title="Edith Abbott"&gt;Abbott, Edith&lt;/a&gt;
+##  [4] &lt;a href="/wiki/Robert_P._Abelson" class="mw-redirect" title="Robert P. A ...
+##  [5] &lt;a href="/wiki/Moses_Abramovitz" title="Moses Abramovitz"&gt;Abramovitz, Mo ...
+##  [6] &lt;a href="/wiki/Gottfried_Achenwall" title="Gottfried Achenwall"&gt;Achenwal ...
+##  [7] &lt;a href="/wiki/Abraham_Manie_Adelstein" title="Abraham Manie Adelstein"&gt; ...
+##  [8] &lt;a href="/wiki/Riaz_Ahsan" title="Riaz Ahsan"&gt;Ahsan, Riaz&lt;/a&gt;
+##  [9] &lt;a href="/wiki/Beatrice_Aitchison" title="Beatrice Aitchison"&gt;Aitchison, ...
+## [10] &lt;a href="/wiki/John_Aitchison" title="John Aitchison"&gt;Aitchison, John&lt;/a&gt;
+## [11] &lt;a href="/wiki/Alexander_Aitken" title="Alexander Aitken"&gt;Aitken, Alexan ...
+## [12] &lt;a href="/wiki/Hirotsugu_Akaike" class="mw-redirect" title="Hirotsugu Ak ...
+## [13] &lt;a href="/wiki/Mir_Masoom_Ali" title="Mir Masoom Ali"&gt;Ali, Mir Masoom&lt;/a&gt;
+## [14] &lt;a href="/wiki/R._G._D._Allen" title="R. G. D. Allen"&gt;Allen, R. G. D.&lt;/a&gt;
+## [15] &lt;a href="/wiki/David_B._Allison" title="David B. Allison"&gt;Allison, David ...
+## [16] &lt;a href="/wiki/Doug_Altman" title="Doug Altman"&gt;Altman, Doug&lt;/a&gt;
+## [17] &lt;a href="/wiki/Takeshi_Amemiya" title="Takeshi Amemiya"&gt;Amemiya, Takeshi ...
+## [18] &lt;a href="/wiki/Oskar_Anderson" title="Oskar Anderson"&gt;Anderson, Oskar&lt;/a&gt;
+## [19] &lt;a href="/wiki/Theodore_Wilbur_Anderson" title="Theodore Wilbur Anderson ...
+## [20] &lt;a href="/wiki/Francis_Anscombe" class="mw-redirect" title="Francis Ansc ...
+## ...
+```
+
+---
+
+## Páginas Individuais
+
+No slide anterior, você deve observar que, dentro do nó `&lt;a&gt;`, existe um atributo `href`, que possui o link relativo (dentro da página da Wikipedia) para cada uma das páginas.
+
+
+```r
+links %&gt;%
+  html_nodes("a") %&gt;%
+  html_attr("href") # Salvar title também!
+```
+
+```
+##   [1] "/w/index.php?title=Sajid_Ali_Khan&amp;action=edit&amp;redlink=1"                                               
+##   [2] "/wiki/Odd_Aalen"                                                                                       
+##   [3] "/wiki/Edith_Abbott"                                                                                    
+##   [4] "/wiki/Robert_P._Abelson"                                                                               
+##   [5] "/wiki/Moses_Abramovitz"                                                                                
+##   [6] "/wiki/Gottfried_Achenwall"                                                                             
+##   [7] "/wiki/Abraham_Manie_Adelstein"                                                                         
+##   [8] "/wiki/Riaz_Ahsan"                                                                                      
+##   [9] "/wiki/Beatrice_Aitchison"                                                                              
+##  [10] "/wiki/John_Aitchison"                                                                                  
+##  [11] "/wiki/Alexander_Aitken"                                                                                
+##  [12] "/wiki/Hirotsugu_Akaike"                                                                                
+##  [13] "/wiki/Mir_Masoom_Ali"                                                                                  
+##  [14] "/wiki/R._G._D._Allen"                                                                                  
+##  [15] "/wiki/David_B._Allison"                                                                                
+##  [16] "/wiki/Doug_Altman"                                                                                     
+##  [17] "/wiki/Takeshi_Amemiya"                                                                                 
+##  [18] "/wiki/Oskar_Anderson"                                                                                  
+##  [19] "/wiki/Theodore_Wilbur_Anderson"                                                                        
+##  [20] "/wiki/Francis_Anscombe"                                                                                
+##  [21] "/wiki/Luc_Anselin"                                                                                     
+##  [22] "/wiki/Peter_Armitage"                                                                                  
+##  [23] "/wiki/Kenneth_Arrow"                                                                                   
+##  [24] "/wiki/Anthony_Ashley-Cooper,_7th_Earl_of_Shaftesbury"                                                  
+##  [25] "/wiki/Oscar_Phelps_Austin"                                                                             
+##  [26] "/wiki/Leonard_Porter_Ayres"                                                                            
+##  [27] "/wiki/Raghu_Raj_Bahadur"                                                                               
+##  [28] "/wiki/David_Balding"                                                                                   
+##  [29] "/wiki/George_Alfred_Barnard"                                                                           
+##  [30] "/wiki/William_A._Barnett"                                                                              
+##  [31] "/wiki/Julius_Bartels"                                                                                  
+##  [32] "/wiki/M._S._Bartlett"                                                                                  
+##  [33] "/wiki/Geoff_Bascand"                                                                                   
+##  [34] "/wiki/Debabrata_Basu"                                                                                  
+##  [35] "/wiki/Laurence_Baxter"                                                                                 
+##  [36] "/wiki/Thomas_Bayes"                                                                                    
+##  [37] "/wiki/Calvin_Beale"                                                                                    
+##  [38] "/wiki/Ernst_Behm"                                                                                      
+##  [39] "/wiki/Bernard_Benjamin"                                                                                
+##  [40] "/wiki/Jean-Paul_Benz%C3%A9cri"                                                                         
+##  [41] "/wiki/James_Berger_(statistician)"                                                                     
+##  [42] "/wiki/Joseph_Berkson"                                                                                  
+##  [43] "/wiki/Jos%C3%A9-Miguel_Bernardo"                                                                       
+##  [44] "/wiki/Don_Berry_(statistician)"                                                                        
+##  [45] "/wiki/Alfred_M._Best"                                                                                  
+##  [46] "/wiki/William_Beveridge"                                                                               
+##  [47] "/wiki/B._R._Bhat"                                                                                      
+##  [48] "/wiki/P._N._Mari_Bhat"                                                                                 
+##  [49] "/wiki/U._Narayan_Bhat"                                                                                 
+##  [50] "/wiki/Ir%C3%A9n%C3%A9e-Jules_Bienaym%C3%A9"                                                            
+##  [51] "/wiki/Christopher_Bingham"                                                                             
+##  [52] "/wiki/Allan_Birnbaum"                                                                                  
+##  [53] "/wiki/Thomas_John_Bisika"                                                                              
+##  [54] "/wiki/David_Blackwell"                                                                                 
+##  [55] "/wiki/Chester_Ittner_Bliss"                                                                            
+##  [56] "/wiki/Maurice_Block"                                                                                   
+##  [57] "/wiki/David_E._Bloom"                                                                                  
+##  [58] "/wiki/Luigi_Bodio"                                                                                     
+##  [59] "/wiki/Walter_Bodmer"                                                                                   
+##  [60] "/wiki/Carlo_Emilio_Bonferroni"                                                                         
+##  [61] "/wiki/Charles_Booth_(philanthropist)"                                                                  
+##  [62] "/wiki/John_Boreham"                                                                                    
+##  [63] "/wiki/Ladislaus_Bortkiewicz"                                                                           
+##  [64] "/wiki/R._C._Bose"                                                                                      
+##  [65] "/wiki/Roelof_Botha"                                                                                    
+##  [66] "/wiki/L%C3%A9on_Bottou"                                                                                
+##  [67] "/wiki/Arthur_Lyon_Bowley"                                                                              
+##  [68] "/wiki/George_E._P._Box"                                                                                
+##  [69] "/wiki/Phelim_Boyle"                                                                                    
+##  [70] "/wiki/Ion_Ionescu_de_la_Brad"                                                                          
+##  [71] "/wiki/Thomas_Brassey,_1st_Earl_Brassey"                                                                
+##  [72] "/wiki/Leo_Breiman"                                                                                     
+##  [73] "/wiki/Norman_Breslow"                                                                                  
+##  [74] "/wiki/Steve_Brooks_(statistician)"                                                                     
+##  [75] "/wiki/Lawrence_D._Brown"                                                                               
+##  [76] "/wiki/Warren_Randolph_Burgess"                                                                         
+##  [77] "/wiki/J%C3%B3zef_Buzek"                                                                                
+##  [78] "/wiki/Rattan_Chand"                                                                                    
+##  [79] "/wiki/T._Tony_Cai"                                                                                     
+##  [80] "/wiki/James_Caird_(agricultural_writer)"                                                               
+##  [81] "/wiki/John_Caldwell_(demographer)"                                                                     
+##  [82] "/wiki/Lucien_Le_Cam"                                                                                   
+##  [83] "/wiki/Harry_Campion"                                                                                   
+##  [84] "/wiki/Emmanuel_Cand%C3%A8s"                                                                            
+##  [85] "/wiki/Harry_C._Carver"                                                                                 
+##  [86] "/wiki/Ian_Castles"                                                                                     
+##  [87] "/wiki/M._C._Chakrabarti"                                                                               
+##  [88] "/wiki/George_Chalmers_(antiquarian)"                                                                   
+##  [89] "/wiki/John_Chambers_(statistician)"                                                                    
+##  [90] "/wiki/D._G._Champernowne"                                                                              
+##  [91] "/wiki/Rattan_Chand"                                                                                    
+##  [92] "/wiki/Enid_Charles"                                                                                    
+##  [93] "/wiki/Carl_Charlier"                                                                                   
+##  [94] "/wiki/Pafnuty_Chebyshev"                                                                               
+##  [95] "/wiki/Louis_Chen_Hsiao_Yun"                                                                            
+##  [96] "/wiki/Herman_Chernoff"                                                                                 
+##  [97] "/wiki/Alexey_Chervonenkis"                                                                             
+##  [98] "/wiki/Yuan-Shih_Chow"                                                                                  
+##  [99] "/wiki/Alexander_Alexandrovich_Chuprov"                                                                 
+## [100] "/wiki/Alexander_Ivanovich_Chuprov"                                                                     
+## [101] "/wiki/Colin_Clark_(economist)"                                                                         
+## [102] "/wiki/Richard_W._B._Clarke"                                                                            
+## [103] "/wiki/David_Clayton"                                                                                   
+## [104] "/wiki/Ansley_J._Coale"                                                                                 
+## [105] "/wiki/Robert_H._Coats"                                                                                 
+## [106] "/wiki/William_Gemmell_Cochran"                                                                         
+## [107] "/wiki/Arthur_Cockfield,_Baron_Cockfield"                                                               
+## [108] "/wiki/Timothy_Augustine_Coghlan"                                                                       
+## [109] "/wiki/Jacob_Cohen_(statistician)"                                                                      
+## [110] "/wiki/Joel_E._Cohen"                                                                                   
+## [111] "/wiki/Ronald_Coifman"                                                                                  
+## [112] "/wiki/David_Coleman_(academic)"                                                                        
+## [113] "/wiki/Len_Cook"                                                                                        
+## [114] "/wiki/Gauss_Moutinho_Cordeiro"                                                                         
+## [115] "/wiki/Jerome_Cornfield"                                                                                
+## [116] "/wiki/Leonard_Courtney,_1st_Baron_Courtney_of_Penwith"                                                 
+## [117] "/wiki/Thomas_M._Cover"                                                                                 
+## [118] "/wiki/David_Cox_(statistician)"                                                                        
+## [119] "/wiki/Gertrude_Mary_Cox"                                                                               
+## [120] "/wiki/Richard_Threlkeld_Cox"                                                                           
+## [121] "/wiki/Harald_Cram%C3%A9r"                                                                              
+## [122] "/wiki/August_Friedrich_Wilhelm_Crome"                                                                  
+## [123] "/wiki/James_Crosby_(British_businessman)"                                                              
+## [124] "/wiki/Sedley_Cudmore"                                                                                  
+## [125] "/wiki/Stella_Cunliffe"                                                                                 
+## [126] "/wiki/Jan_Czekanowski"                                                                                 
+## [127] "/wiki/Henry_Daniels"                                                                                   
+## [128] "/wiki/David_van_Dantzig"                                                                               
+## [129] "/wiki/George_Dantzig"                                                                                  
+## [130] "/wiki/John_Darwin_(statistician)"                                                                      
+## [131] "/wiki/Florence_Nightingale_David"                                                                      
+## [132] "/wiki/Griffith_Davies"                                                                                 
+## [133] "/wiki/Kingsley_Davis"                                                                                  
+## [134] "/wiki/Philip_Dawid"                                                                                    
+## [135] "/wiki/Christopher_Daykin"                                                                              
+## [136] "/wiki/Morris_H._DeGroot"                                                                               
+## [137] "/wiki/W._Edwards_Deming"                                                                               
+## [138] "/wiki/Arthur_P._Dempster"                                                                              
+## [139] "/wiki/Alain_Desrosi%C3%A8res"                                                                          
+## [140] "/wiki/Davis_Rich_Dewey"                                                                                
+## [141] "/wiki/Persi_Diaconis"                                                                                  
+## [142] "/wiki/Sir_Charles_Dilke,_2nd_Baronet"                                                                  
+## [143] "/wiki/Harold_F._Dodge"                                                                                 
+## [144] "/wiki/James_Dodson_(mathematician)"                                                                    
+## [145] "/wiki/Richard_Doll"                                                                                    
+## [146] "/wiki/Peter_Donnelly"                                                                                  
+## [147] "/wiki/David_Donoho"                                                                                    
+## [148] "/wiki/Joseph_Leo_Doob"                                                                                 
+## [149] "/wiki/Louis_Israel_Dublin"                                                                             
+## [150] "/wiki/Frank_Duckworth"                                                                                 
+## [151] "/wiki/Richard_M._Dudley"                                                                               
+## [152] "/wiki/David_F._Duncan"                                                                                 
+## [153] "/wiki/Otis_Dudley_Duncan"                                                                              
+## [154] "/wiki/Halbert_L._Dunn"                                                                                 
+## [155] "/wiki/Karen_Dunnell"                                                                                   
+## [156] "/wiki/Charles_Dunnett"                                                                                 
+## [157] "/wiki/James_Durbin"                                                                                    
+## [158] "/wiki/Aryeh_Dvoretzky"                                                                                 
+## [159] "/wiki/Brian_Easton_(economist)"                                                                        
+## [160] "/wiki/A._Ross_Eckler"                                                                                  
+## [161] "/wiki/A._Ross_Eckler,_Jr."                                                                             
+## [162] "/wiki/Sir_Frederick_Eden,_2nd_Baronet"                                                                 
+## [163] "/wiki/Francis_Ysidro_Edgeworth"                                                                        
+## [164] "/wiki/A._W._F._Edwards"                                                                                
+## [165] "/wiki/Bradley_Efron"                                                                                   
+## [166] "/wiki/Churchill_Eisenhart"                                                                             
+## [167] "/wiki/Ethel_M._Elderton"                                                                               
+## [168] "/wiki/William_Palin_Elderton"                                                                          
+## [169] "/wiki/Robert_C._Elston"                                                                                
+## [170] "/wiki/Ernst_Engel"                                                                                     
+## [171] "/wiki/Robert_F._Engle"                                                                                 
+## [172] "/wiki/Agner_Krarup_Erlang"                                                                             
+## [173] "/wiki/John_Erritt"                                                                                     
+## [174] "/wiki/Mordecai_Ezekiel"                                                                                
+## [175] "/wiki/Johann_Ernst_Fabri"                                                                              
+## [176] "/wiki/Johannes_Fallati"                                                                                
+## [177] "/wiki/Jianqing_Fan"                                                                                    
+## [178] "/wiki/William_Farr"                                                                                    
+## [179] "/wiki/Thomas_Farrer,_1st_Baron_Farrer"                                                                 
+## [180] "/wiki/Gustav_Fechner"                                                                                  
+## [181] "/wiki/Ivan_Fellegi"                                                                                    
+## [182] "/wiki/William_Feller"                                                                                  
+## [183] "/wiki/Xavier_Fernique"                                                                                 
+## [184] "/wiki/Stephen_Fienberg"                                                                                
+## [185] "/wiki/Bruno_de_Finetti"                                                                                
+## [186] "/wiki/John_Finlaison_(Finlayson)"                                                                      
+## [187] "/wiki/D._J._Finney"                                                                                    
+## [188] "/wiki/Irving_Fisher"                                                                                   
+## [189] "/wiki/Ronald_Fisher"                                                                                   
+## [190] "/wiki/William_Fleetwood"                                                                               
+## [191] "/wiki/Joseph_L._Fleiss"                                                                                
+## [192] "/wiki/A._William_Flux"                                                                                 
+## [193] "/wiki/David_Foot_(economist)"                                                                          
+## [194] "/wiki/Henry_Fowler,_1st_Viscount_Wolverhampton"                                                        
+## [195] "/wiki/John_Fox_(statistician)"                                                                         
+## [196] "/wiki/Lester_Frankel"                                                                                  
+## [197] "/wiki/Stefano_Franscini"                                                                               
+## [198] "/wiki/David_A._Freedman_(statistician)"                                                                
+## [199] "/wiki/Ronald_Freedman"                                                                                 
+## [200] "/wiki/Milton_Friedman"                                                                                 
+## [201] "/wiki/Arnoldo_Frigessi"                                                                                
+## [202] "/wiki/Anil_Kumar_Gain"                                                                                 
+## [203] "/wiki/A._Ronald_Gallant"                                                                               
+## [204] "/wiki/George_Gallup"                                                                                   
+## [205] "/wiki/Francis_Galton"                                                                                  
+## [206] "/wiki/Michel_Gauquelin"                                                                                
+## [207] "/wiki/Roy_C._Geary"                                                                                    
+## [208] "/wiki/Seymour_Geisser"                                                                                 
+## [209] "/wiki/Donald_Geman"                                                                                    
+## [210] "/wiki/Jayanta_Kumar_Ghosh"                                                                             
+## [211] "/wiki/Eric_Ghysels"                                                                                    
+## [212] "/wiki/Lyndhurst_Giblin"                                                                                
+## [213] "/wiki/Robert_Giffen"                                                                                   
+## [214] "/wiki/Richard_D._Gill"                                                                                 
+## [215] "/wiki/Corrado_Gini"                                                                                    
+## [216] "/wiki/David_Glass_(sociologist)"                                                                       
+## [217] "/wiki/Gene_V._Glass"                                                                                   
+## [218] "/wiki/Samuel_Goldman"                                                                                  
+## [219] "/wiki/Harvey_Goldstein"                                                                                
+## [220] "/wiki/Benjamin_Gompertz"                                                                               
+## [221] "/wiki/I._J._Good"                                                                                      
+## [222] "/wiki/Phillip_Good"                                                                                    
+## [223] "/wiki/James_Goodnight"                                                                                 
+## [224] "/wiki/George_Goschen,_1st_Viscount_Goschen"                                                            
+## [225] "/wiki/William_Sealy_Gosset"                                                                            
+## [226] "/wiki/Cyril_Goulden"                                                                                   
+## [227] "/wiki/Clive_Granger"                                                                                   
+## [228] "/wiki/John_Graunt"                                                                                     
+## [229] "/wiki/Mary_W._Gray"                                                                                    
+## [230] "/wiki/Eugene_Grebenik"                                                                                 
+## [231] "/wiki/Peter_Green_(statistician)"                                                                      
+## [232] "/wiki/Sander_Greenland"                                                                                
+## [233] "/wiki/Major_Greenwood"                                                                                 
+## [234] "/wiki/Robert_Griffiths_(mathematician)"                                                                
+## [235] "/wiki/Zvi_Griliches"                                                                                   
+## [236] "/wiki/Geoffrey_Grimmett"                                                                               
+## [237] "/wiki/Andr%C3%A9-Michel_Guerry"                                                                        
+## [238] "/wiki/Emil_Julius_Gumbel"                                                                              
+## [239] "/wiki/Louis_Guttman"                                                                                   
+## [240] "/wiki/William_Guy"                                                                                     
+## [241] "/wiki/Pierre_Gy"                                                                                       
+## [242] "/wiki/Steven_Haberman"                                                                                 
+## [243] "/wiki/Jaroslav_H%C3%A1jek"                                                                             
+## [244] "/wiki/John_Hajnal"                                                                                     
+## [245] "/wiki/Anders_Hald"                                                                                     
+## [246] "/wiki/Trevor_Hastie"                                                                                   
+## [247] "/wiki/Peter_Gavin_Hall"                                                                                
+## [248] "/wiki/Paul_Halmos"                                                                                     
+## [249] "/wiki/Lord_George_Hamilton"                                                                            
+## [250] "/wiki/David_Hand_(statistician)"                                                                       
+## [251] "/wiki/Garrett_Hardin"                                                                                  
+## [252] "/wiki/Ted_Harris_(mathematician)"                                                                      
+## [253] "/wiki/Herman_Otto_Hartley"                                                                             
+## [254] "/wiki/Henry_Heylyn_Hayter"                                                                             
+## [255] "/wiki/Michael_Healy_(statistician)"                                                                    
+## [256] "/wiki/Larry_V._Hedges"                                                                                 
+## [257] "/wiki/Jotun_Hein"                                                                                      
+## [258] "/wiki/Friedrich_Robert_Helmert"                                                                        
+## [259] "/wiki/Charles_Roy_Henderson"                                                                           
+## [260] "/wiki/Chris_Heyde"                                                                                     
+## [261] "/wiki/Jack_Hibbert"                                                                                    
+## [262] "/wiki/James_C._Hickman"                                                                                
+## [263] "/wiki/Joseph_Hilbe"                                                                                    
+## [264] "/wiki/Austin_Bradford_Hill"                                                                            
+## [265] "/wiki/Joseph_Adna_Hill"                                                                                
+## [266] "/wiki/David_V._Hinkley"                                                                                
+## [267] "/wiki/Nils_Lid_Hjort"                                                                                  
+## [268] "/wiki/Wassily_Hoeffding"                                                                               
+## [269] "/wiki/Jan_Hoem"                                                                                        
+## [270] "/wiki/Myles_Hollander"                                                                                 
+## [271] "/wiki/Herman_Hollerith"                                                                                
+## [272] "/wiki/Chris_Holmes_(mathematician)"                                                                    
+## [273] "/wiki/Susan_P._Holmes"                                                                                 
+## [274] "/wiki/Tim_Holt_(statistician)"                                                                         
+## [275] "/wiki/Gabriel_Gabrielsen_Holtsmark"                                                                    
+## [276] "/wiki/Lancelot_Hogben"                                                                                 
+## [277] "/wiki/Reginald_Hawthorn_Hooker"                                                                        
+## [278] "/wiki/Susan_Horn"                                                                                      
+## [279] "/wiki/Harold_Hotelling"                                                                                
+## [280] "/wiki/Darrell_Huff"                                                                                    
+## [281] "/wiki/William_Wilson_Hunter"                                                                           
+## [282] "/wiki/William_Hunter_(statistician)"                                                                   
+## [283] "/wiki/Col_Hutchinson"                                                                                  
+## [284] "/wiki/V._S._Huzurbazar"                                                                                
+## [285] "/wiki/Ross_Ihaka"                                                                                      
+## [286] "/wiki/Ronald_L._Iman"                                                                                  
+## [287] "/wiki/Joseph_Oscar_Irwin"                                                                              
+## [288] "/wiki/Kaoru_Ishikawa"                                                                                  
+## [289] "/wiki/Leon_Isserlis"                                                                                   
+## [290] "/wiki/Oswald_Jacoby"                                                                                   
+## [291] "/wiki/Thomas_Jaffrey"                                                                                  
+## [292] "/wiki/Bill_James"                                                                                      
+## [293] "/wiki/Edwin_Thompson_Jaynes"                                                                           
+## [294] "/wiki/William_H._Jefferys"                                                                             
+## [295] "/wiki/Harold_Jeffreys"                                                                                 
+## [296] "/wiki/E._Morton_Jellinek"                                                                              
+## [297] "/wiki/Gwilym_Jenkins"                                                                                  
+## [298] "/wiki/William_Stanley_Jevons"                                                                          
+## [299] "/wiki/Alexander_Jobson"                                                                                
+## [300] "/wiki/Norman_Lloyd_Johnson"                                                                            
+## [301] "/wiki/Robert_Mackenzie_Johnston"                                                                       
+## [302] "/wiki/Edward_Jones_(statistician)"                                                                     
+## [303] "/wiki/Samuel_Jones-Loyd,_1st_Baron_Overstone"                                                          
+## [304] "/wiki/Michael_I._Jordan"                                                                               
+## [305] "/wiki/Karl_Gustav_J%C3%B6reskog"                                                                       
+## [306] "/wiki/Esprit_Jouffret"                                                                                 
+## [307] "/wiki/Joseph_M._Juran"                                                                                 
+## [308] "/wiki/James_Jurin"                                                                                     
+## [309] "/wiki/Mark_Kac"                                                                                        
+## [310] "/wiki/Oscar_Kempthorne"                                                                                
+## [311] "/wiki/David_George_Kendall"                                                                            
+## [312] "/wiki/Maurice_Kendall"                                                                                 
+## [313] "/wiki/Joseph_C._G._Kennedy"                                                                            
+## [314] "/wiki/Ravindra_Khattree"                                                                               
+## [315] "/wiki/Estate_V._Khmaladze"                                                                             
+## [316] "/wiki/Jack_Kiefer_(mathematician)"                                                                     
+## [317] "/wiki/Anders_Nicolai_Ki%C3%A6r"                                                                        
+## [318] "/wiki/Gregory_King"                                                                                    
+## [319] "/wiki/Willford_I._King"                                                                                
+## [320] "/wiki/John_Kingman"                                                                                    
+## [321] "/wiki/Leslie_Kish"                                                                                     
+## [322] "/wiki/George_Handley_Knibbs"                                                                           
+## [323] "/wiki/Bogoljub_Ko%C4%8Dovi%C4%87"                                                                      
+## [324] "/wiki/Andrey_Kolmogorov"                                                                               
+## [325] "/wiki/Bernard_Koopman"                                                                                 
+## [326] "/wiki/Phillip_Kott"                                                                                    
+## [327] "/wiki/Dan_Krewski"                                                                                     
+## [328] "/wiki/William_C._Krumbein"                                                                             
+## [329] "/wiki/Joseph_Kruskal"                                                                                  
+## [330] "/wiki/William_Kruskal"                                                                                 
+## [331] "/wiki/Andr%C3%A9_Kr%C3%BCger"                                                                          
+## [332] "/wiki/Robert_Ren%C3%A9_Kuczynski"                                                                      
+## [333] "/wiki/Eugene_M._Kulischer"                                                                             
+## [334] "/wiki/Solomon_Kullback"                                                                                
+## [335] "/wiki/Gunnar_Kulldorff"                                                                                
+## [336] "/wiki/Hans-Rudolf_K%C3%BCnsch"                                                                         
+## [337] "/wiki/Ernest_Kurnow"                                                                                   
+## [338] "/wiki/Steve_Kuzmicich"                                                                                 
+## [339] "/wiki/Simon_Kuznets"                                                                                   
+## [340] "/wiki/Ivo_Lah"                                                                                         
+## [341] "/wiki/Nan_Laird"                                                                                       
+## [342] "/wiki/Peter_Laslett"                                                                                   
+## [343] "/wiki/%C3%89tienne_Laspeyres"                                                                          
+## [344] "/wiki/Mark_Lathrop"                                                                                    
+## [345] "/wiki/John_Law_(economist)"                                                                            
+## [346] "/wiki/Greg_Lawler"                                                                                     
+## [347] "/wiki/Charles_Lawrence_(mathematician)"                                                                
+## [348] "/wiki/Erich_Leo_Lehmann"                                                                               
+## [349] "/wiki/Charles_Lemon"                                                                                   
+## [350] "/wiki/Wassily_Leontief"                                                                                
+## [351] "/wiki/Boris_Levit"                                                                                     
+## [352] "/wiki/Tony_Lewis_(mathematician)"                                                                      
+## [353] "/wiki/Wilhelm_Lexis"                                                                                   
+## [354] "/wiki/C._C._Li"                                                                                        
+## [355] "/wiki/David_X._Li"                                                                                     
+## [356] "/wiki/Rensis_Likert"                                                                                   
+## [357] "/wiki/Hubert_Lilliefors"                                                                               
+## [358] "/wiki/Jarl_Waldemar_Lindeberg"                                                                         
+## [359] "/wiki/Dennis_Lindley"                                                                                  
+## [360] "/wiki/Anders_Lindstedt"                                                                                
+## [361] "/wiki/Frederick_B._Lindstrom"                                                                          
+## [362] "/wiki/Yuri_Linnik"                                                                                     
+## [363] "/wiki/Jun_S._Liu"                                                                                      
+## [364] "/wiki/Phillip_Longman"                                                                                 
+## [365] "/wiki/Frederic_M._Lord"                                                                                
+## [366] "/wiki/Max_O._Lorenz"                                                                                   
+## [367] "/wiki/Alfred_J._Lotka"                                                                                 
+## [368] "/wiki/Michel_Lo%C3%A8ve"                                                                               
+## [369] "/wiki/John_Lubbock,_1st_Baron_Avebury"                                                                 
+## [370] "/wiki/Filip_Lundberg"                                                                                  
+## [371] "/wiki/John_F._MacGregor"                                                                               
+## [372] "/wiki/Prasanta_Chandra_Mahalanobis"                                                                    
+## [373] "/wiki/Khandkar_Manwar_Hossain"                                                                         
+## [374] "/wiki/Bernard_Mallet"                                                                                  
+## [375] "/wiki/Thomas_Robert_Malthus"                                                                           
+## [376] "/wiki/Renato_Mannheimer"                                                                               
+## [377] "/wiki/Nathan_Mantel"                                                                                   
+## [378] "/wiki/Kantilal_Mardia"                                                                                 
+## [379] "/wiki/Maryse_Marpsat"                                                                                  
+## [380] "/wiki/Donald_Marquardt"                                                                                
+## [381] "/wiki/Frederick_Marquis,_1st_Earl_of_Woolton"                                                          
+## [382] "/w/index.php?title=Mc_Sharma,_Sharma%27s_Correction_to_Sample_Size_Determination&amp;action=edit&amp;redlink=1"
+## [383] "/wiki/Jacob_Marschak"                                                                                  
+## [384] "/wiki/Herbert_Marshall_(statistician)"                                                                 
+## [385] "/wiki/Sir_Richard_Martin,_1st_Baronet,_of_Overbury_Court"                                              
+## [386] "/wiki/Kenneth_Massey"                                                                                  
+## [387] "/wiki/Motosaburo_Masuyama"                                                                             
+## [388] "/wiki/John_Mauchly"                                                                                    
+## [389] "/wiki/Emory_McClintock"                                                                                
+## [390] "/wiki/Paul_McCrossan"                                                                                  
+## [391] "/wiki/Peter_McCullagh"                                                                                 
+## [392] "/wiki/Colin_McEvedy"                                                                                   
+## [393] "/wiki/Anderson_Gray_McKendrick"                                                                        
+## [394] "/wiki/Bill_McLennan"                                                                                   
+## [395] "/wiki/Quinn_McNemar"                                                                                   
+## [396] "/wiki/Gilean_McVean"                                                                                   
+## [397] "/wiki/Royal_Meeker"                                                                                    
+## [398] "/wiki/Paul_Meier_(statistician)"                                                                       
+## [399] "/wiki/Xiao-Li_Meng"                                                                                    
+## [400] "/wiki/Gheorghe_Mihoc"                                                                                  
+## [401] "/wiki/George_A._Milliken"                                                                              
+## [402] "/wiki/Wendell_Milliman"                                                                                
+## [403] "/wiki/Joshua_Milne"                                                                                    
+## [404] "/wiki/Richard_Monckton_Milnes,_1st_Baron_Houghton"                                                     
+## [405] "/wiki/Wesley_Clair_Mitchell"                                                                           
+## [406] "/wiki/Warren_Mitofsky"                                                                                 
+## [407] "/wiki/Jakob_Mohn"                                                                                      
+## [408] "/wiki/Abraham_de_Moivre"                                                                               
+## [409] "/wiki/Edward_C._Molina"                                                                                
+## [410] "/wiki/Henry_Ludwell_Moore"                                                                             
+## [411] "/wiki/Pat_Moran_(statistician)"                                                                        
+## [412] "/wiki/Edward_Rowe_Mores"                                                                               
+## [413] "/wiki/William_Morgan_(scientist)"                                                                      
+## [414] "/wiki/Carl_Morris_(statistician)"                                                                      
+## [415] "/wiki/Winifred_J._Morrison"                                                                            
+## [416] "/wiki/Claus_Moser,_Baron_Moser"                                                                        
+## [417] "/wiki/Frederick_Mosteller"                                                                             
+## [418] "/wiki/Frederic_J._Mouat"                                                                               
+## [419] "/wiki/Jos%C3%A9_Enrique_Moyal"                                                                         
+## [420] "/wiki/Susan_Murphy"                                                                                    
+## [421] "/wiki/Vijayan_Nair"                                                                                    
+## [422] "/wiki/Guy_Nason"                                                                                       
+## [423] "/wiki/Charles_P._Neill"                                                                                
+## [424] "/wiki/John_Nelder"                                                                                     
+## [425] "/wiki/Cecil_J._Nesbitt"                                                                                
+## [426] "/wiki/William_Newmarch"                                                                                
+## [427] "/wiki/Jerzy_Neyman"                                                                                    
+## [428] "/wiki/Florence_Nightingale"                                                                            
+## [429] "/wiki/Partha_Niyogi"                                                                                   
+## [430] "/wiki/Gottfried_E._Noether"                                                                            
+## [431] "/wiki/Carl_O._Nordling"                                                                                
+## [432] "/wiki/Frank_W._Notestein"                                                                              
+## [433] "/wiki/William_Fielding_Ogburn"                                                                         
+## [434] "/wiki/S._Jay_Olshansky"                                                                                
+## [435] "/wiki/Octav_Onicescu"                                                                                  
+## [436] "/wiki/William_Onslow,_4th_Earl_of_Onslow"                                                              
+## [437] "/wiki/Mollie_Orshansky"                                                                                
+## [438] "/wiki/George_Paine_(registrar)"                                                                        
+## [439] "/wiki/John_Pakington,_1st_Baron_Hampton"                                                               
+## [440] "/wiki/John_Panaretos"                                                                                  
+## [441] "/wiki/Emanuel_Parzen"                                                                                  
+## [442] "/wiki/Raymond_Pearl"                                                                                   
+## [443] "/wiki/Egon_Pearson"                                                                                    
+## [444] "/wiki/Karl_Pearson"                                                                                    
+## [445] "/wiki/Charles_Sanders_Peirce"                                                                          
+## [446] "/wiki/Basilio_de_Bragan%C3%A7a_Pereira"                                                                
+## [447] "/wiki/Daniel_Pena"                                                                                     
+## [448] "/wiki/Julian_Peto"                                                                                     
+## [449] "/wiki/Richard_Peto"                                                                                    
+## [450] "/wiki/William_Petty"                                                                                   
+## [451] "/wiki/Henry_Petty-Fitzmaurice,_3rd_Marquess_of_Lansdowne"                                              
+## [452] "/wiki/Jan_Pieka%C5%82kiewicz"                                                                          
+## [453] "/wiki/K._C._Sreedharan_Pillai"                                                                         
+## [454] "/wiki/Vijayan_K_Pillai"                                                                                
+## [455] "/wiki/Brian_Pink"                                                                                      
+## [456] "/wiki/E._J._G._Pitman"                                                                                 
+## [457] "/wiki/Robin_Plackett"                                                                                  
+## [458] "/wiki/William_Playfair"                                                                                
+## [459] "/wiki/El%C5%BCbieta_Pleszczy%C5%84ska"                                                                 
+## [460] "/wiki/Stuart_Pocock"                                                                                   
+## [461] "/wiki/Henry_O._Pollak"                                                                                 
+## [462] "/wiki/Nicholas_Polson"                                                                                 
+## [463] "/wiki/Samuel_H._Preston"                                                                               
+## [464] "/wiki/Richard_Price"                                                                                   
+## [465] "/wiki/Maurice_Priestley"                                                                               
+## [466] "/wiki/Maurice_Princet"                                                                                 
+## [467] "/wiki/Reginald_Punnett"                                                                                
+## [468] "/wiki/George_P%C3%B3lya"                                                                               
+## [469] "https://www.isrt.ac.bd/people/mshkhan"                                                                 
+## [470] "/wiki/Adolphe_Quetelet"                                                                                
+## [471] "/wiki/Qazi_Motahar_Hossain"                                                                            
+## [472] "/wiki/Rattan_Chand"                                                                                    
+## [473] "/wiki/Adrian_Raftery"                                                                                  
+## [474] "/wiki/D._Raghavarao"                                                                                   
+## [475] "/wiki/Howard_Raiffa"                                                                                   
+## [476] "/wiki/Stefan_Ralescu"                                                                                  
+## [477] "/wiki/Calyampudi_Radhakrishna_Rao"                                                                     
+## [478] "/wiki/Georg_Rasch"                                                                                     
+## [479] "/wiki/Frank_Redington"                                                                                 
+## [480] "/wiki/Nancy_Reid"                                                                                      
+## [481] "/wiki/Olav_Reiers%C3%B8l"                                                                              
+## [482] "/wiki/E._C._Rhodes"                                                                                    
+## [483] "/wiki/Thomas_Spring_Rice,_1st_Baron_Monteagle_of_Brandon"                                              
+## [484] "/wiki/Sylvia_Richardson"                                                                               
+## [485] "/wiki/John_Rickman"                                                                                    
+## [486] "/wiki/Brian_D._Ripley"                                                                                 
+## [487] "/wiki/Herbert_Robbins"                                                                                 
+## [488] "/wiki/Gareth_Roberts_(statistician)"                                                                   
+## [489] "/wiki/Harry_V._Roberts"                                                                                
+## [490] "/wiki/Stuart_A._Robertson"                                                                             
+## [491] "/wiki/Jean-Marie_Robine"                                                                               
+## [492] "/wiki/James_Robins"                                                                                    
+## [493] "/wiki/Claude_E._Robinson"                                                                              
+## [494] "/wiki/Jeff_Rosenthal"                                                                                  
+## [495] "/wiki/Bimal_Kumar_Roy"                                                                                 
+## [496] "/wiki/S._N._Roy"                                                                                       
+## [497] "/wiki/Donald_Rubin"                                                                                    
+## [498] "/wiki/I._M._Rubinow"                                                                                   
+## [499] "/wiki/Reuven_Rubinstein"                                                                               
+## [500] "/wiki/Steven_Ruggles"                                                                                  
+## [501] "/wiki/John_Russell,_1st_Earl_Russell"                                                                  
+## [502] "/wiki/Dudley_Ryder,_2nd_Earl_of_Harrowby"                                                              
+## [503] "/wiki/Jeff_Sagarin"                                                                                    
+## [504] "/wiki/Jahar_Saha"                                                                                      
+## [505] "/wiki/Nicolas-Fran%C3%A7ois_Dupr%C3%A9_de_Saint-Maur"                                                  
+## [506] "/wiki/David_Salsburg"                                                                                  
+## [507] "/wiki/Herbert_Samuel,_1st_Viscount_Samuel"                                                             
+## [508] "/wiki/Richard_Samworth"                                                                                
+## [509] "/wiki/William_Sanders_(statistician)"                                                                  
+## [510] "/wiki/Leonard_Jimmie_Savage"                                                                           
+## [511] "/wiki/Shlomo_Sawilowsky"                                                                               
+## [512] "/wiki/Henry_Scheff%C3%A9"                                                                              
+## [513] "/wiki/Robert_Schlaifer"                                                                                
+## [514] "/wiki/Henry_Schultz"                                                                                   
+## [515] "/wiki/Arthur_Schuster"                                                                                 
+## [516] "/wiki/Tore_Schweder"                                                                                   
+## [517] "/wiki/Elizabeth_Scott_(mathematician)"                                                                 
+## [518] "/wiki/Hugh_Hedley_Scurfield"                                                                           
+## [519] "/wiki/Shayle_R._Searle"                                                                                
+## [520] "/wiki/Paola_Sebastiani"                                                                                
+## [521] "/wiki/Pyotr_Semyonov-Tyan-Shansky"                                                                     
+## [522] "/wiki/B._V._Shah"                                                                                      
+## [523] "/wiki/Subramanian_Swamy"                                                                               
+## [524] "/wiki/Lloyd_Shapley"                                                                                   
+## [525] "/wiki/George_Shaw-Lefevre,_1st_Baron_Eversley"                                                         
+## [526] "/wiki/Lawrence_Shepp"                                                                                  
+## [527] "/wiki/William_Fleetwood_Sheppard"                                                                      
+## [528] "/wiki/Walter_A._Shewhart"                                                                              
+## [529] "/wiki/S._S._Shrikhande"                                                                                
+## [530] "/wiki/Herbert_Sichel"                                                                                  
+## [531] "/wiki/Sidney_Siegel"                                                                                   
+## [532] "/wiki/Nate_Silver"                                                                                     
+## [533] "/wiki/Bernard_Silverman"                                                                               
+## [534] "/wiki/Fran%C3%A7ois_Simiand"                                                                           
+## [535] "/wiki/Leslie_Earl_Simon"                                                                               
+## [536] "/wiki/Sir_John_Sinclair,_1st_Baronet"                                                                  
+## [537] "/wiki/Ibrahim_Sirkeci"                                                                                 
+## [538] "/wiki/Eugen_Slutsky"                                                                                   
+## [539] "/wiki/Adrian_Smith_(academic)"                                                                         
+## [540] "/wiki/Cedric_Smith_(statistician)"                                                                     
+## [541] "/wiki/Walter_L._Smith"                                                                                 
+## [542] "/wiki/George_W._Snedecor"                                                                              
+## [543] "/wiki/Carl_Snyder"                                                                                     
+## [544] "/wiki/Robert_R._Sokal"                                                                                 
+## [545] "/wiki/Charles_Spearman"                                                                                
+## [546] "/wiki/Terry_Speed"                                                                                     
+## [547] "/wiki/Joseph_J._Spengler"                                                                              
+## [548] "/wiki/David_Spiegelhalter"                                                                             
+## [549] "/wiki/J._N._Srivastava"                                                                                
+## [550] "/wiki/Josiah_Stamp,_1st_Baron_Stamp"                                                                   
+## [551] "/wiki/Julian_C._Stanley_Jr."                                                                           
+## [552] "/wiki/Edward_Stanley,_15th_Earl_of_Derby"                                                              
+## [553] "/wiki/J._Michael_Steele"                                                                               
+## [554] "/wiki/Johan_Frederik_Steffensen"                                                                       
+## [555] "/wiki/Charles_Stein_(statistician)"                                                                    
+## [556] "/wiki/Matthew_Stephens_(statistician)"                                                                 
+## [557] "/wiki/Stephen_Stigler"                                                                                 
+## [558] "/wiki/Richard_Stone"                                                                                   
+## [559] "/wiki/Samuel_A._Stouffer"                                                                              
+## [560] "/wiki/Dietrich_Stoyan"                                                                                 
+## [561] "/wiki/Johann_Peter_S%C3%BCssmilch"                                                                     
+## [562] "/wiki/William_Henry_Sykes"                                                                             
+## [563] "/wiki/James_Joseph_Sylvester"                                                                          
+## [564] "/wiki/Edward_Szturm_de_Sztrem"                                                                         
+## [565] "/wiki/Shyamaprasad_Mukherjee"                                                                          
+## [566] "/wiki/India"                                                                                           
+## [567] "https://www.isrt.ac.bd/people/shahadat/"                                                               
+## [568] "/wiki/Genichi_Taguchi"                                                                                 
+## [569] "/wiki/Michael_Teitelbaum"                                                                              
+## [570] "/wiki/Lester_G._Telser"                                                                                
+## [571] "/wiki/Thorvald_N._Thiele"                                                                              
+## [572] "/wiki/Robert_L._Thorndike"                                                                             
+## [573] "/wiki/John_Wingate_Thornton"                                                                           
+## [574] "/wiki/Willard_Thorp"                                                                                   
+## [575] "/wiki/Louis_Leon_Thurstone"                                                                            
+## [576] "/wiki/Robert_Tibshirani"                                                                               
+## [577] "/wiki/Leonard_Henry_Caleb_Tippett"                                                                     
+## [578] "/wiki/James_Tobin"                                                                                     
+## [579] "/wiki/Emmanuel_Todd"                                                                                   
+## [580] "/wiki/Howell_Tong"                                                                                     
+## [581] "/wiki/Dennis_Trewin"                                                                                   
+## [582] "/wiki/Stanis%C5%82aw_Trybu%C5%82a"                                                                     
+## [583] "/wiki/Edward_Tufte"                                                                                    
+## [584] "/wiki/John_Tukey"                                                                                      
+## [585] "/wiki/Jessica_Utts"                                                                                    
+## [586] "/wiki/Stanislaus_S._Uyanto"                                                                            
+## [587] "/wiki/Vladimir_Vapnik"                                                                                 
+## [588] "/wiki/James_Vaupel"                                                                                    
+## [589] "/wiki/Giovanni_Villani"                                                                                
+## [590] "/wiki/Jan_Visman"                                                                                      
+## [591] "/wiki/Grace_Wahba"                                                                                     
+## [592] "/wiki/Edward_Wakefield_(statistician)"                                                                 
+## [593] "/wiki/Abraham_Wald"                                                                                    
+## [594] "/wiki/Francis_Amasa_Walker"                                                                            
+## [595] "/wiki/Gilbert_Walker"                                                                                  
+## [596] "/wiki/Chris_Wallace_(computer_scientist)"                                                              
+## [597] "/wiki/W._Allen_Wallis"                                                                                 
+## [598] "/wiki/Derek_Wanless"                                                                                   
+## [599] "/wiki/Geoffrey_Watson"                                                                                 
+## [600] "/wiki/Robert_Wedderburn_(statistician)"                                                                
+## [601] "/wiki/Edward_Wegman"                                                                                   
+## [602] "/wiki/Waloddi_Weibull"                                                                                 
+## [603] "/wiki/Arnold_Weinstock"                                                                                
+## [604] "/wiki/Walter_Frank_Raphael_Weldon"                                                                     
+## [605] "/wiki/Thomas_A._Welton"                                                                                
+## [606] "/wiki/Charles_Wentworth-Fitzwilliam,_5th_Earl_Fitzwilliam"                                             
+## [607] "/wiki/Harald_Ludvig_Westergaard"                                                                       
+## [608] "/wiki/Donald_J._Wheeler"                                                                               
+## [609] "/wiki/Hadley_Wickham"                                                                                  
+## [610] "/wiki/Peter_Whittle_(mathematician)"                                                                   
+## [611] "/wiki/Frank_Wilcoxon"                                                                                  
+## [612] "/wiki/Martin_Wilk"                                                                                     
+## [613] "/wiki/Leland_Wilkinson"                                                                                
+## [614] "/wiki/Samuel_S._Wilks"                                                                                 
+## [615] "/wiki/Walter_Francis_Willcox"                                                                          
+## [616] "/wiki/Edwin_Bidwell_Wilson"                                                                            
+## [617] "/wiki/Harold_Wilson"                                                                                   
+## [618] "/wiki/John_Wishart_(statistician)"                                                                     
+## [619] "/wiki/Herman_Wold"                                                                                     
+## [620] "/wiki/Jacob_Wolfowitz"                                                                                 
+## [621] "/wiki/George_Henry_Wood_(statistician)"                                                                
+## [622] "/wiki/Michael_Woodroofe"                                                                               
+## [623] "/wiki/Wesley_S._B._Woolhouse"                                                                          
+## [624] "/wiki/Holbrook_Working"                                                                                
+## [625] "/wiki/Carroll_D._Wright"                                                                               
+## [626] "/wiki/Elizur_Wright"                                                                                   
+## [627] "/wiki/Sewall_Wright"                                                                                   
+## [628] "/wiki/E._A._Wrigley"                                                                                   
+## [629] "/wiki/C.F._Jeff_Wu"                                                                                    
+## [630] "/wiki/Frank_Yates"                                                                                     
+## [631] "/wiki/Allyn_Abbott_Young"                                                                              
+## [632] "/wiki/Arthur_Young_(writer)"                                                                           
+## [633] "/wiki/Hilton_Young,_1st_Baron_Kennet"                                                                  
+## [634] "/wiki/Udny_Yule"                                                                                       
+## [635] "/wiki/Arif_Zaman"                                                                                      
+## [636] "/wiki/Victor_Zarnowitz"                                                                                
+## [637] "/wiki/Elena_Zarova"                                                                                    
+## [638] "/wiki/Arnold_Zellner"                                                                                  
+## [639] "/wiki/Zhang_Zhaohuan"                                                                                  
+## [640] "/wiki/George_Kingsley_Zipf"
+```
+
+---
+
+## Criando os links completos
+
+Como visto anteriormente, o atributo `href` refere-se ao endereço **relativo** ao endereço padrão da Wikipedia. Para montar o endereço completo, é preciso adicionar a expressão `https://en.wikipedia.org` antes do endereço relativo.
+
+
+```r
+li &lt;- links %&gt;% html_nodes("a") %&gt;% html_attr("href") 
+li &lt;- paste0("https://en.wikipedia.org", li)
+li %&gt;% head()
+```
+
+```
+## [1] "https://en.wikipedia.org/w/index.php?title=Sajid_Ali_Khan&amp;action=edit&amp;redlink=1"
+## [2] "https://en.wikipedia.org/wiki/Odd_Aalen"                                        
+## [3] "https://en.wikipedia.org/wiki/Edith_Abbott"                                     
+## [4] "https://en.wikipedia.org/wiki/Robert_P._Abelson"                                
+## [5] "https://en.wikipedia.org/wiki/Moses_Abramovitz"                                 
+## [6] "https://en.wikipedia.org/wiki/Gottfried_Achenwall"
+```
+
+```r
+names &lt;- links %&gt;% html_nodes("a") %&gt;%  html_attr("title")
+names %&gt;% head()
+```
+
+```
+## [1] "Sajid Ali Khan (page does not exist)"
+## [2] "Odd Aalen"                           
+## [3] "Edith Abbott"                        
+## [4] "Robert P. Abelson"                   
+## [5] "Moses Abramovitz"                    
+## [6] "Gottfried Achenwall"
+```
+
+Mas verifiquem links que:
+
+- Apontem, em `names`, para *Florence Nightingale*, *Harold Wilson*, *Robert P. Abelson* (nota) ou *page does not exist*;
+- Possuam, em `li`, as expressões *redlink*, *mshkhan*, *orghttp*.
+
+---
+
+## Curadoria Manual
+
+
+```r
+bad = c("page does not exist", "Florence Nightingale",
+        "Harold Wilson", "Robert P. Abelson")
+bad1 = unlist(sapply(bad, grep, names))
+bad2 = unlist(sapply(c("mshkhan", "redlink", "orghttp"), grep, li))
+(remove = c(bad1, bad2))
+```
+
+```
+##  page does not exist1  page does not exist2 Florence Nightingale1 
+##                     1                   382                   131 
+## Florence Nightingale2         Harold Wilson     Robert P. Abelson 
+##                   428                   617                     4 
+##               mshkhan              redlink1              redlink2 
+##                   469                     1                   382 
+##              orghttp1              orghttp2 
+##                   469                   567
+```
+
+```r
+rm(bad, bad1, bad2)
+```
+
+---
+
+## Curadoria Manual
+
+
+```r
+names = names[-remove]
+li = li[-remove]
+pessoas = tibble(nome=names, link=li)
+pessoas %&gt;% head()
+```
+
+```
+## # A tibble: 6 x 2
+##   nome                    link                                                 
+##   &lt;chr&gt;                   &lt;chr&gt;                                                
+## 1 Odd Aalen               https://en.wikipedia.org/wiki/Odd_Aalen              
+## 2 Edith Abbott            https://en.wikipedia.org/wiki/Edith_Abbott           
+## 3 Moses Abramovitz        https://en.wikipedia.org/wiki/Moses_Abramovitz       
+## 4 Gottfried Achenwall     https://en.wikipedia.org/wiki/Gottfried_Achenwall    
+## 5 Abraham Manie Adelstein https://en.wikipedia.org/wiki/Abraham_Manie_Adelstein
+## 6 Riaz Ahsan              https://en.wikipedia.org/wiki/Riaz_Ahsan
+```
+
+---
+
+## Função para Extração de Tabela
+
+
+```r
+f &lt;- function(x){
+  ifelse(length(x) == 0, NA_character_, x)
+}
+
+extraiTabela = function(mylink){
+  table &lt;- read_html(mylink) %&gt;% html_node(".vcard") 
+  if (is.na(html_name(table))) return(NULL)
+  if (html_name(table) != "table") return(NULL)
+  table = table %&gt;% html_table(header = FALSE) %&gt;% 
+          mutate(X1 = str_replace_all(X1, "\\s", " "),
+                 X2 = str_replace_all(X2, "\\s", " "),
+                 X2 = str_replace_all(X2, "\\[[[:digit:]]\\]", " "),
+                 X2 = str_replace_all(X2, "&amp;nbsp;", " "))
+  tibble(link = mylink, 
+        Born = f(table[grep("Born", table$X1), 2]),
+        Died = f(table[grep("Died", table$X1), 2]),
+        AlmaMater = f(table[grep("Alma", table$X1), 2]))
+}
+```
+
+
+---
+
+## Extraindo tabelas (demora alguns minutos...)
+
+
+```r
+library(doMC) ## se windows library(doParallel)
+registerDoMC(4) ## se windows registerDoParallel(nproc)
+out = foreach(thislink=li, .combine=rbind) %dopar% {
+  extraiTabela(thislink)
+}
+final = pessoas %&gt;% inner_join(out, by='link')
+final[, 1:3] %&gt;% head
+```
+
+```
+## # A tibble: 6 x 3
+##   nome           link                           Born                            
+##   &lt;chr&gt;          &lt;chr&gt;                          &lt;chr&gt;                           
+## 1 Odd Aalen      https://en.wikipedia.org/wiki… (1947-05-06) May 6, 1947 (age 7…
+## 2 Edith Abbott   https://en.wikipedia.org/wiki… (1876-09-26)September 26, 1876G…
+## 3 Moses Abramov… https://en.wikipedia.org/wiki… (1912-01-01)January 1, 1912Broo…
+## 4 Gottfried Ach… https://en.wikipedia.org/wiki… (1719-10-20)20 October 1719Elbi…
+## 5 Riaz Ahsan     https://en.wikipedia.org/wiki… 1951, December 25Karachi, Sindh…
+## 6 Beatrice Aitc… https://en.wikipedia.org/wiki… (1908-07-18)18 July 1908Portlan…
+```
+
+---
+
+
+```r
+final[, -(1:3)] %&gt;% head
+```
+
+```
+## # A tibble: 6 x 2
+##   Died                              AlmaMater                                   
+##   &lt;chr&gt;                             &lt;chr&gt;                                       
+## 1 &lt;NA&gt;                              University of Oslo                          
+## 2 July 28, 1957(1957-07-28) (aged … &lt;NA&gt;                                        
+## 3 December 1, 2000(2000-12-01) (ag… Harvard University and Columbia University  
+## 4 1 May 1772(1772-05-01) (aged 52)… &lt;NA&gt;                                        
+## 5 November 8, 2008(2008-11-08) (ag… University of KarachiAdamjee Government Sci…
+## 6 22 September 1997(1997-09-22) (a… Goucher College (BA)Johns Hopkins Universit…
+```
+
+---
+
+class: inverse, center, middle
+
+Obrigado!
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
