@@ -1,7 +1,7 @@
 ---
 title: "Aula 01: Dados Tabulares"
 subtitle: "ME315 - Manipulação de Bancos de Dados"
-author: "Benilton Carvalho, Guilherme Ludwig"
+author: "Benilton Carvalho, Guilherme Ludwig, Tatiana Benaglia"
 date: ""
 output:
   xaringan::moon_reader:
@@ -300,14 +300,6 @@ in2.head().iloc[:, list(range(1, 7))]
 
 ---
 
-# Jogo Rápido
-
-1. Instalar aplicativo Kahoot! (Procure na sua App Store);
-2. Ao abrir o aplicativo pela primeira vez, não é preciso criar usuário (apenas responda 2 perguntas rápidas);
-3. Na janela principal, escolha "Enter PIN" (centro inferior da tela);
-4. Insira a senha apresentada e aguarde o início do jogo;
-
----
 # Questão para pensar
 
 - Dados tabulares podem ser bastante grandes;
