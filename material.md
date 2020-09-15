@@ -4,7 +4,7 @@ title: ""
 subtitle:
 ---
 
-Materiais atualizados para o segundo semestre de 2020 possuem a tag 2S2020.
+Materiais atualizados para o segundo semestre de 2020 possuem a tag *2S2020*.
 
 # Slides utilizados em aulas
 
