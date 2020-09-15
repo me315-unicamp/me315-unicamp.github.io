@@ -4,9 +4,11 @@ title: ""
 subtitle:
 ---
 
+Materiais atualizados para o segundo semestre de 2020 possuem a tag 2S2020.
+
 # Slides utilizados em aulas
 
-- [Aula 01: Formatos tabulares](aulas/aula01.pdf)
+- [Aula 01: Formatos tabulares - 2S2020](aulas/aula01.pdf)
 - [Aula 02: Importação de bases de dados volumosas](aulas/aula02.pdf)
 - [Aula 03: Dados relacionais](aulas/aula03.pdf)
 - [Aula 04: Importação de outros formatos retangulares](aulas/aula04.pdf)
@@ -20,7 +22,7 @@ subtitle:
 
 # Laboratórios
 
-- [Laboratório 01: Manipulação básica de dados e importação](laboratorios/lab01.html)
+- [Laboratório 01: Manipulação básica de dados e importação - 2S2020](laboratorios/lab01.html)
 - [Laboratório 02: Importação em lote de dados volumosos](laboratorios/lab02.html)
 - [Laboratório 03: Dados relacionais](laboratorios/lab03.html)
 - [Laboratório 04: Dados retangulares - Excel](laboratorios/lab04.html)
@@ -30,16 +32,3 @@ subtitle:
 - [Laboratório 08: SQLite Parte III](laboratorios/lab08.html)
 - [Laboratório 09: MongoDB](laboratorios/lab09.html)
 - [Laboratório 10: Web Scraping](laboratorios/lab10.html)
-
-# JupyterHub ME315
-
-Temos uma instalação de testes do JupyterHub para a disciplina, disponível no link [http://jupyter.ime.unicamp.br](http://jupyter.ime.unicamp.br).
-
-Para o **primeiro acesso**, siga os passos a seguir:
-
-1. Siga o [link](http://jupyter.ime.unicamp.br) para o JupyterHub ME315;
-2. Utilize o seu RA (6 dígitos) como nome de usuário;
-3. Digite a senha que deseja utilizar para esta ferramenta;
-4. Pronto...
-
-**Importante**: o sistema de autenticação não solicita confirmação de senha. Uma vez que você digita alguma senha (mesmo que seja em branco), esta será a senha utilizada permanentemente.
