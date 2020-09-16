@@ -19,31 +19,32 @@ subtitle:
 - PED: Fernanda  Lang Schumacher
 - Dias:
 - Horário:
-- Local:
+- Link Google Meet:
 
 # Atendimentos PAD
 
 - PED: Gustavo de Almeida Leiva
 - Dias:
 - Horário:
-- Local:
+- Link Google Meet:
 
 # Critérios de Avaliação e Datas Importantes
 
-- **Prova 1**: 09 de setembro de 2019
-- **Prova 2**: 14 de outubro de 2019
-- **Prova 3**: 25 de novembro de 2019
-- **Exame Final**: 09 de dezembro de 2019
+- **Prova 1**: xxxx
+- **Prova 2**: xxx
+- **Prova 3**: 
+- **Exame Final**: xx de janeiro de 2021
 
 1. MG = 0.30 P1 + 0.30 P2 + 0.40 P3;
 2. Se houver algum impedimento para a realização de alguma(s) prova(s), o(s) peso(s) da(s) prova(s) realizada(s) ser(á/ão) normalizados apropriadamente;
 3. Se nehuma prova for realizada, todos os alunos farão o Exame Final e, neste caso, MF=EF;
 
-* Se frequência for de, no mínimo, 75% e
+* Critérios de aprovação
   - se MG >= 7.0, o aluno está aprovado e MF = MG;
   - se 2.5 <= MG < 7.0, o aluno deverá fazer exame e MF = min{7.0, (MG+EF)/2};
-  - se MG < 2.5, o aluno está reprovado, não poderá realizar exame e MF=MG;
-* Se frequência for inferior a 75%, o aluno estará automaticamente reprovado (por frequência) e MF=MG.
+  - se MG < 2.5, o aluno está reprovado, não poderá realizar exame e MF=MG.
+
+%* Se frequência for inferior a 75%, o aluno estará automaticamente reprovado (por frequência) e MF=MG.
 
 # Notas Importantes
 
