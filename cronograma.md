@@ -4,8 +4,8 @@ title: ""
 subtitle:
 ---
 
-|Turma  | Data 	     | Aula   	| Conteúdo 	                     |  Material PDF | Vídeos |
-|:-----:|:------:    |:--------:|:----------	                   |:--------:|:--------:|
+|Turma  | Data 	     | Aula   	| Conteúdo 	                     | 
+|:-----:|:------:    |:--------:|:----------	                   |
 |B      | 16/09/2020 |   1     	|  Apresentação                  |
 |A      | 17/09/2020 |   1     	|  Apresentação                  |
 |A+B    | 22/09/2020 |   2     	|  Formatos Tabulares (T)        |
