@@ -91,16 +91,18 @@ ggplot(taxas, aes(year, rate, colour=country)) + geom_line() + scale_x_continuou
 
 9. Refaça o gráfico da questão 7 para os dados apresentados em `table2`.
 
-10. Utilizando o comando `gather`, transforme `table4a` em um objeto no formato tidy. Armazene o resultado num objeto chamado `tidy4a`.
+10. Utilizando o comando `pivot_longer`, transforme `table4a` em um objeto no formato tidy. Armazene o resultado num objeto chamado `tidy4a`.
 
 ```{r tidy4a}
-tidy4a = table4a %>% gather(`1999`, `2000`, key='year', value='cases')
+#tidy4a = table4a %>% gather(`1999`, `2000`, key='year', value='cases')
+tidy4a = table4a %>% pivot_longer(-country,names_to='year',values_to='cases')
 ```
 
 11. Refaça o item 10 para o objeto `table4b`. Armazene o resultado num objeto chamado `tidy4b`.
 
 ```{r tidy4b}
-tidy4b = table4b %>% gather(`1999`, `2000`, key='year', value='population')
+#tidy4b = table4b %>% gather(`1999`, `2000`, key='year', value='population')
+tidy4b = table4b %>% pivot_longer(-country,names_to='year',values_to='population')
 ```
 
 12. Combine os objetos `tidy4a` e `tidy4b` em um único objeto, utilizando o comando `left_join`. Apresente uma explicação textual sobre o que faz o referido comando.
@@ -109,10 +111,11 @@ tidy4b = table4b %>% gather(`1999`, `2000`, key='year', value='population')
 left_join(tidy4a, tidy4b)
 ```
 
-13. Use o comando `spread` para tranformar o objeto `table2` em um objeto com formato tidy.
+13. Use o comando `pivot_wider` para tranformar o objeto `table2` em um objeto com formato tidy.
 
 ```{r spread}
-table2 %>% spread(key='type', value='count')
+#table2 %>% spread(key='type', value='count')
+table2 %>% pivot_wider(names_from = 'type',values_from='count')
 ```
 
 14. Observe que a coluna `rate` do objeto `table3` é um texto mostrando a fração que formaria a taxa de casos de tuberculose. Transforme o objeto `table3` em um objeto com formato tidy separando a coluna 3 em duas outras colunas: `cases` e `population`, utilizando o comando `separate`. Utilize o argumento `convert` para transformar o resultado em um objeto numérico.
