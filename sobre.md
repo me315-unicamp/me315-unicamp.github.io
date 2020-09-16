@@ -44,8 +44,6 @@ subtitle:
   - se 2.5 <= MG < 7.0, o aluno deverá fazer exame e MF = min{7.0, (MG+EF)/2};
   - se MG < 2.5, o aluno está reprovado, não poderá realizar exame e MF=MG.
 
-%* Se frequência for inferior a 75%, o aluno estará automaticamente reprovado (por frequência) e MF=MG.
-
 # Notas Importantes
 
 1. Cópia dessa ementa está disponível na página da disciplina no Moodle. Sua leitura é fortemente recomendada, não cabendo aos alunos desculpas por ignorância quanto ao seu conteúdo.
