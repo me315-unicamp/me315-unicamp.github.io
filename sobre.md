@@ -9,7 +9,7 @@ subtitle:
 - *Professores*: Benilton Carvalho / Tatiana Benaglia
 - *e-mail*: benilton < arr > unicamp.br / benaglia < arr > unicamp.br (troque _arr_ por @)
 - *Ao enviar email*: utilizar **[ME315]+assunto** no campo *subject*; *apenas* emails do domínio XXX.unicamp.br são recebidos;
-- *Notas de avaliações*: disponibilizados no [Moodle](https://moodle.ggte.unicamp.br/course/view.php?id=7543);
+- *Notas de avaliações*: disponibilizadas no [Moodle](https://moodle.ggte.unicamp.br/course/view.php?id=7543);
 - O aluno deverá proceder de forma respeitosa e honesta durante as provas bem como na resolução de qualquer outra atividade que seja parte da avaliação do curso.
 - O login usado para acessar o Moodle é intransferível, conforme [ConTIC-IN-01/2019](https://www.citic.unicamp.br/sites/default/files/normas/ConTIC-IN-01%202019%20-%20normas_uso_TIC.pdf).
 
