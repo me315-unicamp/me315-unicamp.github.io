@@ -22,7 +22,7 @@ subtitle:
 # Atendimentos PAD
 
 - PED: Gustavo de Almeida Leiva
-- Horários:
+- Horários: 2as e 3as-feiras das 13 às 14h
 - Link Google Meet:
 
 # Critérios de Avaliação e Datas Importantes

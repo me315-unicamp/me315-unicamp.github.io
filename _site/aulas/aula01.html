@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<html lang="" xml:lang="">
   <head>
     <title>Aula 01: Dados Tabulares</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Benilton Carvalho, Guilherme Ludwig" />
+    <meta name="author" content="Benilton Carvalho, Guilherme Ludwig, Tatiana Benaglia" />
+    <script src="libs/header-attrs-2.3/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
   </head>
@@ -13,7 +14,7 @@ class: center, middle, inverse, title-slide
 
 # Aula 01: Dados Tabulares
 ## ME315 - Manipulação de Bancos de Dados
-### Benilton Carvalho, Guilherme Ludwig
+### Benilton Carvalho, Guilherme Ludwig, Tatiana Benaglia
 
 ---
 
@@ -294,15 +295,13 @@ head(in1)[, 1:7]
 ```
 
 ```
-## # A tibble: 6 x 7
-##    YEAR MONTH   DAY DAY_OF_WEEK AIRLINE FLIGHT_NUMBER TAIL_NUMBER
-##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;       &lt;dbl&gt; &lt;chr&gt;           &lt;dbl&gt; &lt;chr&gt;      
-## 1  2015     1     1           4 AS                 98 N407AS     
-## 2  2015     1     1           4 AA               2336 N3KUAA     
-## 3  2015     1     1           4 US                840 N171US     
-## 4  2015     1     1           4 AA                258 N3HYAA     
-## 5  2015     1     1           4 AS                135 N527AS     
-## 6  2015     1     1           4 DL                806 N3730B
+##   YEAR MONTH DAY DAY_OF_WEEK AIRLINE FLIGHT_NUMBER TAIL_NUMBER
+## 1 2015     1   1           4      AS            98      N407AS
+## 2 2015     1   1           4      AA          2336      N3KUAA
+## 3 2015     1   1           4      US           840      N171US
+## 4 2015     1   1           4      AA           258      N3HYAA
+## 5 2015     1   1           4      AS           135      N527AS
+## 6 2015     1   1           4      DL           806      N3730B
 ```
 
 ---
@@ -316,16 +315,17 @@ py_discover_config()
 ```
 
 ```
-## python:         /usr/bin/python
-## libpython:      /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/config/libpython2.7.dylib
-## pythonhome:     /System/Library/Frameworks/Python.framework/Versions/2.7:/System/Library/Frameworks/Python.framework/Versions/2.7
-## version:        2.7.10 (default, Feb 22 2019, 21:55:15)  [GCC 4.2.1 Compatible Apple LLVM 10.0.1 (clang-1001.0.37.14)]
-## numpy:          /System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy
-## numpy_version:  1.8.0
+## python:         /usr/local/bin/python3
+## libpython:      /usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/3.8/lib/python3.8/config-3.8-darwin/libpython3.8.dylib
+## pythonhome:     /usr/local/Cellar/python@3.8/3.8.5/Frameworks/Python.framework/Versions/3.8:/usr/local/Cellar/python@3.8/3.8.5/Frameworks/Python.framework/Versions/3.8
+## version:        3.8.5 (default, Jul 21 2020, 10:48:26)  [Clang 11.0.3 (clang-1103.0.32.62)]
+## numpy:          /usr/local/lib/python3.8/site-packages/numpy
+## numpy_version:  1.19.1
 ## 
 ## python versions found: 
-##  /usr/bin/python
+##  /usr/bin/python3
 ##  /usr/local/bin/python3
+##  /usr/bin/python
 ```
 
 ```r
@@ -342,14 +342,15 @@ py_config()
 
 ```
 ## python:         /usr/local/bin/python3
-## libpython:      /usr/local/opt/python/Frameworks/Python.framework/Versions/3.7/lib/python3.7/config-3.7m-darwin/libpython3.7.dylib
-## pythonhome:     /usr/local/opt/python/Frameworks/Python.framework/Versions/3.7:/usr/local/opt/python/Frameworks/Python.framework/Versions/3.7
-## version:        3.7.4 (default, Jul  9 2019, 18:13:23)  [Clang 10.0.1 (clang-1001.0.46.4)]
-## numpy:          /usr/local/lib/python3.7/site-packages/numpy
-## numpy_version:  1.17.0
+## libpython:      /usr/local/opt/python@3.8/Frameworks/Python.framework/Versions/3.8/lib/python3.8/config-3.8-darwin/libpython3.8.dylib
+## pythonhome:     /usr/local/Cellar/python@3.8/3.8.5/Frameworks/Python.framework/Versions/3.8:/usr/local/Cellar/python@3.8/3.8.5/Frameworks/Python.framework/Versions/3.8
+## version:        3.8.5 (default, Jul 21 2020, 10:48:26)  [Clang 11.0.3 (clang-1103.0.32.62)]
+## numpy:          /usr/local/lib/python3.8/site-packages/numpy
+## numpy_version:  1.19.1
 ## 
 ## python versions found: 
 ##  /usr/local/bin/python3
+##  /usr/bin/python3
 ##  /usr/bin/python
 ```
 
@@ -384,14 +385,6 @@ in2.head().iloc[:, list(range(1, 7))]
 
 ---
 
-# Jogo Rápido
-
-1. Instalar aplicativo Kahoot! (Procure na sua App Store);
-2. Ao abrir o aplicativo pela primeira vez, não é preciso criar usuário (apenas responda 2 perguntas rápidas);
-3. Na janela principal, escolha "Enter PIN" (centro inferior da tela);
-4. Insira a senha apresentada e aguarde o início do jogo;
-
----
 # Questão para pensar
 
 - Dados tabulares podem ser bastante grandes;
@@ -442,9 +435,25 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     }
     deleted = true;
   });
-})();</script>
-
-<script>
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
 (function() {
   var links = document.getElementsByTagName('a');
   for (var i = 0; i < links.length; i++) {
@@ -453,7 +462,23 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     }
   }
 })();
-</script>
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
 
 <script>
 slideshow._releaseMath = function(el) {
