@@ -23,7 +23,7 @@ subtitle:
 
 - PED: Gustavo de Almeida Leiva
 - Horários: 2as e 3as-feiras das 13 às 14h
-- Link Google Meet:
+- Link Google Meet: [https://meet.google.com/gxn-asoc-fdf](https://meet.google.com/gxn-asoc-fdf)
 
 # Critérios de Avaliação e Datas Importantes
 
