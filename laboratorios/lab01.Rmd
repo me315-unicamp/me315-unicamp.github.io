@@ -25,10 +25,6 @@ Ao fim deste laboratório, você deverá ser capaz de:
 * Manipular bases de dados, para responder perguntas específicas, utilizando o arcabouço implementado via `tidyverse`, com uso de verbos do pacote `dplyr` e apresentação gráfica de resultados utilizando o pacote `ggplot2`;
 * Notar que responder tais perguntas com bases de dados que não estejam no formato _tidy_ requer trabalho adicional;
 
-# Instruções
-
-Você deverá criar um arquivo do tipo `Rmd`, que gere uma saída HTML, contendo a sua solução. Este arquivo deverá ser chamado `laboratorio01.Rmd` e enviado por meio do Moodle para avaliação.
-
 # Manipulação de Dados no Formato Tidy
 
 
