@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<html lang="" xml:lang="">
   <head>
-    <title>Introdução a dados relacionais</title>
+    <title>Introdução a Dados Relacionais</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Benilton Carvalho, Guilherme Ludwig" />
+    <meta name="author" content="Benilton Carvalho, Guilherme Ludwig, Tatiana Benaglia" />
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
   </head>
@@ -11,8 +11,8 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Introdução a dados relacionais
-### Benilton Carvalho, Guilherme Ludwig
+# Introdução a Dados Relacionais
+### Benilton Carvalho, Guilherme Ludwig, Tatiana Benaglia
 
 ---
 
@@ -25,20 +25,40 @@ class: center, middle, inverse, title-slide
 
 * Se espera que, em no mínimo uma tabela, a chave identifique unicamente cada observação.
 
+&lt;img src="aula03/r4ds.png" width=180 style="float: right; margin-left:1.5cm"&gt;
+
 * O material da aula é baseado no capítulo 13 do livro *R for Data Science* (Wickham &amp; Grolemund, 2017). Leiam o capítulo para verem exemplos adicionais: http://r4ds.had.co.nz/relational-data.html
 
 ---
-class: center, middle
 
-## Exemplo
+## Exemplo de Dados Relacionais
 
+O pacote `nycflights13` contém 4 tabelas (`airports`, `planes`, `weather` e`airlines`) que são relacionadas com a tabela `flights`. 
 
-![](aula03/Relational_key.png)
+As relações podem ser visualizadas no seguinte diagrama:
 
-Exemplo de base relacional:
+&lt;img src="aula03/nycflights13Keys.png" width=500&gt;
 
-Figura de https://en.wikipedia.org/wiki/Relational_model
+**Fonte:** [R for Data Science, Capítulo 13.](https://r4ds.had.co.nz/relational-data.html) Wickham &amp; Grolemund, 2017. 
 
+---
+## Chaves (*Keys*)
+
+As variáveis usadas para conectar cada par de tabelas são chamadas de **chaves**.
+
+Chave: é uma variável (ou conjunto de variáveis) que identifica unicamente uma observação. 
+
+&lt;img src="aula03/Relational_key.png" width=300&gt;
+
+Exemplo de base relacional: [Figura de Wikipedia - Relation Model](https://en.wikipedia.org/wiki/Relational_model)
+
+---
+
+## Exemplo: Super-heróis e Editoras
+
+Qual é a chave que conecta as duas tabelas de dados: superheroes e publishers?
+
+&lt;img src="aula03/superheroes_tables.png" width=550&gt;
 
 ---
 
@@ -137,7 +157,7 @@ course %&gt;% as_tibble
 ```
 ## # A tibble: 132 x 2
 ##    course_id courseLevel
-##        &lt;int&gt; &lt;fct&gt;      
+##        &lt;int&gt; &lt;chr&gt;      
 ##  1         5 Level_300  
 ##  2        11 Level_300  
 ##  3        18 Level_300  
@@ -193,7 +213,7 @@ person %&gt;% as_tibble
 ```
 ## # A tibble: 278 x 6
 ##     p_id professor student hasPosition inPhase       yearsInProgram
-##    &lt;int&gt;     &lt;int&gt;   &lt;int&gt; &lt;fct&gt;       &lt;fct&gt;         &lt;fct&gt;         
+##    &lt;int&gt;     &lt;int&gt;   &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;         &lt;chr&gt;         
 ##  1     3         0       1 0           0             0             
 ##  2     4         0       1 0           0             0             
 ##  3     5         1       0 Faculty     0             0             
@@ -206,6 +226,8 @@ person %&gt;% as_tibble
 ## 10    18         0       1 0           Pre_Quals     Year_3        
 ## # … with 268 more rows
 ```
+
+- `p_id` identifica indivíduos unicamente em `person`;
 
 ---
 
@@ -250,7 +272,29 @@ taughtBy %&gt;% filter(p_id == 40)
 
 * Nós sabemos trabalhar com tabelas isoladas. Para duas ou mais tabelas, consideraremos funções do tipo **JOIN**.
 
-* Primeiramente, consideraremos os chamados **mutating joins**, que combinam variáveis de diferentes tabelas. 
+&lt;img src="aula03/04-join-setup2.png" width=300 style="float: right; margin-left: 1cm"&gt;
+
+* Um *join* é uma maneira de conectar cada linha de uma tabela a nenhuma, uma ou várias linhas de outra.
+
+* Examinaremos a operação *join* do pacote `dplyr`, para realizar consultas em pares de tabelas.
+
+---
+
+## Pacote `dplyr`
+
+Para trabalhar com dados relacionais, você precisará conhecer verbos que lidem com pares de tabelas. 
+
+&lt;img src="aula03/dplyr.png" width=200 style="float: right;"&gt;
+
+No pacote `dplyr`, existem três famílias de verbos que são usados para esse fim:
+
+* **Mutating Joins**: adicionam novas variáveis a uma tabela de dados a partir de observações correspondentes em outra tabela.
+
+* **Filtering Joins**: filtram observações de uma tabela baseadas no fato de corresponderem ou não a uma observação em outra tabela.
+
+* **Set Operations**: combinam as observações das tabelas como se fossem conjuntos de elementos.
+
+Começaremos essa aula falando dos **Mutating Joins**.
 
 ---
 
@@ -258,46 +302,29 @@ taughtBy %&gt;% filter(p_id == 40)
 
 Usando os diagramas de Wickham and Grolemund (2017), considere dados de duas tabelas:
 
-![](aula03/04-join-setup.png)
+&lt;img src="aula03/04-join-setup.png" width=200 style="float: left; margin-right: 3cm"&gt;
 
-A coluna colorida é a chave, `x` e `y` são colunas, tomando valores `x1`, `x2`, etc.
+&lt;br /&gt;
+A coluna colorida é a chave; `x` e `y` são colunas, tomando valores `x1`, `x2`, etc.
 
----
-
-## Tipos de JOIN: setup 2
-
-
-```r
-(x &lt;- data.frame(key = c(1,2,3), val_x = c("x1","x2","x3")))
-```
-
-```
-##   key val_x
-## 1   1    x1
-## 2   2    x2
-## 3   3    x3
-```
+&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;
+Vamos criar essas tabelas de dados no R:   
 
 ```r
-(y &lt;- data.frame(key = c(1,2,4), val_y = c("y1","y2","y4")))
-```
+x &lt;- data.frame(key = c(1,2,3), 
+                val_x = c("x1","x2","x3"))
 
-```
-##   key val_y
-## 1   1    y1
-## 2   2    y2
-## 3   4    y4
+y &lt;- data.frame(key = c(1,2,4), 
+                val_y = c("y1","y2","y4"))
 ```
 
 ---
 
 ## INNER JOIN: inner_join
 
-![](aula03/04-join-inner.png)
+`inner_join(x,y)`: mantém somente as observações que estão em ambos `x` e `y`.
 
----
-
-## INNER JOIN: inner_join
+&lt;img src="aula03/04-join-inner.png" width=550 style="margin-bottom:1cm"&gt;
 
 
 ```r
@@ -310,15 +337,28 @@ x %&gt;% inner_join(y, by = "key")
 ## 2   2    x2    y2
 ```
 
+
+---
+## Exemplo: Super-heróis e Editoras
+
+
+
+
+
+
+```r
+publishers %&gt;% inner_join(superheroes, by = "publisher")
+```
+
+&lt;img src="aula03/superheroes_inner_join.png" width=900&gt;
+
 ---
 
 ## OUTER JOIN: left_join
 
-![](aula03/04-join-left.png)
+`left_join(x, y)`: une as linhas correspondentes de `y` em `x`.
 
----
-
-## OUTER JOIN: left_join
+&lt;img src="aula03/04-join-left.png" width=550 style="margin-bottom:1cm"&gt;
 
 
 ```r
@@ -334,13 +374,22 @@ x %&gt;% left_join(y, by = "key")
 
 ---
 
-## OUTER JOIN: right_join
+## Exemplo: Super-heróis e Editoras
 
-![](aula03/04-join-right.png)
+
+```r
+publishers %&gt;% left_join(superheroes, by = "publisher")
+```
+
+&lt;img src="aula03/superheroes_left_join.png" width=900&gt;
 
 ---
 
 ## OUTER JOIN: right_join
+
+`right_join(x, y)`: une as linhas correspondentes de `x` em `y`.
+
+&lt;img src="aula03/04-join-right.png" width=550 style="margin-bottom:1cm"&gt;
 
 
 ```r
@@ -356,13 +405,37 @@ x %&gt;% right_join(y, by = "key")
 
 ---
 
-## OUTER JOIN: full_join
+## Exemplo: Super-heróis e Editoras
 
-![](aula03/04-join-outer.png)
+
+```r
+publishers %&gt;% right_join(superheroes)
+```
+
+```
+## Joining, by = "publisher"
+```
+
+```
+## # A tibble: 7 x 5
+##   publisher         yr_founded name     alignment gender
+##   &lt;chr&gt;                  &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;     &lt;chr&gt; 
+## 1 DC                      1934 Batman   good      male  
+## 2 DC                      1934 Joker    bad       male  
+## 3 DC                      1934 Catwoman bad       female
+## 4 Marvel                  1939 Magneto  bad       male  
+## 5 Marvel                  1939 Storm    good      female
+## 6 Marvel                  1939 Mystique bad       female
+## 7 Dark Horse Comics         NA Hellboy  good      male
+```
 
 ---
 
 ## OUTER JOIN: full_join
+
+`full_join(x, y)`: mantém todas as observações e valores de `x` e `y`.
+
+&lt;img src="aula03/04-join-outer.png" width=500 style="margin-bottom:0.5cm"&gt;
 
 
 ```r
@@ -379,29 +452,42 @@ x %&gt;% full_join(y, by = "key")
 
 ---
 
+## Exemplo: Super-heróis e Editoras
+
+
+```r
+superheroes %&gt;% full_join(publishers, by = "publisher")
+```
+
+&lt;img src="aula03/superheroes_full_join.png" width=900&gt;
+
+---
+
 ## Exemplo: que professores dão quais aulas?
 
 Todos os professores de todos os cursos:
 
 
 ```r
-person %&gt;% right_join(taughtBy, by = "p_id") %&gt;% as_tibble
+person %&gt;% 
+  right_join(taughtBy, by = "p_id") %&gt;% 
+  as_tibble
 ```
 
 ```
 ## # A tibble: 189 x 7
-##     p_id professor student hasPosition inPhase yearsInProgram course_id
-##    &lt;int&gt;     &lt;int&gt;   &lt;int&gt; &lt;fct&gt;       &lt;fct&gt;   &lt;fct&gt;              &lt;int&gt;
-##  1    40         1       0 Faculty     0       0                      0
-##  2    40         1       0 Faculty     0       0                      1
-##  3   180         1       0 Faculty     0       0                      2
-##  4   279         1       0 Faculty     0       0                      3
-##  5   107         1       0 Faculty     0       0                      4
-##  6   415         1       0 Faculty     0       0                      7
-##  7   297         1       0 Faculty_eme 0       0                      8
-##  8   235         1       0 Faculty     0       0                      9
-##  9    52         1       0 Faculty     0       0                     11
-## 10    57         1       0 0           0       0                     11
+##     p_id professor student hasPosition inPhase       yearsInProgram course_id
+##    &lt;int&gt;     &lt;int&gt;   &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;         &lt;chr&gt;              &lt;int&gt;
+##  1     5         1       0 Faculty     0             0                     19
+##  2     5         1       0 Faculty     0             0                     51
+##  3     5         1       0 Faculty     0             0                     71
+##  4     9         0       1 0           Post_Generals Year_5               124
+##  5    18         0       1 0           Pre_Quals     Year_3                51
+##  6    22         1       0 Faculty_eme 0             0                     21
+##  7    40         1       0 Faculty     0             0                      0
+##  8    40         1       0 Faculty     0             0                      1
+##  9    46         1       0 Faculty     0             0                    124
+## 10    46         1       0 Faculty     0             0                    172
 ## # … with 179 more rows
 ```
 
@@ -409,30 +495,31 @@ person %&gt;% right_join(taughtBy, by = "p_id") %&gt;% as_tibble
 
 ## Exemplo: que professores dão quais aulas?
 
-Agora vou incluir o nível do curso.
+Vamos agora incluir o nível do curso.
 
 
 ```r
 person %&gt;%
   right_join(taughtBy, by='p_id') %&gt;%
   left_join(course, by='course_id') %&gt;%
-  as_tibble() %&gt;% select(-professor, -student)
+  as_tibble() %&gt;% 
+  select(-professor, -student)
 ```
 
 ```
 ## # A tibble: 189 x 6
-##     p_id hasPosition inPhase yearsInProgram course_id courseLevel
-##    &lt;int&gt; &lt;fct&gt;       &lt;fct&gt;   &lt;fct&gt;              &lt;int&gt; &lt;fct&gt;      
-##  1    40 Faculty     0       0                      0 Level_500  
-##  2    40 Faculty     0       0                      1 Level_500  
-##  3   180 Faculty     0       0                      2 Level_500  
-##  4   279 Faculty     0       0                      3 Level_500  
-##  5   107 Faculty     0       0                      4 Level_500  
-##  6   415 Faculty     0       0                      7 Level_500  
-##  7   297 Faculty_eme 0       0                      8 Level_400  
-##  8   235 Faculty     0       0                      9 Level_500  
-##  9    52 Faculty     0       0                     11 Level_300  
-## 10    57 0           0       0                     11 Level_300  
+##     p_id hasPosition inPhase       yearsInProgram course_id courseLevel
+##    &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;         &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;      
+##  1     5 Faculty     0             0                     19 Level_500  
+##  2     5 Faculty     0             0                     51 Level_400  
+##  3     5 Faculty     0             0                     71 Level_500  
+##  4     9 0           Post_Generals Year_5               124 Level_300  
+##  5    18 0           Pre_Quals     Year_3                51 Level_400  
+##  6    22 Faculty_eme 0             0                     21 Level_400  
+##  7    40 Faculty     0             0                      0 Level_500  
+##  8    40 Faculty     0             0                      1 Level_500  
+##  9    46 Faculty     0             0                    124 Level_300  
+## 10    46 Faculty     0             0                    172 Level_500  
 ## # … with 179 more rows
 ```
 
@@ -453,17 +540,17 @@ person %&gt;% right_join(taughtBy, by='p_id') %&gt;%
 
 ```
 ## # A tibble: 9 x 7
-##    p_id student hasPosition inPhase    yearsInProgram course_id courseLevel
-##   &lt;int&gt;   &lt;int&gt; &lt;fct&gt;       &lt;fct&gt;      &lt;fct&gt;              &lt;int&gt; &lt;fct&gt;      
-## 1    99       1 0           Post_Quals Year_2                21 Level_400  
-## 2   204       1 0           Post_Gene… Year_6                38 Level_400  
-## 3   255       1 0           Post_Gene… Year_5                38 Level_400  
-## 4   263       1 0           Post_Gene… Year_6                49 Level_400  
-## 5    18       1 0           Pre_Quals  Year_3                51 Level_400  
-## 6     9       1 0           Post_Gene… Year_5               124 Level_300  
-## 7   278       1 0           Pre_Quals  Year_2               144 Level_500  
-## 8    75       1 0           Post_Gene… Year_6               165 Level_300  
-## 9   141       1 0           Post_Gene… Year_6               165 Level_300
+##    p_id student hasPosition inPhase       yearsInProgram course_id courseLevel
+##   &lt;int&gt;   &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;         &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;      
+## 1     9       1 0           Post_Generals Year_5               124 Level_300  
+## 2    18       1 0           Pre_Quals     Year_3                51 Level_400  
+## 3    75       1 0           Post_Generals Year_6               165 Level_300  
+## 4    99       1 0           Post_Quals    Year_2                21 Level_400  
+## 5   141       1 0           Post_Generals Year_6               165 Level_300  
+## 6   204       1 0           Post_Generals Year_6                38 Level_400  
+## 7   255       1 0           Post_Generals Year_5                38 Level_400  
+## 8   263       1 0           Post_Generals Year_6                49 Level_400  
+## 9   278       1 0           Pre_Quals     Year_2               144 Level_500
 ```
 
 ---
@@ -482,7 +569,7 @@ person %&gt;% right_join(taughtBy, by='p_id') %&gt;%
 ## # A tibble: 12 x 3
 ## # Groups:   hasPosition [5]
 ##    hasPosition courseLevel     n
-##    &lt;fct&gt;       &lt;fct&gt;       &lt;int&gt;
+##    &lt;chr&gt;       &lt;chr&gt;       &lt;int&gt;
 ##  1 0           Level_300       9
 ##  2 0           Level_400       7
 ##  3 0           Level_500       3
@@ -499,29 +586,33 @@ person %&gt;% right_join(taughtBy, by='p_id') %&gt;%
 
 ---
 
-## Duplicated keys
+## Chaves Duplicadas (*Duplicated keys*)
 
 Como nós vimos no exemplo dos professores, chaves duplicadas em uma tabela não causam problema, desde que você escolha um join apropriado.
 
-![](aula03/04-join-one-to-many.png)
+&lt;img src="aula03/04-join-one-to-many.png" width=500 style="float: left; margin-right: 1cm; margin-bottom:1cm; margin-top:1cm"&gt;
 
+&lt;br /&gt;&lt;br /&gt; 
+Nesse exemplo, a coluna colorida é uma *primary key* em `y` e uma *foreign key* em `x`. 
+
+&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;
 Quando as chaves são únicas, elas são chamadas de **primary keys**; se há entradas repetidas, elas são chamadas de **foreign keys**. Os valores associados a primary keys são repetidos na tabela final.
 
 ---
 
-## Duplicated keys
+## Chaves Duplicadas
 
-Quando há mais de uma entrada para as duas tabelas, é executado um produto cartesiano das entradas. 
+Quando ambas as tabelas têm chaves duplicadas, ao fazer um join, será executado um produto cartesiano das entradas. 
 
-![](aula03/04-join-many-to-many.png)
+&lt;img src="aula03/04-join-many-to-many.png" width=550 style="margin:0.5cm"&gt;
 
-Evite joins assim. Em tese, as bases relacionais devem ter pelo menos uma chave que unicamente determina as observações em cada tabela. 
+Evite joins assim! Em tese, as bases relacionais devem ter pelo menos uma chave que unicamente determina as observações em cada tabela. 
 
 ---
 
-## Sintaxe do parâmetro "by"
+## Sintaxe do argumento "by"
 
-A ação padrão das funções `*_join(x, y)` no `dplyr` é `by = NULL`, que realiza o join pela combinação de *todas* as colunas com nomes idênticos em x e y. Isso pode ser perigoso!
+A ação padrão (*default*) das funções `*_join(x, y)` no `dplyr` é `by = NULL`, que realiza o join pela combinação de *todas* as colunas com nomes idênticos em x e y. Isso pode ser perigoso!
 
 
 ```r
@@ -550,7 +641,7 @@ y$newCol &lt;- NULL
 
 ---
 
-## Sintaxe do parâmetro "by"
+## Sintaxe do argumento "by"
 
 Já `by = "colName"` une as observações pelo "colName" especificado.
 
@@ -588,6 +679,22 @@ x$newKey &lt;- NULL
 
 ---
 
+## Outras Implementações: `merge`
+
+A função `merge()` da base do R pode executar todos os tipos de *mutating joins*:
+
+&lt;img src="aula03/merge.png" width=800&gt;
+
+---
+
+## Outras Implementações: SQL
+
+SQL serviu de inspiração para os verbos do `dplyr`:
+
+&lt;img src="aula03/SQL.png" width=800&gt;
+
+---
+
 ## Filtering joins
 
 Há dois importantes filtering joins:
@@ -601,11 +708,11 @@ Esses `*_join` retornam tabelas `x` filtradas, e não unem `x` e `y`.
 
 ## semi_join
 
-`semi_join(x,y)` só retorna elementos de `x` que também estão em `y`
+`semi_join(x,y)`: só retorna elementos de `x` que também estão em `y`.
 
-![](aula03/04-join-semi.png)
+&lt;img src="aula03/04-join-semi.png" width=550 style="margin-bottom:0.5cm"&gt;
 
-Exemplo: 
+Exemplo:
 
 
 ```r
@@ -619,20 +726,34 @@ all.equal(x %&gt;% semi_join(y,  by = "key"),
 
 ---
 
-## semi_join: duplicated keys
+## Exemplo: Super-heróis e Editoras
+
+
+```r
+publishers %&gt;% semi_join(superheroes, by = "publisher")
+```
+
+&lt;img src="aula03/superheroes_semi_join.png" width=900&gt;
+
+---
+
+## semi_join: chaves duplicadas
 
 Não há problema se as chaves forem duplicadas para o `semi_join`, isto é, o `semi_join` não duplica as linhas.
 
-![](aula03/04-join-semi-many.png)
+&lt;img src="aula03/04-join-semi-many.png" width=500&gt;
 
 ---
 
 ## anti_join
 
-`anti_join(x,y)` só retorna elementos de `x` que **não** estão em `y`. É útil para detectar se há chaves faltantes em uma tabela.
+`anti_join(x,y)`: só retorna elementos de `x` que **não** estão em `y`. 
 
-![](aula03/04-join-anti.png)
+&lt;img src="aula03/04-join-anti.png" width=550 style="margin-bottom:0.5cm"&gt;
 
+É útil para detectar se há chaves faltantes em uma tabela.
+
+Exemplo:
 
 ```r
 all.equal(x %&gt;% anti_join(y,  by = "key"),
@@ -645,9 +766,62 @@ all.equal(x %&gt;% anti_join(y,  by = "key"),
 
 ---
 
+## Exemplo: Super-heróis e Editoras
+
+
+```r
+publishers %&gt;% anti_join(superheroes, by = "publisher")
+```
+
+&lt;img src="aula03/superheroes_anti_join.png" width=900&gt;
+
+---
+
+## Set Operations
+
+Esses verbos são usados com menor frequência, mas ocasionalmente podem ser úteis.
+
+Aqui, espera-se que as tabelas `x` e `y` tenham as mesmas variáveis e as observações são tratados como conjuntos de elementos.
+
+Todas essas operações usam a linha completa, comparando os valores de todas as variáveis.
+
+Vamos usar essas duas tabelas como exemplo:
+
+
+
+&lt;img src="aula03/original-dfs-set-ops.png" width=350&gt;
+
+---
+
+## Interseção
+
+`intersect(x, y)`: retorna apenas as observações que estão em ambos `x` e `y`. 
+
+&lt;img src="aula03/intersect.gif" width=500&gt;
+
+---
+
+## União
+
+`union(x, y)`: returna observações que estão em `x` ou `y`. 
+
+&lt;img src="aula03/union.gif" width=500&gt;
+
+---
+
+## Diferença
+
+`setdiff(x, y)`: retorna observações que estão em `x`, mas não em `y`. 
+
+&lt;img src="aula03/setdiff.gif" width=500&gt;
+
+---
+
 # Referência
 
 * [R for Data Science - https://r4ds.had.co.nz/](https://r4ds.had.co.nz/)
+
+&lt;img src="aula03/r4ds.png" width=200&gt;
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
@@ -694,9 +868,25 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     }
     deleted = true;
   });
-})();</script>
-
-<script>
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
 (function() {
   var links = document.getElementsByTagName('a');
   for (var i = 0; i < links.length; i++) {
@@ -705,7 +895,23 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     }
   }
 })();
-</script>
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
 
 <script>
 slideshow._releaseMath = function(el) {
