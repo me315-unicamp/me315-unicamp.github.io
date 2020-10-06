@@ -561,7 +561,9 @@ y <- data.frame(key = 1:2,
 
 `intersect(x, y)`: retorna apenas as observações que estão em ambos `x` e `y`. 
 
-<img src="aula03/intersect.gif" width=500>
+<!-- <img src="aula03/intersect.gif" width=500> -->
+
+<img src="aula03/intersect_complete.png" width=700>
 
 ---
 
@@ -569,7 +571,10 @@ y <- data.frame(key = 1:2,
 
 `union(x, y)`: returna observações que estão em `x` ou `y`. 
 
-<img src="aula03/union.gif" width=500>
+<!-- <img src="aula03/union.gif" width=500> -->
+<img src="aula03/union_complete.png" width=680>
+
+Veja também a função `union_all(x, y)`. 
 
 ---
 
@@ -577,7 +582,8 @@ y <- data.frame(key = 1:2,
 
 `setdiff(x, y)`: retorna observações que estão em `x`, mas não em `y`. 
 
-<img src="aula03/setdiff.gif" width=500>
+<!-- <img src="aula03/setdiff.gif" width=500> -->
+<img src="aula03/setdiff_complete.png" width=700>
 
 ---
 
