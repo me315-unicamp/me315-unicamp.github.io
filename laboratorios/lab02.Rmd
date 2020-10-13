@@ -86,9 +86,9 @@ toc()
 ```{r computeStats}
 computeStats = function(input){
  input %>% group_by(AIRLINE, DAY, MONTH) %>%
-    mutate(Data = as.Date(paste(2015, MONTH, DAY, sep='-')),
-           Perc = sum(atrasos)/sum(n)) %>% 
+    summarise(Perc = sum(atrasos)/sum(n)) %>% 
     ungroup() %>% 
+    mutate(Data = as.Date(paste(2015, MONTH, DAY, sep='-'))) %>% 
     select(AIRLINE, Data, Perc)
 }
 in5 = in3 %>% computeStats()
