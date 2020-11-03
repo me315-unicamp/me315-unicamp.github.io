@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<html lang="" xml:lang="">
   <head>
     <title>SQLite</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Benilton Carvalho &amp; Guilherme Ludwig" />
+    <meta name="author" content="Benilton Carvalho, Guilherme Ludwig, Tatiana Benaglia" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
   </head>
@@ -12,7 +13,8 @@
 class: center, middle, inverse, title-slide
 
 # SQLite
-### Benilton Carvalho &amp; Guilherme Ludwig
+## Dados Relacionais e SQL
+### Benilton Carvalho, Guilherme Ludwig, Tatiana Benaglia
 
 ---
 
@@ -94,7 +96,7 @@ db
 
 ```
 ## &lt;SQLiteConnection&gt;
-##   Path: /Volumes/Disk2/github/me315-unicamp.github.io/dados/disco.db
+##   Path: /Volumes/Disk2/github/ME315/me315-unicamp.github.io/dados/disco.db
 ##   Extensions: TRUE
 ```
 
@@ -111,10 +113,9 @@ dbListTables(db)
 ```
 
 ```
-##  [1] "albums"          "artists"         "customers"      
-##  [4] "employees"       "genres"          "invoice_items"  
-##  [7] "invoices"        "media_types"     "playlist_track" 
-## [10] "playlists"       "sqlite_sequence" "sqlite_stat1"   
+##  [1] "albums"          "artists"         "customers"       "employees"      
+##  [5] "genres"          "invoice_items"   "invoices"        "media_types"    
+##  [9] "playlist_track"  "playlists"       "sqlite_sequence" "sqlite_stat1"   
 ## [13] "tracks"
 ```
 
@@ -181,8 +182,7 @@ Selecione as colunas `trackid`, `name`, `composer` e `unitprice`. Ordene o objet
 
 
 ```r
-sql = paste('SELECT trackid, name',
-            'FROM tracks ORDER BY name')
+sql = 'SELECT trackid, name FROM tracks ORDER BY name'
 res = dbGetQuery(db, sql)
 head(res)
 ```
@@ -462,6 +462,8 @@ A sintaxe é análoga para `LEFT JOIN`
 - `AVG`: `AVG([ALL | DISTINCT] expressao)` calcula a média de todos os valores não-nulos ou dos valores distintos;
 - `COUNT`: `COUNT([ALL | DISTINCT] expressao)` realiza a contagem de todos registros;
 - `MAX`, `MIN`, `SUM` funcionam de maneira análoga às funções anteriores;
+
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
@@ -508,9 +510,25 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     }
     deleted = true;
   });
-})();</script>
-
-<script>
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
 (function() {
   var links = document.getElementsByTagName('a');
   for (var i = 0; i < links.length; i++) {
@@ -519,7 +537,23 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     }
   }
 })();
-</script>
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
 
 <script>
 slideshow._releaseMath = function(el) {

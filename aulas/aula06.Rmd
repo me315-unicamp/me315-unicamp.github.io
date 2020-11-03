@@ -1,7 +1,7 @@
 ---
 title: "SQLite"
-subtitle: ""
-author: "Benilton Carvalho & Guilherme Ludwig"
+subtitle: "Dados Relacionais e SQL"
+author: "Benilton Carvalho, Guilherme Ludwig, Tatiana Benaglia"
 date: ""
 output:
   xaringan::moon_reader:
@@ -135,8 +135,7 @@ dim(album_db)
 Selecione as colunas `trackid`, `name`, `composer` e `unitprice`. Ordene o objeto resultante por `unitprice`.
 
 ```{r select2}
-sql = paste('SELECT trackid, name',
-            'FROM tracks ORDER BY name')
+sql = 'SELECT trackid, name FROM tracks ORDER BY name'
 res = dbGetQuery(db, sql)
 head(res)
 ```
