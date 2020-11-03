@@ -1,6 +1,6 @@
 ---
-title: "Introdução a dados relacionais"
-author: "Benilton Carvalho, Guilherme Ludwig"
+title: "Introdução a Dados Relacionais"
+author: "Benilton Carvalho, Guilherme Ludwig, Tatiana Benaglia"
 date: ""
 output:
   xaringan::moon_reader:
@@ -24,20 +24,40 @@ library(tidyverse)
 
 * Se espera que, em no mínimo uma tabela, a chave identifique unicamente cada observação.
 
+<img src="aula03/r4ds.png" width=180 style="float: right; margin-left:1.5cm">
+
 * O material da aula é baseado no capítulo 13 do livro *R for Data Science* (Wickham & Grolemund, 2017). Leiam o capítulo para verem exemplos adicionais: http://r4ds.had.co.nz/relational-data.html
 
 ---
-class: center, middle
 
-## Exemplo
+## Exemplo de Dados Relacionais
 
+O pacote `nycflights13` contém 4 tabelas (`airports`, `planes`, `weather` e`airlines`) que são relacionadas com a tabela `flights`. 
 
-![](aula03/Relational_key.png)
+As relações podem ser visualizadas no seguinte diagrama:
 
-Exemplo de base relacional:
+<img src="aula03/nycflights13Keys.png" width=500>
 
-Figura de https://en.wikipedia.org/wiki/Relational_model
+**Fonte:** [R for Data Science, Capítulo 13.](https://r4ds.had.co.nz/relational-data.html) Wickham & Grolemund, 2017. 
 
+---
+## Chaves (*Keys*)
+
+As variáveis usadas para conectar cada par de tabelas são chamadas de **chaves**.
+
+Chave: é uma variável (ou conjunto de variáveis) que identifica unicamente uma observação. 
+
+<img src="aula03/Relational_key.png" width=300>
+
+Exemplo de base relacional: [Figura de Wikipedia - Relation Model](https://en.wikipedia.org/wiki/Relational_model)
+
+---
+
+## Exemplo: Super-heróis e Editoras
+
+Qual é a chave que conecta as duas tabelas de dados: superheroes e publishers?
+
+<img src="aula03/superheroes_tables.png" width=550>
 
 ---
 
@@ -138,6 +158,8 @@ Qual curso em `course_id` e `p_id` de quem ensinou.
 person %>% as_tibble
 ```
 
+- `p_id` identifica indivíduos unicamente em `person`;
+
 ---
 
 ## Tabelas não são 1-1
@@ -162,7 +184,29 @@ taughtBy %>% filter(p_id == 40)
 
 * Nós sabemos trabalhar com tabelas isoladas. Para duas ou mais tabelas, consideraremos funções do tipo **JOIN**.
 
-* Primeiramente, consideraremos os chamados **mutating joins**, que combinam variáveis de diferentes tabelas. 
+<img src="aula03/04-join-setup2.png" width=300 style="float: right; margin-left: 1cm">
+
+* Um *join* é uma maneira de conectar cada linha de uma tabela a nenhuma, uma ou várias linhas de outra.
+
+* Examinaremos a operação *join* do pacote `dplyr`, para realizar consultas em pares de tabelas.
+
+---
+
+## Pacote `dplyr`
+
+Para trabalhar com dados relacionais, você precisará conhecer verbos que lidem com pares de tabelas. 
+
+<img src="aula03/dplyr.png" width=200 style="float: right;">
+
+No pacote `dplyr`, existem três famílias de verbos que são usados para esse fim:
+
+* **Mutating Joins**: adicionam novas variáveis a uma tabela de dados a partir de observações correspondentes em outra tabela.
+
+* **Filtering Joins**: filtram observações de uma tabela baseadas no fato de corresponderem ou não a uma observação em outra tabela.
+
+* **Set Operations**: combinam as observações das tabelas como se fossem conjuntos de elementos.
+
+Começaremos essa aula falando dos **Mutating Joins**.
 
 ---
 
@@ -170,42 +214,76 @@ taughtBy %>% filter(p_id == 40)
 
 Usando os diagramas de Wickham and Grolemund (2017), considere dados de duas tabelas:
 
-![](aula03/04-join-setup.png)
+<img src="aula03/04-join-setup.png" width=200 style="float: left; margin-right: 3cm">
 
-A coluna colorida é a chave, `x` e `y` são colunas, tomando valores `x1`, `x2`, etc.
+<br />
+A coluna colorida é a chave; `x` e `y` são colunas, tomando valores `x1`, `x2`, etc.
 
----
-
-## Tipos de JOIN: setup 2
-
+<br /><br /><br /><br />
+Vamos criar essas tabelas de dados no R:   
 ```{r}
-(x <- data.frame(key = c(1,2,3), val_x = c("x1","x2","x3")))
-(y <- data.frame(key = c(1,2,4), val_y = c("y1","y2","y4")))
+x <- data.frame(key = c(1,2,3), 
+                val_x = c("x1","x2","x3"))
+
+y <- data.frame(key = c(1,2,4), 
+                val_y = c("y1","y2","y4"))
 ```
 
 ---
 
 ## INNER JOIN: inner_join
 
-![](aula03/04-join-inner.png)
+`inner_join(x,y)`: mantém somente as observações que estão em ambos `x` e `y`.
 
----
-
-## INNER JOIN: inner_join
+<img src="aula03/04-join-inner.png" width=550 style="margin-bottom:1cm">
 
 ```{r}
 x %>% inner_join(y, by = "key")
 ```
 
+
+---
+## Exemplo: Super-heróis e Editoras
+
+```{r, echo=FALSE}
+superheroes <- "
+    name, alignment, gender,         publisher
+ Magneto,       bad,   male,            Marvel
+   Storm,      good, female,            Marvel
+Mystique,       bad, female,            Marvel
+  Batman,      good,   male,                DC
+   Joker,       bad,   male,                DC
+Catwoman,       bad, female,                DC
+ Hellboy,      good,   male, Dark Horse Comics
+"
+
+superheroes = read_csv(superheroes, skip = 1)
+```
+
+```{r, echo=FALSE}
+publishers <- "
+  publisher, yr_founded
+         DC,       1934
+     Marvel,       1939
+      Image,       1992
+"
+
+publishers = read_csv(publishers, skip = 1)
+```
+
+```{r, eval=FALSE}
+publishers %>% inner_join(superheroes, by = "publisher")
+```
+
+<img src="aula03/superheroes_inner_join.png" width=900>
+
 ---
 
 ## OUTER JOIN: left_join
 
-![](aula03/04-join-left.png)
+`left_join(x, y)`: une as linhas correspondentes de `y` em `x`.
 
----
-
-## OUTER JOIN: left_join
+<img src="aula03/04-join-left.png" width=550 style="margin-bottom:1cm">
 
 ```{r}
 x %>% left_join(y, by = "key")
@@ -213,13 +291,21 @@ x %>% left_join(y, by = "key")
 
 ---
 
-## OUTER JOIN: right_join
+## Exemplo: Super-heróis e Editoras
 
-![](aula03/04-join-right.png)
+```{r, eval=FALSE}
+publishers %>% left_join(superheroes, by = "publisher")
+```
+
+<img src="aula03/superheroes_left_join.png" width=900>
 
 ---
 
 ## OUTER JOIN: right_join
+
+`right_join(x, y)`: une as linhas correspondentes de `x` em `y`.
+
+<img src="aula03/04-join-right.png" width=550 style="margin-bottom:1cm">
 
 ```{r}
 x %>% right_join(y, by = "key")
@@ -227,17 +313,33 @@ x %>% right_join(y, by = "key")
 
 ---
 
-## OUTER JOIN: full_join
+## Exemplo: Super-heróis e Editoras
 
-![](aula03/04-join-outer.png)
+```{r}
+publishers %>% right_join(superheroes)
+```
 
 ---
 
 ## OUTER JOIN: full_join
 
+`full_join(x, y)`: mantém todas as observações e valores de `x` e `y`.
+
+<img src="aula03/04-join-outer.png" width=500 style="margin-bottom:0.5cm">
+
 ```{r}
 x %>% full_join(y, by = "key")
 ```
+
+---
+
+## Exemplo: Super-heróis e Editoras
+
+```{r, eval=FALSE}
+superheroes %>% full_join(publishers, by = "publisher")
+```
+
+<img src="aula03/superheroes_full_join.png" width=900>
 
 ---
 
@@ -246,20 +348,23 @@ x %>% full_join(y, by = "key")
 Todos os professores de todos os cursos:
 
 ```{r}
-person %>% right_join(taughtBy, by = "p_id") %>% as_tibble
+person %>% 
+  right_join(taughtBy, by = "p_id") %>% 
+  as_tibble
 ```
 
 ---
 
 ## Exemplo: que professores dão quais aulas?
 
-Agora vou incluir o nível do curso.
+Vamos agora incluir o nível do curso.
 
 ```{r}
 person %>%
   right_join(taughtBy, by='p_id') %>%
   left_join(course, by='course_id') %>%
-  as_tibble() %>% select(-professor, -student)
+  as_tibble() %>% 
+  select(-professor, -student)
 ```
 
 
@@ -289,29 +394,33 @@ person %>% right_join(taughtBy, by='p_id') %>%
 
 ---
 
-## Duplicated keys
+## Chaves Duplicadas (*Duplicated keys*)
 
 Como nós vimos no exemplo dos professores, chaves duplicadas em uma tabela não causam problema, desde que você escolha um join apropriado.
 
-![](aula03/04-join-one-to-many.png)
+<img src="aula03/04-join-one-to-many.png" width=500 style="float: left; margin-right: 1cm; margin-bottom:1cm; margin-top:1cm">
 
+<br /><br /> 
+Nesse exemplo, a coluna colorida é uma *primary key* em `y` e uma *foreign key* em `x`. 
+
+<br /><br /><br /><br /><br />
 Quando as chaves são únicas, elas são chamadas de **primary keys**; se há entradas repetidas, elas são chamadas de **foreign keys**. Os valores associados a primary keys são repetidos na tabela final.
 
 ---
 
-## Duplicated keys
+## Chaves Duplicadas
 
-Quando há mais de uma entrada para as duas tabelas, é executado um produto cartesiano das entradas. 
+Quando ambas as tabelas têm chaves duplicadas, ao fazer um join, será executado um produto cartesiano das entradas. 
 
-![](aula03/04-join-many-to-many.png)
+<img src="aula03/04-join-many-to-many.png" width=550 style="margin:0.5cm">
 
-Evite joins assim. Em tese, as bases relacionais devem ter pelo menos uma chave que unicamente determina as observações em cada tabela. 
+Evite joins assim! Em tese, as bases relacionais devem ter pelo menos uma chave que unicamente determina as observações em cada tabela. 
 
 ---
 
-## Sintaxe do parâmetro "by"
+## Sintaxe do argumento "by"
 
-A ação padrão das funções `*_join(x, y)` no `dplyr` é `by = NULL`, que realiza o join pela combinação de *todas* as colunas com nomes idênticos em x e y. Isso pode ser perigoso!
+A ação padrão (*default*) das funções `*_join(x, y)` no `dplyr` é `by = NULL`, que realiza o join pela combinação de *todas* as colunas com nomes idênticos em x e y. Isso pode ser perigoso!
 
 ```{r}
 x$newCol <- c(1, 1, 2)
@@ -323,7 +432,7 @@ y$newCol <- NULL
 
 ---
 
-## Sintaxe do parâmetro "by"
+## Sintaxe do argumento "by"
 
 Já `by = "colName"` une as observações pelo "colName" especificado.
 
@@ -341,6 +450,22 @@ x$newKey <- NULL
 
 ---
 
+## Outras Implementações: `merge`
+
+A função `merge()` da base do R pode executar todos os tipos de *mutating joins*:
+
+<img src="aula03/merge.png" width=800>
+
+---
+
+## Outras Implementações: SQL
+
+SQL serviu de inspiração para os verbos do `dplyr`:
+
+<img src="aula03/SQL.png" width=800>
+
+---
+
 ## Filtering joins
 
 Há dois importantes filtering joins:
@@ -354,11 +479,11 @@ Esses `*_join` retornam tabelas `x` filtradas, e não unem `x` e `y`.
 
 ## semi_join
 
-`semi_join(x,y)` só retorna elementos de `x` que também estão em `y`
+`semi_join(x,y)`: só retorna elementos de `x` que também estão em `y`.
 
-![](aula03/04-join-semi.png)
+<img src="aula03/04-join-semi.png" width=550 style="margin-bottom:0.5cm">
 
-Exemplo: 
+Exemplo:
 
 ```{r}
 all.equal(x %>% semi_join(y,  by = "key"),
@@ -367,20 +492,33 @@ all.equal(x %>% semi_join(y,  by = "key"),
 
 ---
 
-## semi_join: duplicated keys
+## Exemplo: Super-heróis e Editoras
+
+```{r, eval=FALSE}
+publishers %>% semi_join(superheroes, by = "publisher")
+```
+
+<img src="aula03/superheroes_semi_join.png" width=900>
+
+---
+
+## semi_join: chaves duplicadas
 
 Não há problema se as chaves forem duplicadas para o `semi_join`, isto é, o `semi_join` não duplica as linhas.
 
-![](aula03/04-join-semi-many.png)
+<img src="aula03/04-join-semi-many.png" width=500>
 
 ---
 
 ## anti_join
 
-`anti_join(x,y)` só retorna elementos de `x` que **não** estão em `y`. É útil para detectar se há chaves faltantes em uma tabela.
+`anti_join(x,y)`: só retorna elementos de `x` que **não** estão em `y`. 
 
-![](aula03/04-join-anti.png)
+<img src="aula03/04-join-anti.png" width=550 style="margin-bottom:0.5cm">
 
+É útil para detectar se há chaves faltantes em uma tabela.
+
+Exemplo:
 ```{r}
 all.equal(x %>% anti_join(y,  by = "key"),
           x %>% filter(!(key %in% y$key)))
@@ -388,6 +526,69 @@ all.equal(x %>% anti_join(y,  by = "key"),
 
 ---
 
+## Exemplo: Super-heróis e Editoras
+
+```{r, eval=FALSE}
+publishers %>% anti_join(superheroes, by = "publisher")
+```
+
+<img src="aula03/superheroes_anti_join.png" width=900>
+
+---
+
+## Set Operations
+
+Esses verbos são usados com menor frequência, mas ocasionalmente podem ser úteis.
+
+Aqui, espera-se que as tabelas `x` e `y` tenham as mesmas variáveis e as observações são tratados como conjuntos de elementos.
+
+Todas essas operações usam a linha completa, comparando os valores de todas as variáveis.
+
+Vamos usar essas duas tabelas como exemplo:
+
+```{r, echo=FALSE, eval=FALSE}
+x <- data.frame(key = c(1, 1, 2), 
+                value = c("a", "b", "a"))
+y <- data.frame(key = 1:2, 
+                value = c("a", "b"))
+```
+
+<img src="aula03/original-dfs-set-ops.png" width=350>
+
+---
+
+## Interseção
+
+`intersect(x, y)`: retorna apenas as observações que estão em ambos `x` e `y`. 
+
+<!-- <img src="aula03/intersect.gif" width=500> -->
+
+<img src="aula03/intersect_complete.png" width=700>
+
+---
+
+## União
+
+`union(x, y)`: returna observações que estão em `x` ou `y`. 
+
+<!-- <img src="aula03/union.gif" width=500> -->
+<img src="aula03/union_complete.png" width=680>
+
+Veja também a função `union_all(x, y)`. 
+
+---
+
+## Diferença
+
+`setdiff(x, y)`: retorna observações que estão em `x`, mas não em `y`. 
+
+<!-- <img src="aula03/setdiff.gif" width=500> -->
+<img src="aula03/setdiff_complete.png" width=700>
+
+---
+
 # Referência
 
 * [R for Data Science - https://r4ds.had.co.nz/](https://r4ds.had.co.nz/)
+
+<img src="aula03/r4ds.png" width=200>
