@@ -25,6 +25,12 @@ description: Manipulação de Bancos de Dados
 navbar-links:
   Detalhes da Disciplina: "sobre"
   Material: "material"
+  Arquivos:
+    - airports.csv: "dados/airports.csv"
+    - airlines.csv: "dados/airlines.csv"
+    - flights.csv.zip: "dados/flights.csv.zip"
+    - WDIEXCEL.xls: "dados/WDIEXCEL.xls"
+    - disco.db: "dados/disco.db"
   Cronograma: "cronograma"
 
 # Image to show in the navigation bar - image must be a square (width = height)
