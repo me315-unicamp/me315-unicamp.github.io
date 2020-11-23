@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<html lang="" xml:lang="">
   <head>
     <title>MongoDB</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Benilton Carvalho &amp; Guilherme Ludwig" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
   </head>
@@ -12,12 +12,19 @@
 class: center, middle, inverse, title-slide
 
 # MongoDB
-### Benilton Carvalho &amp; Guilherme Ludwig
+## Uma Introdução
+### 
 
 ---
 
 
 
+
+## Popularidade no StackOverflow em 2020
+
+![](aula08_files/figure-html/uso_nosql3-1.png)&lt;!-- --&gt;
+
+---
 
 ## Introdução ao MongoDB
 
@@ -40,9 +47,101 @@ class: center, middle, inverse, title-slide
 
 ---
 
-## Popularidade no StackOverflow em 2017
+## O que é JSON
 
-![](aula08_files/figure-html/uso_nosql-1.png)&lt;!-- --&gt;
+* JavaScript Object Notation
+* Sintaxe para armazenamento e troca de dados
+* É texto puro
+* Amplamente utilizada em ambientes web servidor/cliente
+* Regras da sintaxe:
+    - Dados são definidos em pares do tipo chave/valor
+    - Dados são separados por vírgulas
+    - Chaves são utilizadas para armazenar objetos
+    - Colchetes são utilizados para armazenar vetores
+
+```
+# dados em JSON
+"primeiroNome":"João"
+
+# objeto JSON
+{"primeiroNome":"João", "ultimoNome":"Vieira"}
+
+# vetor JSON
+"alunos":[
+   {"primeiroNome":"João", "ultimoNome":"Vieira"},
+   {"primeiroNome":"Joana", "ultimoNome":"Silva"},
+   {"primeiroNome":"Maria", "ultimoNome":"Gomes"}
+]
+```
+
+---
+
+## Tipos de Dados em JSON
+
+- _string_
+```{}
+{"nome":"Fernanda"}
+```
+- número
+```{}
+{"idade":27}
+```
+- objeto (JSON)
+```{}
+{
+"funcionario": {"nome":"Fernanda",
+                    "idade":27,
+                    "cidade":"Campinas"}
+}
+```
+
+---
+
+## Tipos de Dados em JSON
+
+- _array_
+```{}
+{
+"funcionarios": ["João",
+                     "Fernanda",
+                     "Maria"]
+}
+```
+- _booleano_
+```{}
+{"ferias":true}
+```
+- nulo
+```{}
+{"nomeDoMeio":null}
+```
+
+---
+
+## Data Frames vs. JSON
+
+
+```r
+## mtcars[1:3, 1:2]
+```
+
+
+
+|              |  mpg| cyl|
+|:-------------|----:|---:|
+|Mazda RX4     | 21.0|   6|
+|Mazda RX4 Wag | 21.0|   6|
+|Datsun 710    | 22.8|   4|
+```{}
+library(jsonlite)
+toJSON(mtcars[1:3, 1:2])
+[{"mpg":21,   "cyl":6, "_row":"Mazda RX4"},
+ {"mpg":21,   "cyl":6, "_row":"Mazda RX4 Wag"},
+ {"mpg":22.8, "cyl":4, "_row":"Datsun 710"}]
+```
+
+
+
 
 ---
 
@@ -98,12 +197,16 @@ class: center, middle, inverse, title-slide
 - Remoção de coleção via `con$drop()`;
 - Inserção de coleção via `con$insert()`;
 
+---
+
+## Enviando dados para o servidor MongoDB
+
 
 ```r
-library(tibble)
 library(mongolite)
-myurl = "mongodb://readwrite:test@mongo.opencpu.org:43942/jeroen_test"
-con &lt;- mongo("mtcars", url = myurl)
+#url:"mongodb://usuario:senha@servidor:porta/base?retryWrites=false"
+url="mongodb://readwrite:test@mongo.opencpu.org:43942/jeroen_test?retryWrites=false"
+con &lt;- mongo("mtcars", url = url)
 if(con$count() &gt; 0) con$drop()
 con$insert(mtcars)
 ```
@@ -132,6 +235,17 @@ stopifnot(con$count() == nrow(mtcars))
 
 ```r
 mydata &lt;- con$find()
+```
+
+
+
+|              |  mpg| cyl| disp|  hp| drat|    wt|  qsec| vs| am| gear| carb|
+|:-------------|----:|---:|----:|---:|----:|-----:|-----:|--:|--:|----:|----:|
+|Mazda RX4     | 21.0|   6|  160| 110| 3.90| 2.620| 16.46|  0|  1|    4|    4|
+|Mazda RX4 Wag | 21.0|   6|  160| 110| 3.90| 2.875| 17.02|  0|  1|    4|    4|
+|Datsun 710    | 22.8|   4|  108|  93| 3.85| 2.320| 18.61|  1|  1|    4|    1|
+
+```r
 stopifnot(all.equal(mydata, mtcars))
 con$drop()
 rm(con)
@@ -148,7 +262,7 @@ rm(con)
 library(nycflights13)
 ## subconjunto pq o servidor eh publico
 flights = flights[sample(nrow(flights), 10000), ]
-m &lt;- mongo(collection = "nycflights", url=myurl)
+m &lt;- mongo(collection = "nycflights", url=url)
 m$drop()
 m$insert(flights)
 ```
@@ -181,24 +295,18 @@ m$count('{"month":1, "day":1}')
 
 ```r
 jan1 &lt;- m$find('{"month":1,"day":1}', sort='{"distance":-1}')
-head(jan1) %&gt;% as_tibble()
+jan1[1:5, 1:7] %&gt;% knitr::kable()
 ```
 
-```
-## # A tibble: 6 x 19
-##    year month   day dep_time sched_dep_time dep_delay arr_time
-##   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;
-## 1  2013     1     1     1720           1725        -5     2121
-## 2  2013     1     1     1937           1905        32     2250
-## 3  2013     1     1      628            630        -2     1016
-## 4  2013     1     1     1059           1053         6     1342
-## 5  2013     1     1     1730           1730         0     2126
-## 6  2013     1     1     1959           2000        -1     2310
-## # … with 12 more variables: sched_arr_time &lt;int&gt;, arr_delay &lt;dbl&gt;,
-## #   carrier &lt;chr&gt;, flight &lt;int&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,
-## #   air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;,
-## #   time_hour &lt;dttm&gt;
-```
+
+
+| year| month| day| dep_time| sched_dep_time| dep_delay| arr_time|
+|----:|-----:|---:|--------:|--------------:|---------:|--------:|
+| 2013|     1|   1|     1720|           1725|        -5|     2121|
+| 2013|     1|   1|     1937|           1905|        32|     2250|
+| 2013|     1|   1|      628|            630|        -2|     1016|
+| 2013|     1|   1|     1059|           1053|         6|     1342|
+| 2013|     1|   1|     1730|           1730|         0|     2126|
 
 ---
 
@@ -237,19 +345,37 @@ allflights &lt;- m$find(sort='{"distance":-1}')
 # Select columns
 jan1 &lt;- m$find('{"month":1,"day":1}',
                fields = '{"_id":0, "distance":1, "carrier":1}')
-head(jan1)
+head(jan1, 5) %&gt;% knitr::kable()
 ```
 
-```
-##   carrier distance
-## 1      EV      266
-## 2      UA     2227
-## 3      DL     1096
-## 4      UA      997
-## 5      US      214
-## 6      DL     1035
-```
 
+
+|carrier | distance|
+|:-------|--------:|
+|EV      |      266|
+|UA      |     2227|
+|DL      |     1096|
+|UA      |      997|
+|US      |      214|
+
+---
+
+## Operadores em MongoDB
+
+* Comparação:
+  - `$eq`: equivalência
+  - `$gt` (`$gte`): maior que (maior ou igual)
+  - `$lt` (`$lte`): menor que (menor ou igual)
+  - `$ne`: não-equivalentes
+
+* Matemáticos
+  - `$abs`: valor absoluto
+  - `$ceil`: menor inteiro maior ou igual
+  - `$floor`: maior inteiro menor ou igual
+  - `$ln`: logaritmo natural
+  - `$sqrt`: raiz quadrada
+
+[https://docs.mongodb.com/manual/reference/operator/aggregation/](https://docs.mongodb.com/manual/reference/operator/aggregation/)
 ---
 
 ## Identificação de Ocorrências Únicas
@@ -264,8 +390,8 @@ m$distinct("carrier")
 ```
 
 ```
-##  [1] "WN" "AA" "US" "9E" "EV" "MQ" "DL" "UA" "B6" "VX" "FL" "AS" "HA" "YV"
-## [15] "OO" "F9"
+##  [1] "WN" "AA" "US" "9E" "EV" "MQ" "DL" "UA" "B6" "VX" "FL" "AS" "HA" "YV" "OO"
+## [16] "F9"
 ```
 
 ```r
@@ -285,40 +411,26 @@ m$distinct("carrier", '{"distance":{"$gt":3000}}')
 
 
 ```r
-# Tabulate
-m$aggregate('[{"$group": {"_id":"$carrier",
-                          "count": {"$sum":1},
-                          "average":{"$avg":"$distance"}}
+out = m$aggregate('[{"$group": {"_id":"$carrier",
+                     "count": {"$sum":1},
+                     "average":{"$avg":"$distance"}}
             }]')
-```
-
-```
-##    _id count   average
-## 1   F9    14 1620.0000
-## 2   OO     2  453.5000
-## 3   AS    10 2402.0000
-## 4   9E   536  551.2071
-## 5   US   632  572.6487
-## 6   HA     9 4983.0000
-## 7   AA  1024 1362.7559
-## 8   WN   359  995.4624
-## 9   VX   149 2507.6510
-## 10  YV    11  343.5455
-## 11  FL   103  672.7087
-## 12  EV  1549  578.9542
-## 13  MQ   794  558.2166
-## 14  DL  1480 1259.4176
-## 15  UA  1709 1532.4037
-## 16  B6  1619 1060.2767
-```
-
-```r
 m$drop()
+out[1:4,] %&gt;% knitr::kable()
 ```
+
+
+
+|_id | count|   average|
+|:---|-----:|---------:|
+|F9  |    14| 1620.0000|
+|OO  |     2|  453.5000|
+|AS  |    10| 2402.0000|
+|9E  |   536|  551.2071|
 
 ---
 
-## Criando sua instância para testes: mlab.com
+## Criando sua instância para testes: mongodb.com
 
 ![mongodb01](imagens_aula08/mongodb01.png)
 ---
@@ -399,12 +511,32 @@ m$drop()
 
 ```r
 library(mongolite)
-myurl = "mongodb+srv://benilton:minhasenha123@cluster0-s8gg0.mongodb.net"
-myconn = mongo(collection="meuteste",
-               db="testemongodb",
-               url=myurl)
+url = paste0(
+  "mongodb+srv://",
+  "beniltonBD:senha123dificil@",
+  "cluster0.agyxj.mongodb.net/",
+  "?retryWrites=true&amp;w=majority"
+)
+url
+```
+
+```
+## [1] "mongodb+srv://beniltonBD:senha123dificil@cluster0.agyxj.mongodb.net/?retryWrites=true&amp;w=majority"
+```
+
+```r
+myconn = mongo(collection="meuteste", db="testemongodb", url=url)
 library(ggplot2)
 myconn$insert(diamonds)
+```
+
+```
+## List of 5
+##  $ nInserted  : num 53940
+##  $ nMatched   : num 0
+##  $ nRemoved   : num 0
+##  $ nUpserted  : num 0
+##  $ writeErrors: list()
 ```
 
 ---
@@ -417,6 +549,14 @@ myconn$insert(diamonds)
 ## Criando sua instância para testes: Manipulação Extra
 
 ![mongodb01](imagens_aula08/mongodb15.png)
+---
+
+## Criação do material
+
+
+- Benilton Carvalho
+- Guilherme Ludwig
+- Tatiana Benaglia
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
@@ -463,9 +603,25 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     }
     deleted = true;
   });
-})();</script>
-
-<script>
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
 (function() {
   var links = document.getElementsByTagName('a');
   for (var i = 0; i < links.length; i++) {
@@ -474,7 +630,23 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     }
   }
 })();
-</script>
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
 
 <script>
 slideshow._releaseMath = function(el) {
