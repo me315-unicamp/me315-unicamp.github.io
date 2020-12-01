@@ -118,6 +118,12 @@ Vejam também: https://github.com/yihui/knitr/issues/481
 
 ---
 
+## Exemplo
+
+![](13_example_shiny.png)
+
+---
+
 ## Construindo ui.R
 
 O exemplo minimal `fluidPage(titlePanel(), sidebarPanel(), mainPanel())` pode ser modificado, mas o número de opções é bastante extenso. Há uma lista de opções em http://shiny.rstudio.com/articles/layout-guide.html
@@ -150,6 +156,12 @@ Isso é particularmente importante se vocês precisarem realizar novamente algo 
 ## Um exemplo de reactive() do Rstudio:
 
 https://shiny.rstudio.com/gallery/kmeans-example.html
+
+---
+
+## Exemplo: reactive()
+
+![](13_reactive.png)
 
 ---
 
