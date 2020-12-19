@@ -1,0 +1,261 @@
+---
+title: "Importação/Manipulação de Dados com Python"
+subtitle: "Parte 2"
+# author: "Benilton Carvalho"
+date: ""
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(tidyverse)
+library(reticulate)
+#Sys.which("python")
+```
+
+## Lendo CSV em Python, pandas
+
+Primeiramente, `import` evoca pacotes e tem função similar a `library()` e/ou `require()` no `R`.
+
+```{python}
+import numpy as np #para matrizes e arrays
+import matplotlib.pyplot as plt 
+import pandas as pd #para dataframes
+print(pd.__version__) # Checks pandas version, we need 0.18 at least
+```
+
+---
+
+## Baby names
+
+Dados são da SSA (Social Security Agency), mas eu só consegui baixá-los de https://github.com/hadley/data-baby-names/blob/master/baby-names.csv.
+
+```{r, warning=FALSE, message=FALSE}
+#R
+babyNamesR = readr::read_csv("../dados/baby-names.csv") %>% as.data.frame()
+babyNamesR %>% head(n=3)
+```
+```{python}
+#python
+babyNamesPY = pd.read_csv("../dados/baby-names.csv", header = 0)
+babyNamesPY.head()
+```
+
+---
+
+<!-- ## Transparência com R -->
+
+### Em R
+```{r}
+class(babyNamesR)
+class(py$babyNamesPY)
+```
+### Em python
+```{python}
+type(babyNamesPY)
+type(r.babyNamesR)
+```
+
+---
+
+
+### Em python
+```{python}
+babyNamesPY.shape
+babyNamesPY.info()
+```
+
+---
+
+## Selecionando colunas
+
+```{python}
+print(babyNamesPY.year) #ou print(babyNamesPY['year'])
+```
+
+---
+
+## Apply functions on DataFrames
+
+```{python}
+df = pd.DataFrame(
+  {'A': [1, 2, 3],
+   'B':[4, 5, 6]
+  })
+df.apply(np.mean,axis=0)
+df.apply(np.mean,axis=1)
+```
+
+---
+
+<!-- ### Em python -->
+<!-- ## Transparência com R -->
+
+Dados do SSA contêm somente os 1000 nomes mais comuns de cada ano....
+
+```{python}
+print(babyNamesPY.groupby(['year','sex']).name.count())
+```
+---
+
+<!-- ## Transparência com R -->
+
+Alguns verbos coincidem com `dplyr`
+
+```{python}
+print(babyNamesPY.groupby(['year','sex']).percent.sum())
+```
+
+---
+
+## Indexando (linhas)
+
+Não é possível indexar diretamente um DataFrame, você precisa acessar o atributo `iloc`
+
+```{python}
+print(babyNamesPY.iloc[0]) # ou print(babyNamesPY.iloc[0,:])
+print(babyNamesPY.iloc[0:3])
+```
+
+---
+
+## No (significant number of) boys named Sue...
+
+```{python}
+print(babyNamesPY.loc[babyNamesPY.name == "Sue",])
+```
+
+---
+
+## Indexando (linhas e colunas)
+
+```{python}
+print(babyNamesPY.iloc[0,0]) 
+print(babyNamesPY.loc[0,'name']) 
+print(babyNamesPY.loc[[0,10,100],['name','year']]) 
+print(babyNamesPY.index)
+```
+
+---
+
+## Plot usando matplotlib
+
+```{python, plotmat, out.width="60%"}
+babySue = babyNamesPY.loc[babyNamesPY.name == "Sue",]
+babySue.plot(kind = 'scatter', x = 'year', y = 'percent')
+plt.show() # from matplotlib
+```
+---
+
+## Plot usando ggplot
+
+```{python, plotggplot, out.width="60%"}
+from plotnine import *
+ggplot(babySue) + geom_point(aes(x = 'year', y = 'percent'))
+```
+
+---
+
+## Formatos Suportados pelo Pandas
+
+| Format Type 	| Data Description     	| Reader         	| Writer       	|
+|-------------	|----------------------	|----------------	|--------------	|
+| text        	| CSV (*)              	| read_csv       	| to_csv       	|
+| text        	| JSON                 	| read_json      	| to_json      	|
+| text        	| HTML                 	| read_html      	| to_html      	|
+| text        	| Local clipboard      	| read_clipboard 	| to_clipboard 	|
+| binary      	| MS Excel             	| read_excel     	| to_excel     	|
+| binary      	| OpenDocument         	| read_excel     	|              	|
+
+**Observações**:
+- `read_csv` possui o argumento `delimiter`, que pode ser ajustado para outros tipos de arquivos em texto plano retangulares;
+- `read_csv` também possui o argumento `chunksize`, que pode ser usado para leitura por partes.
+
+---
+
+## Formatos Suportados pelo Pandas
+
+| Format Type 	| Data Description     	| Reader         	| Writer       	|
+|-------------	|----------------------	|----------------	|--------------	|
+| binary      	| HDF5 Format          	| read_hdf       	| to_hdf       	|
+| binary      	| Feather Format       	| read_feather   	| to_feather   	|
+| binary      	| Parquet Format       	| read_parquet   	| to_parquet   	|
+| binary      	| Msgpack              	| read_msgpack   	| to_msgpack   	|
+| binary      	| Stata                	| read_stata     	| to_stata     	|
+| binary      	| SAS                  	| read_sas       	|              	|
+| binary      	| Python Pickle Format 	| read_pickle    	| to_pickle    	|
+| SQL         	| SQL                  	| read_sql       	| to_sql       	|
+| SQL         	| Google Big Query     	| read_gbq       	| to_gbq       	|
+
+---
+
+## Pandas e Chunks
+
+```{python}
+reader = pd.read_csv("../dados/baby-names.csv",
+        header = 0, chunksize=1000)
+soma = 0
+for df in reader:
+  soma += df.loc[df.name == "Sue", 'percent'].sum()
+
+print(soma)
+```
+
+---
+
+## SQLite, Pandas e Python
+
+```{python}
+import pandas as pd
+import sqlite3
+conn = sqlite3.connect("../dados/disco.db")
+pd.read_sql_query("SELECT * FROM artists LIMIT 5", conn)
+conn.close()
+```
+
+---
+
+## MongoDB, Pandas e Python
+
+```{python}
+from pymongo import MongoClient
+import pprint
+myurl = "mongodb+srv://fernandaBD:mongo123@cluster0.2ph3s.mongodb.net"
+client = MongoClient(myurl)
+db = client['me315mongodb']
+collection = db['diamantes']
+collection
+```
+
+---
+
+## MongoDB
+
+```{python}
+doc = collection.find_one()
+pprint.pprint(doc)
+```
+
+---
+
+## MongoDB
+
+```{python}
+doc = collection.find_one({"cut":"Premium"})
+pprint.pprint(doc)
+```
+---
+
+## MongoDB
+
+```{python}
+doc = collection.find({"cut":"Premium"}).limit(5)
+for x in doc:
+  pprint.pprint(x,width=10)
+```
