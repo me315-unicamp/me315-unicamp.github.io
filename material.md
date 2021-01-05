@@ -18,7 +18,7 @@ Materiais atualizados para o segundo semestre de 2020 possuem a tag *2S2020*.
 - [Aula 08: MongoDB](aulas/aula08.pdf)
 - [Aula 09: Shiny](aulas/aula09.pdf)
 - [Aula 10: Web Scrapping](aulas/aula10.pdf)
-- [Aula 11: Introdução ao Python](aulas/aula11.pdf)
+- Aula 11: Introdução ao Python - 2S2020: [Parte 1](aulas/aula11a.pdf) e [Parte 2](aulas/aula11b.pdf)
 
 # Laboratórios
 
