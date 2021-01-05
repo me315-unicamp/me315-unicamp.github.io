@@ -1,7 +1,7 @@
 ---
 title: "Importação/Manipulação de Dados com Python"
 subtitle: ""
-author: "Benilton Carvalho"
+author: "Benilton Carvalho, Tatiana Benaglia, Fernanda Schumacher"
 date: ""
 output:
   xaringan::moon_reader:
@@ -14,9 +14,15 @@ output:
 
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
+
+library(tidyverse)
+library(reticulate)
+#Sys.which("python")
 ```
 
 # Fatos sobre Python
+
+<img src="imgs_aula11/python-logo.png" width=200 style="float: right; margin-left:30px">
 
 - Linguagem interpretada, orientada a objeto;
 - Possui estruturas de dados de alto nível;
@@ -30,49 +36,82 @@ options(htmltools.dir.version = FALSE)
 
 # Pandas
 
+<img src="imgs_aula11/pandas.png" width=200 style="float: right; margin-left:30px; margin-bottom:30px">
+
 - Biblioteca do Python voltada para a estruturação de dados;
-- Mais informações: https://pandas.pydata.org/ ;
+- Permite a leitura e escrita de dados em vários formatos: CSVs, Excel, SQL, entre outros;
 - Alta performance, código aberto;
 - Permite a realização de análise de dados e modelagem (torna possível a análise sem precisar mudar para R);
 - Pandas não implementa estratégias avançadas de análise de dados;
 - Estratégias mais elaboradas de análise de dados estão disponíveis em:
-  * statsmodels: http://www.statsmodels.org
-  * scikit-learn: https://scikit-learn.org
+  * Statsmodels: http://www.statsmodels.org
+  * Scikit-Learn: https://scikit-learn.org
+  * TensorFlow: https://www.tensorflow.org/
+
+Mais informações: https://pandas.pydata.org/
+
+Pandas Cheat Sheet: https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf
+
+---
+
+# Pandas
+
+<img src="imgs_aula11/pandas.png" width=200 style="float: right; margin-left:30px; margin-bottom:30px">
+
+**Pontos Positivos**
+- Extremamente fácil de usar, exigindo uma pequena curva de aprendizagem para lidar com dados tabulares;
+- Conjunto grande de ferramentas para carregar, transformar e escrever dados em vários formatos;
+- Principal escolha para a maioria das bibliotecas usadas em Machine Learning;
+- Capacidade para gráficos e visualizações de dados (usando matplotlib);
+
+**Ponto Negativo**
+- Grande ocupação da memória, pois cria muitos objetos adicionais para rápido acesso e facilidade de manipulação;
+
+
 ---
 
 # Instalação do Python e Pandas
 
-No Linux,
+**No Linux**,
 
 ```
 sudo apt-get install python3 python3-pip
 sudo pip3 install pandas
 ```
 
-No MacOS,
+**No MacOS**,
 
 ```
 brew install python3 python3-pip
 pip3 install pandas
 ```
 
-No Windows,
+**No Windows**,
 
 - Baixar o instalar em https://www.python.org/downloads/windows/
 - Marcar a opção `add to PATH` no começo do processo
 - `python` e `pip` ficarão disponíveis no Windows PowerShell.
 - Executar:
-
-    pip install pandas
+```
+pip install pandas
+```
 
 ---
 
-## Chamando Python do R
+## Chamando o Python a partir do R
 
 - Você pode, também, usar o Python a partir do R;
 - Cenários assim são comuns quando você precisa conectar ferramentas disponíveis em cada uma das linguagens;
 - Por exemplo, para criar as notas de aula em `RMarkdown`;
-- Para acessar o Python, você deve utilizar o pacote `reticulate`;
+
+<img src="imgs_aula11/reticulated_python.png" width=200 style="float: right; margin-left:30px">
+
+- Para acessar o Python, você deve utilizar o pacote `reticulate`. Para instalar o pacote:
+    ```{r, eval=FALSE}
+    install.packages("reticulate")
+    ```
+
+
 - O código a ser executado em Python deve estar contido num `chunk` específico para `python`;
 
 ---
@@ -81,24 +120,78 @@ No Windows,
 
 ```{r}
 library(reticulate)
-py_discover_config() # Which version of Python is installed?
-use_python("/usr/local/bin/python3") # Installation path
+py_discover_config() # Qual versão do Python está instalada?
 ```
 
-Referência: McKinney (2013) *Python for data analysis*, O'Reilly. O livro é do criador do pacote `pandas`, Wes McKinney.
+Você pode especificar a versão a ser usada:
+```{r}
+use_python("/usr/local/bin/python3")
+```
+
+**Referência:** McKinney (2013) *Python for data analysis*, O'Reilly. O livro é do criador do pacote `pandas`, Wes McKinney.
 
 ---
 
 # Python como uma calculadora
 
-- Tutorial: https://docs.python.org/3/tutorial/
+**Tutorial:** https://docs.python.org/3/tutorial/
 
 ```{python}
 # Comentários são precedidos por #
 dir() # Lista variáveis no workspace
-a = 1 # int
+a = 5 # int
 print(a) # Desnecessário em modo interativo
+a + 2
+a / 2
 ```
+
+---
+
+# Python vs R
+
+<img src="imgs_aula11/RvsPython.png" width=250 style="float: right; margin-left:30px">
+
+Se olharmos lado a lado, ambos funcionam de maneira similar e são bem parecidos, apenas com algumas pequenas diferenças em suas sintaxes.
+
+**Tipos de Dados:**
+
+<img src="imgs_aula11/python_datatypes.png" width=700>
+
+
+**Assinalando variáveis:**
+
+<img src="imgs_aula11/python_assigningvars.png" width=700>
+
+```{python, echo=FALSE}
+a = 5
+```
+
+
+---
+
+# Python vs R
+
+Operadores algébricos e lógicos são iguais!
+
+<img src="imgs_aula11/python_math.png" width=700>
+
+```{python}
+a == 5
+a < 3
+```
+
+---
+
+
+## Listas e Vetores
+
+<img src="imgs_aula11/RvsPython.png" width=280 style="float: right; margin-left: 30px; margin-bottom: 40px">
+
+Em `Python`, uma **lista** é uma coleção mutável de elementos de qualquer tipo. O índice de uma lista em Python começa em 0 e é não inclusivo.
+
+Em `R`, um **vetor** é uma coleção mutável de elementos do mesmo tipo. O índice de um vetor em  `R` começa em 1 e é inclusivo.
+
+<img src="imgs_aula11/python_indexing.png" width=700>
 
 ---
 
@@ -107,17 +200,17 @@ print(a) # Desnecessário em modo interativo
 ```{python}
 b = "ME315" # str
 print(b)
-#help(b)  ## ajuda: mas nao dentro do RStudio
-#help(matplotlib) ## ajuda: tambem para pacotes
+# help(b)  ## ajuda: mas nao dentro do RStudio
+# help(matplotlib) ## ajuda: tambem para pacotes
 print(b.endswith("A"))
 print(b.endswith("5"))
 ```
 
 ---
 
-## Índices
+## Indexando Vetores
 
-Arrays no Python começam no 0. Strings são Arrays de caracteres.
+Índices de vetores no Python começam no 0. Strings são vetores de caracteres.
 
 ```{python}
 print(b)
@@ -128,9 +221,9 @@ print(b[-1]) # Last letter
 
 ---
 
-## Índices
+## Indexando Vetores
 
-Referência parcial a objetos e concatenação
+Referência parcial a objetos e concatenação.
 
 ```{python}
 print(b[:2])
@@ -140,9 +233,9 @@ print(b[:2] + b[2:])
 
 ---
 
-## Arrays numéricos
+## Vetores numéricos
 
-Arrays em Python são guardados em listas
+Vetores em Python são guardados em listas.
 
 ```{python}
 x = [1, 2, 4, 8, 16]
@@ -175,7 +268,7 @@ x = [a,n] # Listas de listas
 print(x)
 ```
 
-Note: no R, `data.frames` são listas de listas; é errado, do ponto de vista de programação, pensar em `data.frames` como planilhas (i.e. acessar linhas é *lento*, acessar colunas é relativamente rápido).
+**Note:** no R, `data.frames` são listas de listas; é errado, do ponto de vista de programação, pensar em `data.frames` como planilhas (i.e. acessar linhas é *lento*, acessar colunas é relativamente rápido).
 
 ```{python}
 print(x[1]) # Acesso à segunda lista
@@ -184,11 +277,17 @@ print(x[1][0])
 
 ---
 
-## Controle de fluxo
+## Controle de Fluxo
 
-O python naturalmente possui as ferramentas usuais de controle de fluxo, tais como
+O python naturalmente possui as ferramentas usuais de controle de fluxo, tais como: **if, for, while**
+ 
+**If/Else**
 
-    if, for, while
+<img src="imgs_aula11/python_ifelse.png" width=700>
+
+**For loops**
+
+<img src="imgs_aula11/python_forloops.png" width=700>
     
 Estrutura de programação é um tópico complexo. Iremos apenas ilustrar o uso das ferramentas com alguns exemplos. 
 
@@ -196,7 +295,7 @@ Estrutura de programação é um tópico complexo. Iremos apenas ilustrar o uso 
 
 ## IF
 
-Importante: Identação é feita com tabulações (`\t`) ou dois espaços, e é parte da sintaxe!
+**Importante:** Identação é feita com tabulações (`\t`) ou dois espaços, e é parte da sintaxe!
 
 ```{python}
 x = 2
@@ -215,7 +314,7 @@ else:
 
 ## FOR
 
-Importante: Identação é feita com tabulações (`\t`) ou dois espaços, e é parte da sintaxe!
+**Importante:** Identação é feita com tabulações (`\t`) ou dois espaços, e é parte da sintaxe!
 
 ```{python}
 words = ['Matemática', 'Estatística', 'Ciência de Dados']
@@ -255,12 +354,22 @@ def wins(arr, howMany): # Média Winsorized
     result = sum(arr)/len(arr)
     return result
 
-a = [4,7,3,4,5,2,1,6,999]
+a = [4, 7, 3, 4, 5, 2, 1, 6, 999] 
 print(wins(a, 2))
-a = [4,7,3,4,5,2,1,6,999] # Escopo!!
+a = [4, 7, 3, 4, 5, 2, 1, 6, 999] # Escopo!!
 print(sum(a)/len(a))
 ```
 
+---
+
+# Manipulação de Dados
+
+- Em R, o `tidyverse` é a biblioteca que vocês utilizaram para carregar e manipular bancos de dados usando o objeto `data.frame`.
+
+- Em python, `pandas` é a biblioteca equivalente ao `tidyverse`, mais comumente usada para carregar e manipular data frames usando o objeto `DataFrame`. 
+
+    <img src="imgs_aula11/python_pandas.png" width=600>
+    
 ---
 
 ## Lendo CSV em Python, pandas
@@ -268,9 +377,9 @@ print(sum(a)/len(a))
 Primeiramente, `import` evoca pacotes e tem função similar a `library()` e/ou `require()` no `R`.
 
 ```{python}
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
+import numpy as np #para matrizes e arrays
+import matplotlib.pyplot as plt 
+import pandas as pd #para dataframes
 print(pd.__version__) # Checks pandas version, we need 0.18 at least
 ```
 
@@ -280,47 +389,91 @@ print(pd.__version__) # Checks pandas version, we need 0.18 at least
 
 Dados são da SSA (Social Security Agency), mas eu só consegui baixá-los de https://github.com/hadley/data-baby-names/blob/master/baby-names.csv.
 
+```{r, warning=FALSE, message=FALSE}
+#R
+babyNamesR = readr::read_csv("../dados/baby-names.csv") %>% as.data.frame()
+babyNamesR %>% head(n=3)
+```
 ```{python}
-babyNames = pd.read_csv("../dados/baby-names.csv", header = 0)
-print(babyNames)
+#python
+babyNamesPY = pd.read_csv("../dados/baby-names.csv", header = 0)
+babyNamesPY.head()
 ```
 
 ---
 
-## Transparência com R
+<!-- ## Transparência com R -->
 
+### Em R
+```{r}
+class(babyNamesR)
+class(py$babyNamesPY)
+```
+### Em python
 ```{python}
-print(babyNames.head())
+type(babyNamesPY)
+type(r.babyNamesR)
 ```
 
 ---
 
-## Transparência com R
 
-Somente os 1000 nomes mais comuns de cada ano....
-
+### Em python
 ```{python}
-print(babyNames.groupby(['year','sex']).name.count())
+babyNamesPY.shape
+babyNamesPY.info()
 ```
 
 ---
 
-## Transparência com R
+## Selecionando colunas
+
+```{python}
+print(babyNamesPY.year) #ou print(babyNamesPY['year'])
+```
+
+---
+
+## Apply functions on DataFrames
+
+```{python}
+df = pd.DataFrame(
+  {'A': [1, 2, 3],
+   'B':[4, 5, 6]
+  })
+df.apply(np.mean,axis=0)
+df.apply(np.mean,axis=1)
+```
+
+---
+
+<!-- ### Em python -->
+<!-- ## Transparência com R -->
+
+Dados do SSA contêm somente os 1000 nomes mais comuns de cada ano....
+
+```{python}
+print(babyNamesPY.groupby(['year','sex']).name.count())
+```
+---
+
+<!-- ## Transparência com R -->
 
 Alguns verbos coincidem com `dplyr`
 
 ```{python}
-print(babyNames.groupby(['year','sex']).percent.sum())
+print(babyNamesPY.groupby(['year','sex']).percent.sum())
 ```
 
 ---
 
-## Indexando
+## Indexando (linhas)
 
 Não é possível indexar diretamente um DataFrame, você precisa acessar o atributo `iloc`
 
 ```{python}
-print(babyNames.iloc[0,:])
+print(babyNamesPY.iloc[0]) # ou print(babyNamesPY.iloc[0,:])
+print(babyNamesPY.iloc[0:3])
 ```
 
 ---
@@ -328,17 +481,36 @@ print(babyNames.iloc[0,:])
 ## No (significant number of) boys named Sue...
 
 ```{python}
-print(babyNames.loc[babyNames.name == "Sue",:])
+print(babyNamesPY.loc[babyNamesPY.name == "Sue",])
 ```
 
 ---
 
-## No (significant number of) boys named Sue...
+## Indexando (linhas e colunas)
 
 ```{python}
-babySue = babyNames.loc[babyNames.name == "Sue",]
+print(babyNamesPY.iloc[0,0]) 
+print(babyNamesPY.loc[0,'name']) 
+print(babyNamesPY.loc[[0,10,100],['name','year']]) 
+print(babyNamesPY.index)
+```
+
+---
+
+## Plot usando matplotlib
+
+```{python, plotmat, out.width="55%"}
+babySue = babyNamesPY.loc[babyNamesPY.name == "Sue",]
 babySue.plot(kind = 'scatter', x = 'year', y = 'percent')
 plt.show() # from matplotlib
+```
+---
+
+## Plot usando ggplot
+
+```{python, plotggplot, out.width="60%"}
+from plotnine import *
+ggplot(babySue) + geom_point(aes(x = 'year', y = 'percent'))
 ```
 
 ---
@@ -357,6 +529,7 @@ plt.show() # from matplotlib
 **Observações**:
 - `read_csv` possui o argumento `delimiter`, que pode ser ajustado para outros tipos de arquivos em texto plano retangulares;
 - `read_csv` também possui o argumento `chunksize`, que pode ser usado para leitura por partes.
+
 ---
 
 ## Formatos Suportados pelo Pandas
@@ -382,7 +555,8 @@ reader = pd.read_csv("../dados/baby-names.csv",
         header = 0, chunksize=1000)
 soma = 0
 for df in reader:
-  soma += df.loc[df.name == "Sue", :].percent.sum()
+  soma += df.loc[df.name == "Sue", 'percent'].sum()
+
 print(soma)
 ```
 
@@ -395,6 +569,7 @@ import pandas as pd
 import sqlite3
 conn = sqlite3.connect("../dados/disco.db")
 pd.read_sql_query("SELECT * FROM artists LIMIT 5", conn)
+conn.close()
 ```
 
 ---
@@ -404,7 +579,7 @@ pd.read_sql_query("SELECT * FROM artists LIMIT 5", conn)
 ```{python}
 from pymongo import MongoClient
 import pprint
-myurl = 'mongodb+srv://benilton:123mudei@cluster0-s8gg0.mongodb.net'
+myurl = "mongodb+srv://fernandaBD:mongo123@cluster0.2ph3s.mongodb.net"
 client = MongoClient(myurl)
 db = client['me315mongodb']
 collection = db['diamantes']
@@ -427,4 +602,13 @@ pprint.pprint(doc)
 ```{python}
 doc = collection.find_one({"cut":"Premium"})
 pprint.pprint(doc)
+```
+---
+
+## MongoDB
+
+```{python}
+doc = collection.find({"cut":"Premium"}).limit(5)
+for x in doc:
+  pprint.pprint(x,width=10)
 ```

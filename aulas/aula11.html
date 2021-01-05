@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<html lang="" xml:lang="">
   <head>
     <title>Importação/Manipulação de Dados com Python</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Benilton Carvalho" />
+    <meta name="author" content="Benilton Carvalho, Tatiana Benaglia, Fernanda Schumacher" />
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
   </head>
@@ -12,7 +12,7 @@
 class: center, middle, inverse, title-slide
 
 # Importação/Manipulação de Dados com Python
-### Benilton Carvalho
+### Benilton Carvalho, Tatiana Benaglia, Fernanda Schumacher
 
 ---
 
@@ -20,6 +20,8 @@ class: center, middle, inverse, title-slide
 
 
 # Fatos sobre Python
+
+&lt;img src="imgs_aula11/python-logo.png" width=200 style="float: right; margin-left:30px"&gt;
 
 - Linguagem interpretada, orientada a objeto;
 - Possui estruturas de dados de alto nível;
@@ -33,49 +35,83 @@ class: center, middle, inverse, title-slide
 
 # Pandas
 
+&lt;img src="imgs_aula11/pandas.png" width=200 style="float: right; margin-left:30px; margin-bottom:30px"&gt;
+
 - Biblioteca do Python voltada para a estruturação de dados;
-- Mais informações: https://pandas.pydata.org/ ;
+- Permite a leitura e escrita de dados em vários formatos: CSVs, Excel, SQL, entre outros;
 - Alta performance, código aberto;
 - Permite a realização de análise de dados e modelagem (torna possível a análise sem precisar mudar para R);
 - Pandas não implementa estratégias avançadas de análise de dados;
 - Estratégias mais elaboradas de análise de dados estão disponíveis em:
-  * statsmodels: http://www.statsmodels.org
-  * scikit-learn: https://scikit-learn.org
+  * Statsmodels: http://www.statsmodels.org
+  * Scikit-Learn: https://scikit-learn.org
+  * TensorFlow: https://www.tensorflow.org/
+
+Mais informações: https://pandas.pydata.org/
+
+Pandas Cheat Sheet: https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf
+
+---
+
+# Pandas
+
+&lt;img src="imgs_aula11/pandas.png" width=200 style="float: right; margin-left:30px; margin-bottom:30px"&gt;
+
+**Pontos Positivos**
+- Extremamente fácil de usar, exigindo uma pequena curva de aprendizagem para lidar com dados tabulares;
+- Conjunto grande de ferramentas para carregar, transformar e escrever dados em vários formatos;
+- Principal escolha para a maioria das bibliotecas usadas em Machine Learning;
+- Capacidade para gráficos e visualizações de dados (usando matplotlib);
+
+**Ponto Negativo**
+- Grande ocupação da memória, pois cria muitos objetos adicionais para rápido acesso e facilidade de manipulação;
+
+
 ---
 
 # Instalação do Python e Pandas
 
-No Linux,
+**No Linux**,
 
 ```
 sudo apt-get install python3 python3-pip
 sudo pip3 install pandas
 ```
 
-No MacOS,
+**No MacOS**,
 
 ```
 brew install python3 python3-pip
 pip3 install pandas
 ```
 
-No Windows,
+**No Windows**,
 
 - Baixar o instalar em https://www.python.org/downloads/windows/
 - Marcar a opção `add to PATH` no começo do processo
 - `python` e `pip` ficarão disponíveis no Windows PowerShell.
 - Executar:
-
-    pip install pandas
+```
+pip install pandas
+```
 
 ---
 
-## Chamando Python do R
+## Chamando o Python a partir do R
 
 - Você pode, também, usar o Python a partir do R;
 - Cenários assim são comuns quando você precisa conectar ferramentas disponíveis em cada uma das linguagens;
 - Por exemplo, para criar as notas de aula em `RMarkdown`;
-- Para acessar o Python, você deve utilizar o pacote `reticulate`;
+
+&lt;img src="imgs_aula11/reticulated_python.png" width=200 style="float: right; margin-left:30px"&gt;
+
+- Para acessar o Python, você deve utilizar o pacote `reticulate`. Para instalar o pacote:
+    
+    ```r
+    install.packages("reticulate")
+    ```
+
+
 - O código a ser executado em Python deve estar contido num `chunk` específico para `python`;
 
 ---
@@ -85,33 +121,31 @@ No Windows,
 
 ```r
 library(reticulate)
-py_discover_config() # Which version of Python is installed?
+py_discover_config() # Qual versão do Python está instalada?
 ```
 
 ```
-## python:         /usr/bin/python
-## libpython:      /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/config/libpython2.7.dylib
-## pythonhome:     /System/Library/Frameworks/Python.framework/Versions/2.7:/System/Library/Frameworks/Python.framework/Versions/2.7
-## version:        2.7.10 (default, Feb 22 2019, 21:55:15)  [GCC 4.2.1 Compatible Apple LLVM 10.0.1 (clang-1001.0.37.14)]
-## numpy:          /System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy
-## numpy_version:  1.8.0
-## 
-## python versions found: 
-##  /usr/bin/python
-##  /usr/local/bin/python3
+## python:         /Users/tatiana/Library/r-miniconda/envs/r-reticulate/bin/python
+## libpython:      /Users/tatiana/Library/r-miniconda/envs/r-reticulate/lib/libpython3.6m.dylib
+## pythonhome:     /Users/tatiana/Library/r-miniconda/envs/r-reticulate:/Users/tatiana/Library/r-miniconda/envs/r-reticulate
+## version:        3.6.12 | packaged by conda-forge | (default, Dec  9 2020, 00:24:39)  [GCC Clang 11.0.0]
+## numpy:          /Users/tatiana/Library/r-miniconda/envs/r-reticulate/lib/python3.6/site-packages/numpy
+## numpy_version:  1.19.4
 ```
+
+Você pode especificar a versão a ser usada:
 
 ```r
-use_python("/usr/local/bin/python3") # Installation path
+use_python("/usr/local/bin/python3")
 ```
 
-Referência: McKinney (2013) *Python for data analysis*, O'Reilly. O livro é do criador do pacote `pandas`, Wes McKinney.
+**Referência:** McKinney (2013) *Python for data analysis*, O'Reilly. O livro é do criador do pacote `pandas`, Wes McKinney.
 
 ---
 
 # Python como uma calculadora
 
-- Tutorial: https://docs.python.org/3/tutorial/
+**Tutorial:** https://docs.python.org/3/tutorial/
 
 
 ```python
@@ -124,13 +158,87 @@ dir() # Lista variáveis no workspace
 ```
 
 ```python
-a = 1 # int
+a = 5 # int
 print(a) # Desnecessário em modo interativo
 ```
 
 ```
-## 1
+## 5
 ```
+
+```python
+a + 2
+```
+
+```
+## 7
+```
+
+```python
+a / 2
+```
+
+```
+## 2.5
+```
+
+---
+
+# Python vs R
+
+&lt;img src="imgs_aula11/RvsPython.png" width=250 style="float: right; margin-left:30px"&gt;
+
+Se olharmos lado a lado, ambos funcionam de maneira similar e são bem parecidos, apenas com algumas pequenas diferenças em suas sintaxes.
+
+**Tipos de Dados:**
+
+&lt;img src="imgs_aula11/python_datatypes.png" width=700&gt;
+
+
+**Assinalando variáveis:**
+
+&lt;img src="imgs_aula11/python_assigningvars.png" width=700&gt;
+
+
+
+
+---
+
+# Python vs R
+
+Operadores algébricos e lógicos são iguais!
+
+&lt;img src="imgs_aula11/python_math.png" width=700&gt;
+
+
+```python
+a == 5
+```
+
+```
+## True
+```
+
+```python
+a &lt; 3
+```
+
+```
+## False
+```
+
+---
+
+
+## Listas e Vetores
+
+&lt;img src="imgs_aula11/RvsPython.png" width=280 style="float: right; margin-left: 30px; margin-bottom: 40px"&gt;
+
+Em `Python`, uma **lista** é uma coleção mutável de elementos de qualquer tipo. O índice de uma lista em Python começa em 0 e é não inclusivo.
+
+Em `R`, um **vetor** é uma coleção mutável de elementos do mesmo tipo. O índice de um vetor em  `R` começa em 1 e é inclusivo.
+
+&lt;img src="imgs_aula11/python_indexing.png" width=700&gt;
 
 ---
 
@@ -140,8 +248,8 @@ print(a) # Desnecessário em modo interativo
 ```python
 b = "ME315" # str
 print(b)
-#help(b)  ## ajuda: mas nao dentro do RStudio
-#help(matplotlib) ## ajuda: tambem para pacotes
+# help(b)  ## ajuda: mas nao dentro do RStudio
+# help(matplotlib) ## ajuda: tambem para pacotes
 ```
 
 ```
@@ -166,9 +274,9 @@ print(b.endswith("5"))
 
 ---
 
-## Índices
+## Indexando Vetores
 
-Arrays no Python começam no 0. Strings são Arrays de caracteres.
+Índices de vetores no Python começam no 0. Strings são vetores de caracteres.
 
 
 ```python
@@ -205,9 +313,9 @@ print(b[-1]) # Last letter
 
 ---
 
-## Índices
+## Indexando Vetores
 
-Referência parcial a objetos e concatenação
+Referência parcial a objetos e concatenação.
 
 
 ```python
@@ -236,9 +344,9 @@ print(b[:2] + b[2:])
 
 ---
 
-## Arrays numéricos
+## Vetores numéricos
 
-Arrays em Python são guardados em listas
+Vetores em Python são guardados em listas.
 
 
 ```python
@@ -314,7 +422,7 @@ print(x)
 ## [['a', 'b', 'c'], [12, 15, 7]]
 ```
 
-Note: no R, `data.frames` são listas de listas; é errado, do ponto de vista de programação, pensar em `data.frames` como planilhas (i.e. acessar linhas é *lento*, acessar colunas é relativamente rápido).
+**Note:** no R, `data.frames` são listas de listas; é errado, do ponto de vista de programação, pensar em `data.frames` como planilhas (i.e. acessar linhas é *lento*, acessar colunas é relativamente rápido).
 
 
 ```python
@@ -335,11 +443,17 @@ print(x[1][0])
 
 ---
 
-## Controle de fluxo
+## Controle de Fluxo
 
-O python naturalmente possui as ferramentas usuais de controle de fluxo, tais como
+O python naturalmente possui as ferramentas usuais de controle de fluxo, tais como: **if, for, while**
+ 
+**If/Else**
 
-    if, for, while
+&lt;img src="imgs_aula11/python_ifelse.png" width=700&gt;
+
+**For loops**
+
+&lt;img src="imgs_aula11/python_forloops.png" width=700&gt;
     
 Estrutura de programação é um tópico complexo. Iremos apenas ilustrar o uso das ferramentas com alguns exemplos. 
 
@@ -347,7 +461,7 @@ Estrutura de programação é um tópico complexo. Iremos apenas ilustrar o uso 
 
 ## IF
 
-Importante: Identação é feita com tabulações (`\t`) ou dois espaços, e é parte da sintaxe!
+**Importante:** Identação é feita com tabulações (`\t`) ou dois espaços, e é parte da sintaxe!
 
 
 ```python
@@ -371,7 +485,7 @@ else:
 
 ## FOR
 
-Importante: Identação é feita com tabulações (`\t`) ou dois espaços, e é parte da sintaxe!
+**Importante:** Identação é feita com tabulações (`\t`) ou dois espaços, e é parte da sintaxe!
 
 
 ```python
@@ -427,7 +541,7 @@ def wins(arr, howMany): # Média Winsorized
     result = sum(arr)/len(arr)
     return result
 
-a = [4,7,3,4,5,2,1,6,999]
+a = [4, 7, 3, 4, 5, 2, 1, 6, 999] 
 print(wins(a, 2))
 ```
 
@@ -436,7 +550,7 @@ print(wins(a, 2))
 ```
 
 ```python
-a = [4,7,3,4,5,2,1,6,999] # Escopo!!
+a = [4, 7, 3, 4, 5, 2, 1, 6, 999] # Escopo!!
 print(sum(a)/len(a))
 ```
 
@@ -446,20 +560,30 @@ print(sum(a)/len(a))
 
 ---
 
+# Manipulação de Dados
+
+- Em R, o `tidyverse` é a biblioteca que vocês utilizaram para carregar e manipular bancos de dados usando o objeto `data.frame`.
+
+- Em python, `pandas` é a biblioteca equivalente ao `tidyverse`, mais comumente usada para carregar e manipular data frames usando o objeto `DataFrame`. 
+
+    &lt;img src="imgs_aula11/python_pandas.png" width=600&gt;
+    
+---
+
 ## Lendo CSV em Python, pandas
 
 Primeiramente, `import` evoca pacotes e tem função similar a `library()` e/ou `require()` no `R`.
 
 
 ```python
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
+import numpy as np #para matrizes e arrays
+import matplotlib.pyplot as plt 
+import pandas as pd #para dataframes
 print(pd.__version__) # Checks pandas version, we need 0.18 at least
 ```
 
 ```
-## 0.25.0
+## 1.1.5
 ```
 
 ---
@@ -469,35 +593,23 @@ print(pd.__version__) # Checks pandas version, we need 0.18 at least
 Dados são da SSA (Social Security Agency), mas eu só consegui baixá-los de https://github.com/hadley/data-baby-names/blob/master/baby-names.csv.
 
 
-```python
-babyNames = pd.read_csv("../dados/baby-names.csv", header = 0)
-print(babyNames)
+```r
+#R
+babyNamesR = readr::read_csv("../dados/baby-names.csv") %&gt;% as.data.frame()
+babyNamesR %&gt;% head(n=3)
 ```
 
 ```
-##         year      name   percent   sex
-## 0       1880      John  0.081541   boy
-## 1       1880   William  0.080511   boy
-## 2       1880     James  0.050057   boy
-## 3       1880   Charles  0.045167   boy
-## 4       1880    George  0.043292   boy
-## ...      ...       ...       ...   ...
-## 257995  2008  Carleigh  0.000128  girl
-## 257996  2008     Iyana  0.000128  girl
-## 257997  2008    Kenley  0.000127  girl
-## 257998  2008    Sloane  0.000127  girl
-## 257999  2008   Elianna  0.000127  girl
-## 
-## [258000 rows x 4 columns]
+##   year    name  percent sex
+## 1 1880    John 0.081541 boy
+## 2 1880 William 0.080511 boy
+## 3 1880   James 0.050057 boy
 ```
-
----
-
-## Transparência com R
-
 
 ```python
-print(babyNames.head())
+#python
+babyNamesPY = pd.read_csv("../dados/baby-names.csv", header = 0)
+babyNamesPY.head()
 ```
 
 ```
@@ -511,13 +623,138 @@ print(babyNames.head())
 
 ---
 
-## Transparência com R
+&lt;!-- ## Transparência com R --&gt;
 
-Somente os 1000 nomes mais comuns de cada ano....
+### Em R
+
+```r
+class(babyNamesR)
+```
+
+```
+## [1] "data.frame"
+```
+
+```r
+class(py$babyNamesPY)
+```
+
+```
+## [1] "data.frame"
+```
+### Em python
+
+```python
+type(babyNamesPY)
+```
+
+```
+## &lt;class 'pandas.core.frame.DataFrame'&gt;
+```
+
+```python
+type(r.babyNamesR)
+```
+
+```
+## &lt;class 'pandas.core.frame.DataFrame'&gt;
+```
+
+---
+
+
+### Em python
+
+```python
+babyNamesPY.shape
+```
+
+```
+## (258000, 4)
+```
+
+```python
+babyNamesPY.info()
+```
+
+```
+## &lt;class 'pandas.core.frame.DataFrame'&gt;
+## RangeIndex: 258000 entries, 0 to 257999
+## Data columns (total 4 columns):
+##  #   Column   Non-Null Count   Dtype  
+## ---  ------   --------------   -----  
+##  0   year     258000 non-null  int64  
+##  1   name     258000 non-null  object 
+##  2   percent  258000 non-null  float64
+##  3   sex      258000 non-null  object 
+## dtypes: float64(1), int64(1), object(2)
+## memory usage: 7.9+ MB
+```
+
+---
+
+## Selecionando colunas
 
 
 ```python
-print(babyNames.groupby(['year','sex']).name.count())
+print(babyNamesPY.year) #ou print(babyNamesPY['year'])
+```
+
+```
+## 0         1880
+## 1         1880
+## 2         1880
+## 3         1880
+## 4         1880
+##           ... 
+## 257995    2008
+## 257996    2008
+## 257997    2008
+## 257998    2008
+## 257999    2008
+## Name: year, Length: 258000, dtype: int64
+```
+
+---
+
+## Apply functions on DataFrames
+
+
+```python
+df = pd.DataFrame(
+  {'A': [1, 2, 3],
+   'B':[4, 5, 6]
+  })
+df.apply(np.mean,axis=0)
+```
+
+```
+## A    2.0
+## B    5.0
+## dtype: float64
+```
+
+```python
+df.apply(np.mean,axis=1)
+```
+
+```
+## 0    2.5
+## 1    3.5
+## 2    4.5
+## dtype: float64
+```
+
+---
+
+&lt;!-- ### Em python --&gt;
+&lt;!-- ## Transparência com R --&gt;
+
+Dados do SSA contêm somente os 1000 nomes mais comuns de cada ano....
+
+
+```python
+print(babyNamesPY.groupby(['year','sex']).name.count())
 ```
 
 ```
@@ -535,16 +772,15 @@ print(babyNames.groupby(['year','sex']).name.count())
 ##       girl    1000
 ## Name: name, Length: 258, dtype: int64
 ```
-
 ---
 
-## Transparência com R
+&lt;!-- ## Transparência com R --&gt;
 
 Alguns verbos coincidem com `dplyr`
 
 
 ```python
-print(babyNames.groupby(['year','sex']).percent.sum())
+print(babyNamesPY.groupby(['year','sex']).percent.sum())
 ```
 
 ```
@@ -565,13 +801,13 @@ print(babyNames.groupby(['year','sex']).percent.sum())
 
 ---
 
-## Indexando
+## Indexando (linhas)
 
 Não é possível indexar diretamente um DataFrame, você precisa acessar o atributo `iloc`
 
 
 ```python
-print(babyNames.iloc[0,:])
+print(babyNamesPY.iloc[0]) # ou print(babyNamesPY.iloc[0,:])
 ```
 
 ```
@@ -582,13 +818,24 @@ print(babyNames.iloc[0,:])
 ## Name: 0, dtype: object
 ```
 
+```python
+print(babyNamesPY.iloc[0:3])
+```
+
+```
+##    year     name   percent  sex
+## 0  1880     John  0.081541  boy
+## 1  1880  William  0.080511  boy
+## 2  1880    James  0.050057  boy
+```
+
 ---
 
 ## No (significant number of) boys named Sue...
 
 
 ```python
-print(babyNames.loc[babyNames.name == "Sue",:])
+print(babyNamesPY.loc[babyNamesPY.name == "Sue",])
 ```
 
 ```
@@ -610,16 +857,71 @@ print(babyNames.loc[babyNames.name == "Sue",:])
 
 ---
 
-## No (significant number of) boys named Sue...
+## Indexando (linhas e colunas)
 
 
 ```python
-babySue = babyNames.loc[babyNames.name == "Sue",]
+print(babyNamesPY.iloc[0,0]) 
+```
+
+```
+## 1880
+```
+
+```python
+print(babyNamesPY.loc[0,'name']) 
+```
+
+```
+## John
+```
+
+```python
+print(babyNamesPY.loc[[0,10,100],['name','year']]) 
+```
+
+```
+##        name  year
+## 0      John  1880
+## 10   Edward  1880
+## 100   Perry  1880
+```
+
+```python
+print(babyNamesPY.index)
+```
+
+```
+## RangeIndex(start=0, stop=258000, step=1)
+```
+
+---
+
+## Plot usando matplotlib
+
+
+```python
+babySue = babyNamesPY.loc[babyNamesPY.name == "Sue",]
 babySue.plot(kind = 'scatter', x = 'year', y = 'percent')
 plt.show() # from matplotlib
 ```
 
-&lt;img src="aula11_files/figure-html/unnamed-chunk-21-1.png" width="672" /&gt;
+&lt;img src="aula11_files/figure-html/plotmat-1.png" width="55%" /&gt;
+---
+
+## Plot usando ggplot
+
+
+```python
+from plotnine import *
+ggplot(babySue) + geom_point(aes(x = 'year', y = 'percent'))
+```
+
+```
+## &lt;ggplot: (-9223372036508940449)&gt;
+```
+
+&lt;img src="aula11_files/figure-html/plotggplot-1.png" width="60%" /&gt;
 
 ---
 
@@ -637,6 +939,7 @@ plt.show() # from matplotlib
 **Observações**:
 - `read_csv` possui o argumento `delimiter`, que pode ser ajustado para outros tipos de arquivos em texto plano retangulares;
 - `read_csv` também possui o argumento `chunksize`, que pode ser usado para leitura por partes.
+
 ---
 
 ## Formatos Suportados pelo Pandas
@@ -663,7 +966,8 @@ reader = pd.read_csv("../dados/baby-names.csv",
         header = 0, chunksize=1000)
 soma = 0
 for df in reader:
-  soma += df.loc[df.name == "Sue", :].percent.sum()
+  soma += df.loc[df.name == "Sue", 'percent'].sum()
+
 print(soma)
 ```
 
@@ -692,6 +996,10 @@ pd.read_sql_query("SELECT * FROM artists LIMIT 5", conn)
 ## 4         5    Alice In Chains
 ```
 
+```python
+conn.close()
+```
+
 ---
 
 ## MongoDB, Pandas e Python
@@ -700,7 +1008,7 @@ pd.read_sql_query("SELECT * FROM artists LIMIT 5", conn)
 ```python
 from pymongo import MongoClient
 import pprint
-myurl = 'mongodb+srv://benilton:123mudei@cluster0-s8gg0.mongodb.net'
+myurl = "mongodb+srv://fernandaBD:mongo123@cluster0.2ph3s.mongodb.net"
 client = MongoClient(myurl)
 db = client['me315mongodb']
 collection = db['diamantes']
@@ -708,7 +1016,7 @@ collection
 ```
 
 ```
-## Collection(Database(MongoClient(host=['cluster0-shard-00-02-s8gg0.mongodb.net:27017', 'cluster0-shard-00-00-s8gg0.mongodb.net:27017', 'cluster0-shard-00-01-s8gg0.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, authsource='admin', replicaset='Cluster0-shard-0', ssl=True), 'me315mongodb'), 'diamantes')
+## Collection(Database(MongoClient(host=['cluster0-shard-00-02.2ph3s.mongodb.net:27017', 'cluster0-shard-00-00.2ph3s.mongodb.net:27017', 'cluster0-shard-00-01.2ph3s.mongodb.net:27017'], document_class=dict, tz_aware=False, connect=True, authsource='admin', replicaset='atlas-e83e3e-shard-0', ssl=True), 'me315mongodb'), 'diamantes')
 ```
 
 ---
@@ -722,17 +1030,17 @@ pprint.pprint(doc)
 ```
 
 ```
-## {'_id': ObjectId('5dc555a016f20211cb54edd2'),
-##  'carat': 0.23,
-##  'clarity': 'SI2',
+## {'_id': ObjectId('5fd034c6e17a0000d50063aa'),
+##  'carat': 0.22,
+##  'clarity': 'VS2',
 ##  'color': 'E',
-##  'cut': 'Ideal',
-##  'depth': 61.5,
-##  'price': 326,
-##  'table': 55.0,
-##  'x': 3.95,
-##  'y': 3.98,
-##  'z': 2.43}
+##  'cut': 'Fair',
+##  'depth': 65.1,
+##  'price': 337,
+##  'table': 61.0,
+##  'x': 3.87,
+##  'y': 3.78,
+##  'z': 2.49}
 ```
 
 ---
@@ -746,17 +1054,85 @@ pprint.pprint(doc)
 ```
 
 ```
-## {'_id': ObjectId('5dc555a016f20211cb54edd3'),
-##  'carat': 0.21,
+## {'_id': ObjectId('5fd034c6e17a0000d50063ae'),
+##  'carat': 0.22,
+##  'clarity': 'SI1',
+##  'color': 'F',
+##  'cut': 'Premium',
+##  'depth': 60.4,
+##  'price': 342,
+##  'table': 61.0,
+##  'x': 3.88,
+##  'y': 3.84,
+##  'z': 2.33}
+```
+---
+
+## MongoDB
+
+
+```python
+doc = collection.find({"cut":"Premium"}).limit(5)
+for x in doc:
+  pprint.pprint(x,width=10)
+```
+
+```
+## {'_id': ObjectId('5fd034c6e17a0000d50063ae'),
+##  'carat': 0.22,
+##  'clarity': 'SI1',
+##  'color': 'F',
+##  'cut': 'Premium',
+##  'depth': 60.4,
+##  'price': 342,
+##  'table': 61.0,
+##  'x': 3.88,
+##  'y': 3.84,
+##  'z': 2.33}
+## {'_id': ObjectId('5fd034c6e17a0000d50063da'),
+##  'carat': 0.3,
+##  'clarity': 'SI2',
+##  'color': 'J',
+##  'cut': 'Premium',
+##  'depth': 59.3,
+##  'price': 405,
+##  'table': 61.0,
+##  'x': 4.43,
+##  'y': 4.38,
+##  'z': 2.61}
+## {'_id': ObjectId('5fd034c6e17a0000d5006407'),
+##  'carat': 0.75,
 ##  'clarity': 'SI1',
 ##  'color': 'E',
 ##  'cut': 'Premium',
-##  'depth': 59.8,
-##  'price': 326,
-##  'table': 61.0,
-##  'x': 3.89,
-##  'y': 3.84,
-##  'z': 2.31}
+##  'depth': 59.9,
+##  'price': 2760,
+##  'table': 54.0,
+##  'x': 6.0,
+##  'y': 5.96,
+##  'z': 3.58}
+## {'_id': ObjectId('5fd034c6e17a0000d5006412'),
+##  'carat': 0.9,
+##  'clarity': 'VS2',
+##  'color': 'I',
+##  'cut': 'Premium',
+##  'depth': 63.0,
+##  'price': 2761,
+##  'table': 58.0,
+##  'x': 6.16,
+##  'y': 6.12,
+##  'z': 3.87}
+## {'_id': ObjectId('5fd034c6e17a0000d50063eb'),
+##  'carat': 0.3,
+##  'clarity': 'SI1',
+##  'color': 'H',
+##  'cut': 'Premium',
+##  'depth': 62.5,
+##  'price': 554,
+##  'table': 57.0,
+##  'x': 4.29,
+##  'y': 4.25,
+##  'z': 2.67}
 ```
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
@@ -804,9 +1180,25 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     }
     deleted = true;
   });
-})();</script>
-
-<script>
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
 (function() {
   var links = document.getElementsByTagName('a');
   for (var i = 0; i < links.length; i++) {
@@ -815,7 +1207,23 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     }
   }
 })();
-</script>
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
 
 <script>
 slideshow._releaseMath = function(el) {
