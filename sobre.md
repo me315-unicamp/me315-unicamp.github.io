@@ -29,7 +29,7 @@ subtitle:
 
 - **Prova 1 (P1)**: 27/10/2020
 - **Prova 2 (P2)**: 22/12/2020
-- **Trabalho Final (TF)**: 12/01/2021
+- **Trabalho Final (TF)**: 14/01/2021
 - **Exame Final (EF)**: 26/01/2021
 
 1. A média geral (MG) será calculada por MG = 0.30 P1 + 0.30 P2 + 0.40 TF;
