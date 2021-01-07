@@ -434,7 +434,9 @@ summary {
 </div>
 <div id="tarefa" class="section level2">
 <h2>Tarefa</h2>
-<p>Utilizando o conjunto de dados <code>flights.csv.zip</code>, disponível no site da disciplina <a href="https://me315-unicamp.github.io/" class="uri">https://me315-unicamp.github.io/</a> em Arquivos, vocês irão ler 100.000 observações por vez e determinar o percentual de vôos por Cia. Aérea que apresentou atraso na chegada (<code>ARRIVAL_DELAY</code>) superior a 10 minutos. As companhias a serem utilizadas são: AA, DL, UA e US. A estatística de interesse deve ser calculada para cada um dos dias de 2015. Os resultados para cada Cia. Aérea devem ser apresentados em um gráfico.</p>
+<p>Utilizando o conjunto de dados <code>flights.csv.zip</code>, vocês irão ler 100.000 observações por vez e determinar o percentual de vôos por Cia. Aérea que apresentou atraso na chegada (<code>ARRIVAL_DELAY</code>) superior a 10 minutos. As companhias a serem utilizadas são: AA, DL, UA e US. A estatística de interesse deve ser calculada para cada um dos dias de 2015. Os resultados para cada Cia. Aérea devem ser apresentados em um gráfico.</p>
+<p>Para baixar o arquivo <code>flights.csv.zip</code>, utilize o link abaixo:</p>
+<p><a href="https://drive.google.com/file/d/1NsjokM5mUQr_99l5AOECWJ-iOromJAbI/view?usp=sharing" class="uri">https://drive.google.com/file/d/1NsjokM5mUQr_99l5AOECWJ-iOromJAbI/view?usp=sharing</a></p>
 </div>
 <div id="instruções" class="section level2">
 <h2>Instruções</h2>
@@ -443,7 +445,7 @@ summary {
 <li><p>Utilize a função <code>read_csv</code> do <code>pandas</code> para importar o arquivo <code>flights.csv.zip</code> por partes e calcule o percentual de atraso para cada cia. aérea/mês/dia. Retorne o resultado abaixo em um <code>DataFrame</code>.</p>
 <ol style="list-style-type: lower-alpha">
 <li>Configure o tamanho do lote (<em>chunk</em>) para 100 mil registros;</li>
-<li>Configure o argumento <code>usecol</code> de forma que ele leia, diretamente do arquivo, apenas as colunas de interesse (‘AIRLINE’, ‘DAY’, ‘MONTH’ e ‘ARRIVAL_DELAY’);</li>
+<li>Configure o argumento <code>usecol</code> de forma que ele leia, diretamente do arquivo, apenas as colunas de interesse (<code>AIRLINE</code>, <code>DAY</code>, <code>MONTH</code> e <code>ARRIVAL_DELAY</code>);</li>
 <li>Para cada lote de registros:
 <ol style="list-style-type: lower-roman">
 <li>Filtre o conjunto de dados de forma que contenha apenas observações das seguintes Cias. Aéreas: AA, DL, UA e US;</li>

@@ -3,8 +3,8 @@ title: "ME315 - Trabalho Final"
 author: "Benilton Carvalho, Tatiana Benaglia"
 date: "2º semestre de 2020"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 subtitle: Leitura/Manipulação de Dados em Python
 ---
 
@@ -32,7 +32,11 @@ Ao fim desta atividade, usando o `Python`, você deve ser capaz de:
 
 ## Tarefa 
 
-Utilizando o conjunto de dados `flights.csv.zip`, disponível no site da disciplina https://me315-unicamp.github.io/ em Arquivos, vocês irão ler 100.000 observações por vez e determinar o percentual de vôos por Cia. Aérea que apresentou atraso na chegada (`ARRIVAL_DELAY`) superior a 10 minutos. As companhias a serem utilizadas são: AA, DL, UA e US. A estatística de interesse deve ser calculada para cada um dos dias de 2015. Os resultados para cada Cia. Aérea devem ser apresentados em um gráfico.
+Utilizando o conjunto de dados `flights.csv.zip`, vocês irão ler 100.000 observações por vez e determinar o percentual de vôos por Cia. Aérea que apresentou atraso na chegada (`ARRIVAL_DELAY`) superior a 10 minutos. As companhias a serem utilizadas são: AA, DL, UA e US. A estatística de interesse deve ser calculada para cada um dos dias de 2015. Os resultados para cada Cia. Aérea devem ser apresentados em um gráfico.
+
+Para baixar o arquivo `flights.csv.zip`, utilize o link abaixo:
+
+https://drive.google.com/file/d/1NsjokM5mUQr_99l5AOECWJ-iOromJAbI/view?usp=sharing
 
 
 ## Instruções
