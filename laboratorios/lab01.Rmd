@@ -2,7 +2,6 @@
 title: "Laboratório 01"
 subtitle: "Importação e Manipulação de Dados em R"
 author: "Benilton Carvalho, Guilherme Ludwig, Tatiana Benaglia"
-date: "Versão 2S2020"
 output: html_document
 ---
 

@@ -100,7 +100,7 @@ Podemos estar interessados em compilar uma lista com nome, *alma mater*, data de
 
 Uma ferramenta recomendada pelo `rvest` é o chamado `SelectorGadget` (https://selectorgadget.com/), que mostra o nome de um "selector" em CSS. Há uma extensão para o navegador Chrome que permite que você use o SelectorGadget em qualquer página.
 
-Com o selector correto, você pode acessá-lo usando `html_nodes()`. Selectors interessantes incluem `"tables.<nome>"` e `"li"`. É preciso inspecionar as páginas de interesse caso a caso.
+Com o seletor correto, você pode acessá-lo usando `html_nodes()`. Seletores interessantes incluem `"tables.<nome>"` (tabela) e `"li"` (lista itemizada). É preciso inspecionar as páginas de interesse caso a caso.
 
 ---
 
@@ -117,8 +117,8 @@ url = "https://en.wikipedia.org/wiki/George_E._P._Box"
 webpage <- read_html(url)
 
 table <- webpage %>%
-html_nodes("table.vcard") %>% # SG
-html_table(header = FALSE)
+  html_nodes("table.vcard") %>%
+  html_table(header = FALSE)
 
 # Retorna uma lista de tabelas... eu só quero a primeira
 table <- table[[1]]
@@ -129,7 +129,7 @@ table <- table[[1]]
 ## Conteúdo
 
 ```{r}
-table %>% as.tibble
+table %>% as_tibble
 ```
 
 ---
@@ -142,7 +142,7 @@ table %>%
   mutate(X2 = gsub("\\s"," ", X2)) %>% 
   mutate(X1 = gsub("\\s"," ", X1)) %>% 
   mutate(X2 = gsub("\\[[[:digit:]]\\]"," ", X2)) %>% 
-  as.tibble
+  as_tibble
 ```
 
 ---

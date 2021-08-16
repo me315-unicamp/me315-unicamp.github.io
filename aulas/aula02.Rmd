@@ -31,7 +31,7 @@ in1 = in1 %>%
   mutate(AIR_TIME=AIR_TIME/60, DISTANCE=DISTANCE/1.6)
 ```
 
-- Possui `r nrow(in1)` observações;
+- Possui `r prettyNum(nrow(in1), big.mark = ".", decimal.mark = ",")` observações;
 - Tem `r ncol(in1)` variáveis;
 - Ocupa 1GB de RAM;
 - Entre as variáveis:
@@ -41,14 +41,14 @@ in1 = in1 %>%
   * Horários de partida e chegada (reais e programados);
   * Tempo de vôo e distância voada;
   * Atraso na chegada.
-  
+
 ---
 
 # Distância vs. Tempo de Vôo
 
 ```{r genplot, include=FALSE, warning=FALSE, message=FALSE}
 fit = lm(DISTANCE ~ AIR_TIME, data=in1)
-gg = ggplot(in1, aes(AIR_TIME, DISTANCE)) + stat_binhex(show.legend = FALSE) 
+gg = ggplot(in1, aes(AIR_TIME, DISTANCE)) + stat_binhex(show.legend = FALSE)
 gg = gg + geom_smooth(method='lm', col='red')
 gg = gg + xlab("Tempo de Voo (h)") + ylab("Distancia (km)") + ggtitle("Distancia vs. Tempo de Voo")
 in1 = in1 %>% mutate(AIR_TIME=AIR_TIME*60, DISTANCE=DISTANCE*1.6)
@@ -115,17 +115,17 @@ y_i & = & b_0 + b_1 x_i + \epsilon_i \\
 ```{r getblock}
 getStats = function(input, pos){
   input %>% filter(!is.na(AIR_TIME), !is.na(DISTANCE)) %>%
-    mutate(AIR_TIME=AIR_TIME/60, DISTANCE=DISTANCE/1.6) %>% 
+    mutate(AIR_TIME=AIR_TIME/60, DISTANCE=DISTANCE/1.6) %>%
     summarise(Sxy=sum(AIR_TIME*DISTANCE), Sx=sum(AIR_TIME),
               Sy=sum(DISTANCE), Sx2=sum(AIR_TIME^2), n=n())
 }
 computeStats = function(stats){
-  stats %>% 
+  stats %>%
     summarise(num = sum(Sxy)-(sum(Sx)*sum(Sy))/sum(n),
               den = sum(Sx2)-(sum(Sx)^2)/sum(n),
               b1 = num/den,
-              b0 = sum(Sy)/sum(n)-b1*sum(Sx)/sum(n)) %>% 
-    select(b0, b1) %>% gather(key='coef', value='valor') %>% 
+              b0 = sum(Sy)/sum(n)-b1*sum(Sx)/sum(n)) %>%
+    select(b0, b1) %>% gather(key='coef', value='valor') %>%
     knitr::kable('html')
 }
 ```
@@ -156,7 +156,7 @@ in1 %>% getStats() %>% computeStats()
   * `DataFrameCallback`: se se deseja combinar resultados tabulares;
   * `ListCallback`: se se deseja combinar resultados 'flexíveis';
   * `SideEffectChunkCallback`: se se deseja visualizar efeitos colaterais.
-  
+
 ---
 
 # Importação de Dados com Leitura em Lotes
@@ -211,7 +211,7 @@ in3 %>% computeStats()
 
 # Atividade para Laboratório
 
-- Lendo 1 milhão de observações por vez, determine o percentual de vôos, por Cia. Aérea, que apresentou atraso na chegada (`ARRIVAL_DELAY`) superior a 10 minutos.
+- Lendo 100.000 observações por vez (se você considerar que seu computador não possui memória suficiente, leia 10.000 observações por vez), determine o percentual de vôos, por Cia. Aérea, que apresentou atraso na chegada (`ARRIVAL_DELAY`) superior a 10 minutos.
 - As companhias a serem utilizadas são: AA, DL, UA e US.
 - A estatística de interesse deve ser calculada para cada um dos dias de 2015.
 - Para a determinação deste percentual de atrasos, apenas verbos do pacote `dplyr` e comandos de importação do pacote `readr` podem ser utilizados.
@@ -223,10 +223,10 @@ in3 %>% computeStats()
 
 ```{r lab03, echo=FALSE, fig.align='center'}
 out1 = in1 %>%
-  select(MONTH, DAY, AIRLINE, ARRIVAL_DELAY) %>% 
-  filter(complete.cases(.)) %>% 
-  group_by(MONTH, DAY, AIRLINE) %>% 
-  summarise(P=mean(ARRIVAL_DELAY > 10)) %>% 
+  select(MONTH, DAY, AIRLINE, ARRIVAL_DELAY) %>%
+  filter(complete.cases(.)) %>%
+  group_by(MONTH, DAY, AIRLINE) %>%
+  summarise(P=mean(ARRIVAL_DELAY > 10)) %>%
   mutate(Data=as.Date(paste(2015, MONTH, DAY, sep='-')))
 with(out1 %>% filter(AIRLINE=='AA'),
      ggcal(Data, P) + scale_fill_gradient2(low="#4575b4", mid="#ffffbf", high="#d73027", midpoint=0.50))
