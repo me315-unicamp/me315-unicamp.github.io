@@ -25,7 +25,7 @@ class: center, middle, inverse, title-slide
 
 
 
-- Possui 5714008 observações;
+- Possui 5.714.008 observações;
 - Tem 31 variáveis;
 - Ocupa 1GB de RAM;
 - Entre as variáveis:
@@ -35,7 +35,7 @@ class: center, middle, inverse, title-slide
   * Horários de partida e chegada (reais e programados);
   * Tempo de vôo e distância voada;
   * Atraso na chegada.
-  
+
 ---
 
 # Distância vs. Tempo de Vôo
@@ -117,17 +117,17 @@ y_i &amp; = &amp; b_0 + b_1 x_i + \epsilon_i \\
 ```r
 getStats = function(input, pos){
   input %&gt;% filter(!is.na(AIR_TIME), !is.na(DISTANCE)) %&gt;%
-    mutate(AIR_TIME=AIR_TIME/60, DISTANCE=DISTANCE/1.6) %&gt;% 
+    mutate(AIR_TIME=AIR_TIME/60, DISTANCE=DISTANCE/1.6) %&gt;%
     summarise(Sxy=sum(AIR_TIME*DISTANCE), Sx=sum(AIR_TIME),
               Sy=sum(DISTANCE), Sx2=sum(AIR_TIME^2), n=n())
 }
 computeStats = function(stats){
-  stats %&gt;% 
+  stats %&gt;%
     summarise(num = sum(Sxy)-(sum(Sx)*sum(Sy))/sum(n),
               den = sum(Sx2)-(sum(Sx)^2)/sum(n),
               b1 = num/den,
-              b0 = sum(Sy)/sum(n)-b1*sum(Sx)/sum(n)) %&gt;% 
-    select(b0, b1) %&gt;% gather(key='coef', value='valor') %&gt;% 
+              b0 = sum(Sy)/sum(n)-b1*sum(Sx)/sum(n)) %&gt;%
+    select(b0, b1) %&gt;% gather(key='coef', value='valor') %&gt;%
     knitr::kable('html')
 }
 ```
@@ -178,7 +178,7 @@ in1 %&gt;% getStats() %&gt;% computeStats()
   * `DataFrameCallback`: se se deseja combinar resultados tabulares;
   * `ListCallback`: se se deseja combinar resultados 'flexíveis';
   * `SideEffectChunkCallback`: se se deseja visualizar efeitos colaterais.
-  
+
 ---
 
 # Importação de Dados com Leitura em Lotes
@@ -191,7 +191,8 @@ in2 = read_csv_chunked('../dados/flights.csv.zip',
 ```
 
 ```
-## Parsed with column specification:
+## 
+## ── Column specification ────────────────────────────────────────────────────────
 ## cols(
 ##   .default = col_double(),
 ##   AIRLINE = col_character(),
@@ -206,10 +207,7 @@ in2 = read_csv_chunked('../dados/flights.csv.zip',
 ##   ARRIVAL_TIME = col_character(),
 ##   CANCELLATION_REASON = col_character()
 ## )
-```
-
-```
-## See spec(...) for full column specifications.
+## ℹ Use `spec()` for the full column specifications.
 ```
 
 ---
@@ -222,7 +220,7 @@ in2
 ```
 
 ```
-## # A tibble: 6 x 5
+## # A tibble: 6 × 5
 ##           Sxy       Sx         Sy      Sx2      n
 ##         &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;    &lt;dbl&gt;  &lt;int&gt;
 ## 1 1323121892. 1797787. 482227611. 4748642. 957394
@@ -289,7 +287,7 @@ in3
 ```
 
 ```
-## # A tibble: 6 x 5
+## # A tibble: 6 × 5
 ##           Sxy       Sx         Sy      Sx2      n
 ##         &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;    &lt;dbl&gt;  &lt;int&gt;
 ## 1 1323121892. 1797787. 482227611. 4748642. 957394
@@ -327,7 +325,7 @@ in3 %&gt;% computeStats()
 
 # Atividade para Laboratório
 
-- Lendo 1 milhão de observações por vez, determine o percentual de vôos, por Cia. Aérea, que apresentou atraso na chegada (`ARRIVAL_DELAY`) superior a 10 minutos.
+- Lendo 100.000 observações por vez (se você considerar que seu computador não possui memória suficiente, leia 10.000 observações por vez), determine o percentual de vôos, por Cia. Aérea, que apresentou atraso na chegada (`ARRIVAL_DELAY`) superior a 10 minutos.
 - As companhias a serem utilizadas são: AA, DL, UA e US.
 - A estatística de interesse deve ser calculada para cada um dos dias de 2015.
 - Para a determinação deste percentual de atrasos, apenas verbos do pacote `dplyr` e comandos de importação do pacote `readr` podem ser utilizados.
@@ -339,7 +337,7 @@ in3 %&gt;% computeStats()
 
 
 ```
-## `summarise()` regrouping output by 'MONTH', 'DAY' (override with `.groups` argument)
+## `summarise()` has grouped output by 'MONTH', 'DAY'. You can override using the `.groups` argument.
 ```
 
 &lt;img src="aula02_files/figure-html/lab03-1.png" style="display: block; margin: auto;" /&gt;
