@@ -4,7 +4,7 @@ title: ""
 subtitle:
 ---
 
-| Semana | Aula Terça | Aula Quarta | Aula Quinta | Título                                     |
+| Semana | Terça      | Quarta      | Quinta      | Título                                     |
 | ------ | ---------- | ----------- | ----------- | ------------------------------------------ |
 | 1      | 10-Aug     | 11-Aug      | 12-Aug      | Formatos tabulares                         |
 | 2      | 17-Aug     | 18-Aug      | 19-Aug      | Importação bases volumosas                 |
