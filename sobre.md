@@ -17,7 +17,7 @@ subtitle:
 
 - PED: Victor Freguglia Souza
 - Horários: Terças-Feiras e Sextas-Feiras, das 13h00 às 14h00
-- Link Google Meet: [https://meet.google.com/oiw-tbdp-txm](https://meet.google.com/oiw-tbdp-txm)
+- Link Google Meet: link disponibilizado via [Moodle](https://moodle.ggte.unicamp.br/course/view.php?id=11713) por questões de segurança da sala de aula virtual;
 - Importante: Os alunos interessados em atendimento PED devem entrar em contato com o PED até às 16h00 do dia anterior. Ou seja, o PED precisa de manifestação de interesse por parte dos alunos até às 16h00 da segunda e quinta-feiras, respectivamente. Caso isto não aconteça, a sala do Google Meet supracitada estará vazia no horário de atendimento.
 
 # Atendimentos PAD
