@@ -25,7 +25,10 @@ library(ggcal)
 # `flights.csv.zip`
 
 ```{r import, include=FALSE, cache=TRUE}
-in1 = read_csv('../dados/flights.csv.zip')
+mycols_in1 = cols_only(AIR_TIME = 'i', DISTANCE = 'i',
+                       MONTH = 'i', DAY = 'i', AIRLINE = 'c',
+                       ARRIVAL_DELAY = 'i')
+in1 = read_csv('../dados/flights.csv.zip', col_types = mycols_in1)
 in1 = in1 %>%
   filter(!is.na(AIR_TIME), !is.na(DISTANCE)) %>%
   mutate(AIR_TIME=AIR_TIME/60, DISTANCE=DISTANCE/1.6)
@@ -48,9 +51,10 @@ in1 = in1 %>%
 
 ```{r genplot, include=FALSE, warning=FALSE, message=FALSE}
 fit = lm(DISTANCE ~ AIR_TIME, data=in1)
-gg = ggplot(in1, aes(AIR_TIME, DISTANCE)) + stat_binhex(show.legend = FALSE)
+gg = ggplot(in1, aes(AIR_TIME, DISTANCE)) + geom_hex()
 gg = gg + geom_smooth(method='lm', col='red')
 gg = gg + xlab("Tempo de Voo (h)") + ylab("Distancia (km)") + ggtitle("Distancia vs. Tempo de Voo")
+gg = gg + labs(fill = "Contagem")
 in1 = in1 %>% mutate(AIR_TIME=AIR_TIME*60, DISTANCE=DISTANCE*1.6)
 ```
 
@@ -221,7 +225,7 @@ in3 %>% computeStats()
 
 # Calendário Esperado
 
-```{r lab03, echo=FALSE, fig.align='center'}
+```{r lab03, echo=FALSE, fig.align='center', message=FALSE, warning=FALSE}
 out1 = in1 %>%
   select(MONTH, DAY, AIRLINE, ARRIVAL_DELAY) %>%
   filter(complete.cases(.)) %>%
