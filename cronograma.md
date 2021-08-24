@@ -19,8 +19,7 @@ subtitle:
 | 11     | 19-Oct     |             |             | P2                                         |
 | 12     | 26-Oct     | 27-Oct      | 28-Oct      | MongoDB                                    |
 | 13     |            | 03-Nov      | 04-Nov      | P3 - Peer Review                           |
-| 14     | 09-Nov     | 10-Nov      | 11-Nov      | Dashboards                                 |
-| 15     | 16-Nov     | 17-Nov      | 18-Nov      | Web Scrapping                              |
-| 16     | 23-Nov     | 24-Nov      | 25-Nov      | Intro Python Parte 1                       |
-| 17     | 30-Nov     | 01-Dec      | 02-Dec      | Intro Python Parte 2                       |
-| 18     | 07-Dec     |             |             | P4                                         |
+| 14     | 09-Nov     | 10-Nov      | 11-Nov      | Introdução ao Python                       |
+| 15     | 16-Nov     | 17-Nov      | 18-Nov      | Dashboards                                 |
+| 16     | 23-Nov     |             |             | P4                                         |
+| 17     | 30-Nov     | 01-Dec      | 02-Dec      | Web Scrapping (*)                          |

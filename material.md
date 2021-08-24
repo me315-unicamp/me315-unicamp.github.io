@@ -15,9 +15,9 @@ subtitle:
 - [Aula 06: SQLite - Consulta de Conteúdo](aulas/aula06.pdf)
 - [Aula 07: SQLite - Alteração de Conteúdo](aulas/aula07.pdf)
 - [Aula 08: MongoDB](aulas/aula08.pdf)
-- [Aula 09: Shiny](aulas/aula09.pdf)
-- [Aula 10: Web Scrapping](aulas/aula10.pdf)
-- [Aula 11: Introdução ao Python - 2S2020](aulas/aula11.pdf)
+- [Aula 09: Introdução ao Python](aulas/aula11.pdf)
+- [Aula 10: Dashboards](definir)
+- [Aula 11: Web Scrapping](aulas/aula10.pdf)
 
 # Laboratórios
 
@@ -30,4 +30,6 @@ subtitle:
 - [Laboratório 07: SQLite Parte II](laboratorios/lab07.html)
 - [Laboratório 08: SQLite Parte III](laboratorios/lab08.html)
 - [Laboratório 09: MongoDB](laboratorios/lab09.html)
-- [Laboratório 10: Web Scraping](laboratorios/lab10.html)
+- [Laboratório 10: Python](definir)
+- [Laboratório 11: Dashboards](definir)
+- [Laboratório 12: Web Scraping](laboratorios/lab10.html)
