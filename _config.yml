@@ -29,7 +29,7 @@ navbar-links:
     - airports.csv: "dados/airports.csv"
     - airlines.csv: "dados/airlines.csv"
     - flights.csv.zip: "https://drive.google.com/file/d/1CZjtI4JpxLHqgztrvJhYIV9HmHkrFl-1/view?usp=sharing"
-    - WDIEXCEL.xls: "dados/WDIEXCEL.xls"
+    - WDIEXCEL.xls: "https://docs.google.com/spreadsheets/d/1w8tdjEE4mhZVpzEk34fTfxbKdfpCybOO/edit?usp=sharing&ouid=106453235251377938887&rtpof=true&sd=true"
     - disco.db: "dados/disco.db"
   Cronograma: "cronograma"
 
