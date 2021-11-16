@@ -16,7 +16,7 @@ subtitle:
 - [Aula 07: SQLite - Alteração de Conteúdo](aulas/aula07.pdf)
 - [Aula 08: MongoDB](aulas/aula08.pdf)
 - [Aula 09: Introdução ao Python](aulas/aula11.pdf)
-- [Aula 10: Dashboards](definir)
+- [Aula 10: Dashboards](aulas/dashboards.pdf)
 - [Aula 11: Web Scrapping](aulas/aula10.pdf)
 
 # Laboratórios
@@ -31,5 +31,5 @@ subtitle:
 - [Laboratório 08: SQLite Parte III](laboratorios/lab08.html)
 - [Laboratório 09: MongoDB](laboratorios/lab09.html)
 - [Laboratório 10: Python](definir)
-- [Laboratório 11: Dashboards](definir)
+- [Laboratório 11: Dashboards] - Realizado simultaneamente com Aula 10 (acima)
 - [Laboratório 12: Web Scraping](laboratorios/lab10.html)
