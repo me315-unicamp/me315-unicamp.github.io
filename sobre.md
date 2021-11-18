@@ -29,7 +29,7 @@ subtitle:
 - **Prova 1 (P1)**: 14/09/2021
 - **Prova 2 (P2)**: 19/10/2021
 - **Prova 3 (P3)**: semana de 3 e 4 de novembro (atividade de revisão por pares)
-- **Prova 4 (P4)**: 07/12/2021
+- **Prova 4 (P4)**: 23/11/2021
 - **Exame Final (EF)**: 21/12/2021
 
 1. A média geral (MG) será calculada por MG = 0.30 P1 + 0.30 P2 + 0.10 P3 + 0.30 P4;
