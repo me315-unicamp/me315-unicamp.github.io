@@ -1,4 +1,5 @@
 # --- General options --- #
+theme: beautiful-jekyll-theme
 
 # url is the full website URL
 # baseurl is the website's URL without the hostname
@@ -66,15 +67,14 @@ footer-link-col: "#404040"
 
 # Change all these values or delete the ones you don't want.
 # Important: you must keep the "name" parameter, everything else you can remove
-author:
-  name: Benilton Carvalho / Tatiana Benaglia
+author: Benilton Carvalho / Tatiana Benaglia
 
 # Select your active Social Network Links.
 # Uncomment the links you want to show in the footer and add your information to each link.
 # You can reorder the items to define the link order.
 # If you want to add a new link that isn't here, you'll need to also edit the file _data/SocialNetworks.yml
 social-network-links:
-  rss: true
+#  rss: true
 #  email: "benilton@unicamp.br"
 #  facebook: benilton
 #  github: benilton
@@ -86,7 +86,7 @@ social-network-links:
 #  stackoverflow: "3943160/daattali"
 #  snapchat: deanat78
 #  instagram: deanat78
-#  youtube: user/deanat78
+  youtube: watch?v=MjjJk6n47xA&list=PLPy1_LGyHKQcDuNcL4E3s44uvS3y2cM1U
 #  spotify: yourname
 #  telephone: +55 19 3521-6079
 #  steam: deanat78
@@ -98,7 +98,7 @@ share-links-active:
   twitter: false
   facebook: false
   google: false
-  linkedin: true
+  linkedin: false
 
 # How to display the link to the website in the footer
 # Remove this if you don't want a link in the footer

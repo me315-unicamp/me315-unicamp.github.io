@@ -1,3 +1,5 @@
+*_site
+*_posts
 *_cached
 */.DS_Store
 .DS_Store
