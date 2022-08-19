@@ -34,7 +34,7 @@ de inte$
 
 - **Prova 1 (P1)**: 15/09/2022
 - **Prova 2 (P2)**: 13/10/2022
-- **Prova 3 (P3)**: 18/11/2022
+- **Prova 3 (P3)**: 17/11/2022
 - **Prova 4 (P4)**: 25/11/2022 (Trabalho - MongoDB)
 - **Exame Final (EF)**: 15/12/2022
 
