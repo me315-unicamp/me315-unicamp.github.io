@@ -17,15 +17,15 @@ Conjuntos de dados estruturados costumam ser divididos em múltiplas tabelas. A 
 
 Ao fim deste laboratório, você deve ser capaz de combinar duas tabelas de dados, de forma que, na tabela resultante, sejam mantidos registros que existam:
 
-- em ambas as tabelas;
-- apenas na primeira tabela;
-- apenas na segunda tabela;
-- em alguma das duas tabelas.
+-   em ambas as tabelas;
+-   apenas na primeira tabela;
+-   apenas na segunda tabela;
+-   em alguma das duas tabelas.
 
 Adicionalmente, você deve ser capaz de identificar registros que existam:
 
-- apenas na primeira tabela;
-- apenas na segunda tabela;
+-   apenas na primeira tabela;
+-   apenas na segunda tabela;
 
 ## Carregue os pacotes relevantes para este Laboratório
 
@@ -34,21 +34,20 @@ library(tidyverse)
 library(magrittr)
 ```
 
-
 ## Atrasos de vôos
 
-Considere novamente o problema de atrasos de vôos, disponível em [https://www.kaggle.com/usdot/flight-delays](https://www.kaggle.com/usdot/flight-delays). Nesta atividade, além dos dados de `flights.csv`, nós iremos utilizar informações disponíveis nos arquivos `airlines.csv` e `airports.csv`.
+Considere novamente o problema de atrasos de vôos, disponível em <https://www.kaggle.com/usdot/flight-delays>. Nesta atividade, além dos dados de `flights.csv`, nós iremos utilizar informações disponíveis nos arquivos `airlines.csv` e `airports.csv`.
 
-1. Importe, utilizando o pacote `readr`, cada um dos três arquivos disponíveis. Os objetos resultantes devem ser chamados `flights`, `airlines` e `airports`.
+1.  Importe, utilizando o pacote `readr`, cada um dos três arquivos disponíveis. Os objetos resultantes devem ser chamados `flights`, `airlines` e `airports`.
 
-    - Para o arquivo de aeroportos, importe apenas as colunas `IATA_CODE`, `CITY`, `STATE`, `LATITUDE`, `LONGITUDE`;
-    - Para o arquivo de vôos:
-        a. Importe apenas as colunas `DESTINATION_AIRPORT` e `ARRIVAL_DELAY`;
-        b. Leia apenas 1 milhão de linhas por vez;
-        c. Remova vôos em que o aeroporto de destino comece com a letra 1;
-        d. Remova registros em que existam pelo menos uma coluna faltante;
-        e. Determine, para cada parte do arquivo, as estatísticas suficientes para a determinação do atraso médio por aeroporto de destino;
-        f. Ao finalizar a leitura do arquivo, combine as estatísticas suficientes de modo a produzir a média de atraso por aeroporto.
+    -   Para o arquivo de aeroportos, importe apenas as colunas `IATA_CODE`, `CITY`, `STATE`, `LATITUDE`, `LONGITUDE`;
+    -   Para o arquivo de vôos:
+        a.  Importe apenas as colunas `DESTINATION_AIRPORT` e `ARRIVAL_DELAY`;
+        b.  Leia apenas 1 milhão de linhas por vez;
+        c.  Remova vôos em que o aeroporto de destino comece com a letra 1;
+        d.  Remova registros em que existam pelo menos uma coluna faltante;
+        e.  Determine, para cada parte do arquivo, as estatísticas suficientes para a determinação do atraso médio por aeroporto de destino;
+        f.  Ao finalizar a leitura do arquivo, combine as estatísticas suficientes de modo a produzir a média de atraso por aeroporto.
 
 ```{r}
 
@@ -72,57 +71,56 @@ flights <- read_csv_chunked("../dados/flights.csv.zip",
                             chunk_size = 1e6,
                             col_types = mycolsf)
 
+# flights <- read_csv_chunked("flights.csv",
+#                             callback=DataFrameCallback$new(getStats),
+#                             chunk_size = 1e6,
+#                             col_types = mycolsf)
+
 flights %<>% computeStats()
 
 airlines <- read_csv("../dados/airlines.csv")
+## airlines <- read_csv("airlines.csv")
 mycolsp = cols_only(IATA_CODE='c', CITY='c', STATE='c', LATITUDE='d', LONGITUDE='d')
 airports <- read_csv("../dados/airports.csv", col_types = mycolsp)
+## airports <- read_csv("airports.csv", col_types = mycolsp)
 ```
 
-
-2. Selecione a operação apropriada *join* para incluir, na tabela `flights`, as colunas `CITY` e `STATE` do objeto `airports`. Para executar esta tarefa:
-    a. Identifique a coluna que é a chave na tabela `flights`;
-    b. Identifique a coluna que é a chave na tabela `airports`;
+2.  Selecione a operação apropriada *join* para incluir, na tabela `flights`, as colunas `CITY` e `STATE` do objeto `airports`. Para executar esta tarefa:
+    a.  Identifique a coluna que é a chave na tabela `flights`;
+    b.  Identifique a coluna que é a chave na tabela `airports`;
     c.  Quais são os aeroportos que estão listados em `flights`, mas estão ausentes em `airports`?
-    c. Apresente o comando que combine ambas as tabelas, indicando explicitamente as chaves;
-    d. Armazene a tabela resultante no objeto `flights`.
+    d.  Apresente o comando que combine ambas as tabelas, indicando explicitamente as chaves;
+    e.  Armazene a tabela resultante no objeto `flights`.
 
 ```{r join1}
+## chave em flights: DESTINATION_AIRPORT
+## chave em airports: IATA_CODE
+flights %>% anti_join(airports, by=c('DESTINATION_AIRPORT'='IATA_CODE'))
 flights %<>%
   left_join(airports, by=c('DESTINATION_AIRPORT'='IATA_CODE'))
 ```
 
-3. Quantos aeroportos cada estado possui? Apresente uma tabela ordenada de forma decrescente (no número de aeroportos).
+3.  Quantos aeroportos cada estado possui? Apresente uma tabela ordenada de forma decrescente (no número de aeroportos).
 
 ```{r}
 flights %>% group_by(STATE) %>% tally() %>% arrange(-n)
 ```
 
-4. Apresente um mapa representando todos os atrasos observados por aeroporto.
+4.  Apresente um mapa representando todos os atrasos observados por aeroporto.
 
-    a. Carregue os pacotes `htmlwidgets`, `IRdisplay` e `leaflet` (no RStudio, basta o `leaflet`);
-    b. Combine os comandos `leaflet`, `addTiles` e `addMarkers` para a criação de um mapa básico;
-    c. Armazene o grafico em b) numa variável chamada `this`;
-    d. Adicione as duas linhas abaixo após a criação da variável `this` (apenas se você estiver usando Jupyter):
-
-```{r, eval=FALSE, echo=TRUE}
-saveWidget(this, 'demo.html', selfcontained = FALSE)
-display_html('<iframe src="demo.html" width="900" height="900"></iframe>')
-```
-
+    a.  Carregue o pacote `leaflet`;
+    b.  Combine os comandos `leaflet`, `addTiles` e `addMarkers` para a criação de um mapa básico;
+    c.  Armazene o grafico em b) numa variável chamada `this`;
+    d.  Adicione as duas linhas abaixo após a criação da variável `this` (apenas se você estiver usando Jupyter):
 
 ```{r}
-library(htmlwidgets)
-library(IRdisplay)
 library(leaflet)
 this = leaflet(flights) %>% addTiles() %>%
     addCircleMarkers(~LONGITUDE, ~LATITUDE,
-                     radius=~atraso,
-                     popup=~paste("Atraso médio:", as.character(round(atraso, 0)), "min"),
+                     radius=~MEAN_DELAY,
+                     popup=~paste("Atraso médio:", as.character(round(MEAN_DELAY, 0)), "min"),
                      label=~as.character(DESTINATION_AIRPORT),
                      fillOpacity=0.5,
-                     color=~ifelse(atraso < 10, "navy", "red"),
+                     color=~ifelse(MEAN_DELAY < 10, "navy", "red"),
                      clusterOptions=markerClusterOptions())
-saveWidget(this, 'demo.html', selfcontained = FALSE)
-display_html('<iframe src="demo.html" width="900" height="900"></iframe>')
 ```
