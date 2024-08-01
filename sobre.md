@@ -9,33 +9,31 @@ subtitle:
 - *Professor*: Benilton Carvalho
 - *e-mail*: benilton < arr > unicamp.br (troque _arr_ por @)
 - *Ao enviar email*: utilizar **[ME315]+assunto** no campo *subject*; *apenas* emails do domínio XXX.unicamp.br serão considerados;
-- *Notas de avaliações*: disponibilizadas no [Moodle](https://moodle.ggte.unicamp.br/course/view.php?id=17205);
+- *Notas de avaliações*: disponibilizadas no [Moodle](https://moodle.ggte.unicamp.br/course/view.php?id=19752);
 - O aluno deverá sempre proceder de forma respeitosa e honesta, incluindo durante as provas bem como na resolução de qualquer outra atividade que seja parte da avaliação do curso.
 - O login usado para acessar o Moodle é intransferível, conforme [ConTIC-IN-01/2019](https://www.citic.unicamp.br/sites/default/files/normas/ConTIC-IN-01%202019%20-%20normas_uso_TIC.pdf).
 - **Ementa**: [Ementa - clique aqui](ementa/ementaME315.pdf)
 
 # Atendimentos PED
 
-- PED: Sergio Andrade
-- Horários: Quintas-feiras - 12:30 às 13:30
-- Link Google Meet: link disponibilizado via [Moodle](https://moodle.ggte.unicamp.br/mod/forum/discuss.php?d=82955) por questões de segurança;
-- **Importante**: enviar antecipadamente as dúvidas para o PED por e-mail (info no link acima);
-
+- PED: Dina
+- Horários: A definir
+- Link Google Meet: link disponibilizado via [Moodle]() por questões de segurança;
 
 # Atendimentos PAD
 
-- PAD: Tiago Henrique Silva Monteiro
-- Horários: Quintas-feiras - 13:00 às 14:00
-- Sala 150 - IMECC
+- PAD:
+- Horários:
+- Sala:
 
 # Critérios de Avaliação e Datas Importantes
 
-- **Prova 1 (P1)**: 19/09/2023
-- **Prova 2 (P2)**: 28/11/2023
-- **Certificado MongoDB**: 30/11/2023
-- **Exame Final (EF)**: 12/12/2023
+- **Prova 1 (P1)**: 19/09/2024
+- **Prova 2 (P2)**: 31/10/2024
+- **Projeto (PR)**: Entrega em 22/11/2024; Apresentação em 28/11/2024
+- **Exame Final (EF)**: 12/12/2024
 
-1. A média geral (MG) será calculada por MG = (0.50 P1 + 0.50 P2) + 1 (se certificado MongoDB for entregue);
+1. A média geral (MG) será calculada por MG = (1/3 P1 + 1/3 P2 + 1/3 PR);
 2. Se houver algum impedimento para a realização de alguma(s) prova(s), o(s) peso(s) da(s) prova(s) realizada(s) ser(á/ão) normalizados apropriadamente;
 3. Se nehuma prova for realizada, todos os alunos farão o Exame Final e, neste caso, MF=EF;
 

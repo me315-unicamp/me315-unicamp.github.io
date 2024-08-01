@@ -4,36 +4,39 @@ title: ""
 subtitle:
 ---
 
-
-| **Data** | **Aula** |                    **Tópico**                   |
-|:--------:|:--------:|:-----------------------------------------------:|
-|   8-ago. |        1 | Introdução ao Google Colab                      |
-|  10-ago. |        2 | R: Formatos Tabulares                           |
-|  15-ago. |        3 | R: Importação de bases volumosas                |
-|  17-ago. |        4 | Lab: Formatos Tabulares                         |
-|  22-ago. |        5 | R: Dados relacionais                            |
-|  24-ago. |        6 | Lab: Importação de bases volumosas              |
-|  29-ago. |        7 | R: Importação de outros formatos retangulares   |
-|  31-ago. |        8 | Lab: Dados relacionais                          |
-|   5-set. |        9 | R: SQL - Consulta                               |
-|  12-set. |       10 | Lab: Importação de outros formatos retangulares |
-|  14-set. |       11 | Lab: SQL - Consulta                             |
-|  19-set. |       12 | P1                                              |
-|  21-set. |       13 | Sugestão: Curso MongoDB                         |
-|  26-set. |       14 | R: SQL - Alteração                              |
-|  28-set. |       15 | Lab: SQL - Alteração                            |
-|   3-out. |       16 | R: MongoDB                                      |
-|   5-out. |       17 | Lab: MongoDB                                    |
-|  10-out. |       18 | Python: Formatos Tabulares                      |
-|  19-out. |       19 | Lab P: Formatos Tabulares                       |
-|  24-out. |       20 | Python: Importação de bases volumosas           |
-|  26-out. |       21 | Lab P: Importação de bases volumosas            |
-|  31-out. |       22 | Sugestão: Curso MongoDB                         |
-|   7-nov. |       23 | Python: Dados relacionais                       |
-|   9-nov. |       24 | Lab P: Dados relacionais                        |
-|  14-nov. |       25 | Python: SQL                                     |
-|  16-nov. |       26 | Lab P: SQL                                      |
-|  21-nov. |       27 | Python: MongoDB                                 |
-|  23-nov. |       28 | Lab Geral                                       |
-|  28-nov. |       29 | P2                                              |
-|  30-nov. |       30 | Entrega do Certificado MongoDB                  |
+| Data                 	| Dia          	| Aula 	| Tópico                                          	|
+|----------------------	|--------------	|------	|-------------------------------------------------	|
+| 01 - agosto - 2024   	| quinta-feira 	| 1    	| R / Lab: Formatos Tabulares                     	|
+| 06 - agosto - 2024   	| terça-feira  	| 2    	| R: Dados relacionais                            	|
+| 08 - agosto - 2024   	| quinta-feira 	| 3    	| Lab: Dados relacionais                          	|
+| 13 - agosto - 2024   	| terça-feira  	| 4    	| R: Importação de outros formatos retangulares   	|
+| 15 - agosto - 2024   	| quinta-feira 	| 5    	| Lab: Importação de outros formatos retangulares 	|
+| 20 - agosto - 2024   	| terça-feira  	| 6    	| R: Importação de bases volumosas                	|
+| 22 - agosto - 2024   	| quinta-feira 	| 7    	| Lab: Importação de bases volumosas              	|
+| 27 - agosto - 2024   	| terça-feira  	| 8    	| R: SQL - Consulta                               	|
+| 29 - agosto - 2024   	| quinta-feira 	| 9    	| Lab: SQL - Consulta                             	|
+| 03 - setembro - 2024 	| terça-feira  	| 10   	| R: SQL - Alteração                              	|
+| 05 - setembro - 2024 	| quinta-feira 	| 11   	| Lab: SQL - Alteração                            	|
+| 10 - setembro - 2024 	| terça-feira  	| 12   	| R: MongoDB                                      	|
+| 12 - setembro - 2024 	| quinta-feira 	| 13   	| Lab: MongoDB                                    	|
+| 17 - setembro - 2024 	| terça-feira  	| 14   	| Revisão                                         	|
+| 19 - setembro - 2024 	| quinta-feira 	| 15   	| P1                                              	|
+| 24 - setembro - 2024 	| terça-feira  	| 16   	| Python: Formatos Tabulares                      	|
+| 26 - setembro - 2024 	| quinta-feira 	| 17   	| Lab P: Formatos Tabulares                       	|
+| 01 - outubro - 2024  	| terça-feira  	| 18   	| Python: Dados relacionais                       	|
+| 03 - outubro - 2024  	| quinta-feira 	| 19   	| Lab P: Dados relacionais                        	|
+| 08 - outubro - 2024  	| terça-feira  	| 20   	| Python: Importação de bases volumosas           	|
+| 10 - outubro - 2024  	| quinta-feira 	| 21   	| Lab P: Importação de bases volumosas            	|
+| 17 - outubro - 2024  	| quinta-feira 	| 22   	| Python / Lab: SQL                               	|
+| 22 - outubro - 2024  	| terça-feira  	| 23   	| Python: MongoDB                                 	|
+| 24 - outubro - 2024  	| quinta-feira 	| 24   	| Lab P: MongoDB                                  	|
+| 29 - outubro - 2024  	| terça-feira  	| 25   	| Revisão                                         	|
+| 31 - outubro - 2024  	| quinta-feira 	| 26   	| P2                                              	|
+| 05 - novembro - 2024 	| terça-feira  	|      	| Projeto                                         	|
+| 07 - novembro - 2024 	| quinta-feira 	|      	| Projeto                                         	|
+| 12 - novembro - 2024 	| terça-feira  	|      	| Projeto                                         	|
+| 14 - novembro - 2024 	| quinta-feira 	|      	| Projeto                                         	|
+| 19 - novembro - 2024 	| terça-feira  	| 27   	| Acompanhamento Projeto                          	|
+| 21 - novembro - 2024 	| quinta-feira 	| 28   	| Acompanhamento Projeto                          	|
+| 26 - novembro - 2024 	| terça-feira  	| 29   	|                                                 	|
+| 28 - novembro - 2024 	| quinta-feira 	| 30   	| Apresentação                                    	|

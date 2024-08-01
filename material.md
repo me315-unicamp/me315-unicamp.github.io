@@ -4,6 +4,7 @@ title: ""
 subtitle:
 ---
 
+Os materiais disponíveis aqui referem-se à versão 2023 da disciplina. Apesar de a grande maioria ser válida para 2024, algumas aulas serão ajustadas para acomodar avanços do período.
 
 # Slides utilizados em aulas
 
