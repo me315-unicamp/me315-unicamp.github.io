@@ -16,15 +16,12 @@ subtitle:
 
 # Atendimentos PED
 
-- PED: Dina
-- Horários: A definir
-- Link Google Meet: link disponibilizado via [Moodle]() por questões de segurança;
+Informações detalhadas disponíveis no [Moodle](https://moodle.ggte.unicamp.br/mod/page/view.php?id=544207).
+
 
 # Atendimentos PAD
 
-- PAD:
-- Horários:
-- Sala:
+Informações detalhadas disponíveis no [Moodle](https://moodle.ggte.unicamp.br/mod/url/view.php?id=544200).
 
 # Critérios de Avaliação e Datas Importantes
 
@@ -36,6 +33,7 @@ subtitle:
 1. A média geral (MG) será calculada por MG = (1/3 P1 + 1/3 P2 + 1/3 PR);
 2. Se houver algum impedimento para a realização de alguma(s) prova(s), o(s) peso(s) da(s) prova(s) realizada(s) ser(á/ão) normalizados apropriadamente;
 3. Se nehuma prova for realizada, todos os alunos farão o Exame Final e, neste caso, MF=EF;
+4. O Exame Final (EF) poderá ser utilizado como prova substitutiva, caso P1 ou P2 não tenham sido realizadas pelo aluno.
 
 * Critérios para aprovação (frequência mínima 75%)
   - se MG >= 7.0, o aluno está aprovado e MF = MG;
