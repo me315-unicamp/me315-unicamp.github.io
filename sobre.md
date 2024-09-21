@@ -25,7 +25,7 @@ Informações detalhadas disponíveis no [Moodle](https://moodle.ggte.unicamp.br
 
 # Critérios de Avaliação e Datas Importantes
 
-- **Prova 1 (P1)**: 19/09/2024 - [link](https://colab.research.google.com/drive/1LBK8rTjV_KVqPBRO6FQPxlXiOFWE7eEC?usp=sharing)
+- **Prova 1 (P1)**: 19/09/2024
 - **Prova 2 (P2)**: 31/10/2024
 - **Projeto (PR)**: Entrega em 22/11/2024; Apresentação em 28/11/2024
 - **Exame Final (EF)**: 12/12/2024
