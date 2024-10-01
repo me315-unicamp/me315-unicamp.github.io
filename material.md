@@ -15,10 +15,11 @@ Os materiais disponíveis aqui referem-se à versão 2023 da disciplina. Apesar 
 - [Aula 05: Revisão](aulas/aula05.pdf)
 - [Aula 06: SQLite - Consulta de Conteúdo](aulas/aula06.pdf)
 - [Aula 07: SQLite - Alteração de Conteúdo](aulas/aula07.pdf)
-- [Aula 08: MongoDB](aulas/aula08.pdf)
-- [Aula 09: Introdução ao Python](aulas/aula11.pdf)
-- [Aula 10: Dashboards](aulas/dashboards.pdf)
-- [Aula 11: Web Scrapping](aulas/aula10.pdf)
+- [Aula 08: Introdução ao Polars](https://ime.unicamp.br/~benilton/polars_01.html)
+- ~~[Aula 08: MongoDB](aulas/aula08.pdf)~~
+- ~~[Aula 09: Introdução ao Python](aulas/aula11.pdf)~~
+- ~~[Aula 10: Dashboards](aulas/dashboards.pdf)~~
+- ~~[Aula 11: Web Scrapping](aulas/aula10.pdf)~~
 
 # Laboratórios
 
@@ -30,7 +31,7 @@ Os materiais disponíveis aqui referem-se à versão 2023 da disciplina. Apesar 
 - [Laboratório 06: SQLite Parte I](laboratorios/lab06.html)
 - [Laboratório 07: SQLite Parte II](laboratorios/lab07.html)
 - [Laboratório 08: SQLite Parte III](laboratorios/lab08.html)
-- [Laboratório 09: MongoDB](laboratorios/lab09.html)
-- [Laboratório 10: Python](definir)
-- [Laboratório 11: Dashboards] - Realizado simultaneamente com Aula 10 (acima)
-- [Laboratório 12: Web Scraping](laboratorios/lab10.html)
+- ~~[Laboratório 09: MongoDB](laboratorios/lab09.html)~~
+- ~~[Laboratório 10: Python](definir)~~
+- ~~[Laboratório 11: Dashboards] - Realizado simultaneamente com Aula 10 (acima)~~
+- ~~[Laboratório 12: Web Scraping](laboratorios/lab10.html)~~
