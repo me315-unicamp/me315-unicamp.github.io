@@ -51,11 +51,6 @@ O conjunto de dados "Renda Adulta" contém informações demográficas e econôm
 
 1. Utilizando o arquivo `renda_adulta.csv` e sabendo que ele não possui cabeçalho, faça a importação do banco de dados utilizando os nomes das colunas conforme apresentado acima e na sequência ali indicada. No momento da importação do arquivo, você deve, também, indicar os tipos de cada uma das colunas. Utilize o fato de que o símbolo `?` representa valores faltantes.
 
-```{python}
-import polars as pl
-```
-
-
 2. Apresente os tipos de cada uma das coluna.
 3. Apresente as dimensões da tabela de dados.
 4. Quantas pessoas recebem acima de $50.000 e quantas pessoas recebem abaixo deste limiar?
