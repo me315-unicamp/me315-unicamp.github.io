@@ -1,0 +1,66 @@
+---
+title: "Laboratório: Introdução ao Polars"
+subtitle: "Importação e Manipulação de Dados Utilizando Polars"
+format: html
+runtime: python
+python:
+  version: /Users/benilton/.virtualenvs/r-reticulate/bin/python
+---
+
+# Introdução
+
+**Polars** é uma biblioteca de manipulação de dados em Rust que foi projetada para ser rápida e eficiente, especialmente quando se trata de lidar com grandes conjuntos de dados. A principal vantagem do Polars em comparação com outras bibliotecas de manipulação de dados, como o pandas, é sua capacidade de processar dados em paralelo, aproveitando múltiplos núcleos de CPU. Isso resulta em operações significativamente mais rápidas, permitindo que analistas e cientistas de dados realizem tarefas complexas de transformação e agregação em grandes volumes de dados com eficiência. Além disso, a API do Polars é inspirada na do pandas, o que facilita a transição para usuários que já estão familiarizados com o ecossistema de Python.
+
+Na ciência de dados, a capacidade de manipular e analisar grandes quantidades de dados de forma rápida e eficiente é crucial para a extração de insights significativos. Polars é particularmente valioso em cenários onde o desempenho é uma preocupação, como em análises em tempo real ou no processamento de grandes fluxos de dados. Sua integração com outras bibliotecas populares, como NumPy e Matplotlib, e sua compatibilidade com arquivos em formatos como CSV e Parquet tornam o Polars uma ferramenta versátil para cientistas de dados que buscam otimizar suas operações e maximizar a eficiência de suas análises. Com a crescente demanda por soluções de dados escaláveis, o Polars se destaca como uma opção promissora no arsenal de ferramentas de ciência de dados.
+
+# Objetivos
+
+Ao fim deste laboratório, você deverá:
+
+- Ser capaz de importar arquivos tabulares (CSV ou TSV) utilizando a biblioteca Polars.
+- Organizar e transformar tabelas de dados.
+- Compreender operações básicas de manipulação de dados, como seleção, filtragem e ordenação.
+- Calcular estatísticas descritivas e agrupadas utilizando as funções disponíveis no Polars.
+- Criar visualizações informativas usando `plotnine`.
+
+# Conjunto de Dados
+
+O conjunto de dados "Renda Adulta" contém informações demográficas e econômicas de indivíduos, que são utilizadas para prever se um indivíduo ganha mais ou menos de $50.000 por ano.
+
+## Descrição das Colunas
+
+| Coluna               | Descrição                                                                                               | Tipo    |
+|----------------------|---------------------------------------------------------------------------------------------------------|---------|
+| `age`                | Idade do indivíduo.                                                                                    | Numérico|
+| `workclass`          | Classificação do trabalho do indivíduo.                                                                | Categórica |
+| `fnlwgt`             | Peso final que representa o número estimado de pessoas que o registro representa.                      | Numérico |
+| `education`          | Nível de educação do indivíduo.                                                                         | Categórica |
+| `education-num`      | Número correspondente ao nível de educação (0 a 16, onde 16 representa um doutorado).                  | Numérico |
+| `marital-status`     | Estado civil do indivíduo.                                                                              | Categórica |
+| `occupation`         | Ocupação do indivíduo.                                                                                 | Categórica |
+| `relationship`       | Relacionamento do indivíduo com outros membros da família.                                             | Categórica |
+| `race`               | Raça do indivíduo.                                                                                     | Categórica |
+| `sex`                | Gênero do indivíduo.                                                                                   | Categórica |
+| `capital-gain`       | Ganhos de capital do indivíduo.                                                                         | Numérico |
+| `capital-loss`       | Perdas de capital do indivíduo.                                                                         | Numérico |
+| `hours-per-week`     | Número de horas trabalhadas por semana pelo indivíduo.                                                 | Numérico |
+| `native-country`     | País de origem do indivíduo.                                                                            | Categórica |
+| `income`             | Indica se o indivíduo ganha mais de $50.000 por ano.                                                  | Categórica |
+
+# Atividade
+
+1. Utilizando o arquivo `renda_adulta.csv` e sabendo que ele não possui cabeçalho, faça a importação do banco de dados utilizando os nomes das colunas conforme apresentado acima e na sequência ali indicada. No momento da importação do arquivo, você deve, também, indicar os tipos de cada uma das colunas. Utilize o fato de que o símbolo `?` representa valores faltantes.
+
+```{python}
+import polars as pl
+```
+
+
+2. Apresente os tipos de cada uma das coluna.
+3. Apresente as dimensões da tabela de dados.
+4. Quantas pessoas recebem acima de $50.000 e quantas pessoas recebem abaixo deste limiar?
+5. Crie um objeto chamado `renda_longo`, no qual você transforma as colunas `capital-gain` e `capital-loss` (formato _wide_) para formato longo. Os valores destas variáveis devem ser armazenados numa nova coluna chamada `Valor` e os tipos de valores (_gain_ e _loss_) devem ser armazenados numa coluna chamada `tipo`.
+6. Quais são as médias de horas trabalhadas por classe salarial?
+7. Se cada linha representa uma pessoa, quantas pessoas foram amostradas em cada profissão?
+8. Crie um gráfico de barras que apresente o número médio de horas trabalhadas semanalmente em função do nível salarial.
+9. **Desafio**: existe alguma evidência de discriminação salarial entre gêneros biológicos?
