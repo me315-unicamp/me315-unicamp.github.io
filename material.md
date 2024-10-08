@@ -17,6 +17,7 @@ Os materiais disponíveis aqui referem-se à versão 2023 da disciplina. Apesar 
 - [Aula 07: SQLite - Alteração de Conteúdo](aulas/aula07.pdf)
 - [Aula 08: Introdução ao Polars](https://ime.unicamp.br/~benilton/polars_01.html)
 - [Aula 09: Dados Relacionais com Polars](https://ime.unicamp.br/~benilton/polars_02.html)
+- [Aula 10: SQLite e Polars](https://ime.unicamp.br/~benilton/polars_03.html)
 - ~~[Aula 08: MongoDB](aulas/aula08.pdf)~~
 - ~~[Aula 09: Introdução ao Python](aulas/aula11.pdf)~~
 - ~~[Aula 10: Dashboards](aulas/dashboards.pdf)~~
