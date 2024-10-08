@@ -11,52 +11,51 @@ execute:
 
 ## O que é Polars?
 
-* Uma biblioteca Python de código aberto para manipulação e análise de dados.
-* Conhecida por seu alto desempenho, especialmente em tarefas que envolvem grandes volumes de dados.
-* Construída em Rust, o que contribui para sua velocidade e eficiência.
-* Oferece uma API intuitiva e expressiva, similar à do Pandas, facilitando a adoção por usuários familiarizados com essa biblioteca.
+-   Uma biblioteca Python de código aberto para manipulação e análise de dados.
+-   Conhecida por seu alto desempenho, especialmente em tarefas que envolvem grandes volumes de dados.
+-   Construída em Rust, o que contribui para sua velocidade e eficiência.
+-   Oferece uma API intuitiva e expressiva, similar à do Pandas, facilitando a adoção por usuários familiarizados com essa biblioteca.
 
 ## Vantagens do Polars
 
-* Velocidade: Polars é significativamente mais rápido que o Pandas em muitas operações, graças à sua arquitetura otimizada e ao uso de Rust.
-* Eficiência de Memória: Utiliza a memória de forma mais eficiente, permitindo trabalhar com conjuntos de dados maiores sem sobrecarregar o sistema.
-* Paralelismo: Aproveita o poder de processamento de múltiplos núcleos para executar tarefas em paralelo, acelerando ainda mais o processamento.
-
+-   Velocidade: Polars é significativamente mais rápido que o Pandas em muitas operações, graças à sua arquitetura otimizada e ao uso de Rust.
+-   Eficiência de Memória: Utiliza a memória de forma mais eficiente, permitindo trabalhar com conjuntos de dados maiores sem sobrecarregar o sistema.
+-   Paralelismo: Aproveita o poder de processamento de múltiplos núcleos para executar tarefas em paralelo, acelerando ainda mais o processamento.
 
 ## Vantagens do Polars
 
-* Flexibilidade: Suporta uma ampla gama de operações de manipulação de dados, como filtragem, agregação, ordenação e junção.
-* Integração: Funciona bem com outras bibliotecas populares do ecossistema Python, como NumPy e PyArrow.
+-   Flexibilidade: Suporta uma ampla gama de operações de manipulação de dados, como filtragem, agregação, ordenação e junção.
+-   Integração: Funciona bem com outras bibliotecas populares do ecossistema Python, como NumPy e PyArrow.
 
 ## Por que utilizar Polars?
 
-* Cenários com Grandes Conjuntos de Dados: Se você trabalha com datasets que não cabem confortavelmente na memória ou que exigem processamento rápido, Polars é uma excelente opção.
-* Tarefas de Análise Exploratória de Dados (EDA): A velocidade e eficiência do Polars permitem realizar análises exploratórias de forma mais ágil e interativa.
-* Aplicações de Ciência de Dados: A capacidade de lidar com grandes volumes de dados e realizar operações complexas torna o Polars adequado para projetos de aprendizado de máquina e outras áreas da ciência de dados.
+-   Cenários com Grandes Conjuntos de Dados: Se você trabalha com datasets que não cabem confortavelmente na memória ou que exigem processamento rápido, Polars é uma excelente opção.
+-   Tarefas de Análise Exploratória de Dados (EDA): A velocidade e eficiência do Polars permitem realizar análises exploratórias de forma mais ágil e interativa.
+-   Aplicações de Ciência de Dados: A capacidade de lidar com grandes volumes de dados e realizar operações complexas torna o Polars adequado para projetos de aprendizado de máquina e outras áreas da ciência de dados.
 
 ## Instalação do Polars
 
-* O modo mais simples de instalar o Polars é utilizando o terminal do seu computador.
-* A instalação pressupõem que o Python já esteja instalado.
+-   O modo mais simples de instalar o Polars é utilizando o terminal do seu computador.
+-   A instalação pressupõem que o Python já esteja instalado.
 
-```
+```         
 pip install polars
 ```
 
-* No Google Colab (ou Jupyter), você deve utilizar a diretiva `!` para indicar que o comando deve ser executado pelo terminal.
+-   No Google Colab (ou Jupyter), você deve utilizar a diretiva `!` para indicar que o comando deve ser executado pelo terminal.
 
-```
+```         
 !pip install polars
 ```
 
 ## Carregando a biblioteca Polars
 
-* Para utilizar as funções disponibilizadas pela biblioteca, você deve importá-la no início da sua sessão.
-* No Python, com o intuito de proteger-se contra conflitos com os nomes de funções disponibilizadas por diferentes bibliotecas, utilizamos frequentemente o conceito de _namespace_.
-* Assim, ao importarmos uma biblioteca, recomenda-se atribuir um nome curto (_alias_) à mesma.
-* Sempre que formos empregar uma função daquela biblioteca, utilizamos a notação `alias.funcao()`.
+-   Para utilizar as funções disponibilizadas pela biblioteca, você deve importá-la no início da sua sessão.
+-   No Python, com o intuito de proteger-se contra conflitos com os nomes de funções disponibilizadas por diferentes bibliotecas, utilizamos frequentemente o conceito de *namespace*.
+-   Assim, ao importarmos uma biblioteca, recomenda-se atribuir um nome curto (*alias*) à mesma.
+-   Sempre que formos empregar uma função daquela biblioteca, utilizamos a notação `alias.funcao()`.
 
-```
+```         
 import polars as pl
 ```
 
@@ -81,31 +80,31 @@ import polars as pl
 import polars as pl
 ```
 
-* Ao importar arquivos tabulares, o Polars os representa como um objeto de classe `DataFrame` no Python.
-* Os tipos de arquivo abaixo podem ser importados da seguinte maneira:
-  - Arquivos delimitados (como CSV e TSV): `pl.read_csv()`.
-  - Arquivos Parquet: `pl.read_parquet()`.
-  - Arquivos JSON: `pl.read_json()`.
-  - Arquivos Excel: `pl.read_excel()`.
-    * Necessita da biblioteca `fastexcel`!
-  
-## Argumentos Importantes
-
-* `file`: Caminho para o arquivo ou objeto file-like (para URLs).
-  - `pl.read_csv("dados.csv")`
-* `columns`: Lista de colunas a serem lidas.
-  - `pl.read_csv("dados.csv", columns=["coluna1", "coluna3"])`
-* `dtypes`: Dicionário especificando os tipos de dados das colunas.
-  - `pl.read_csv("dados.csv", dtypes={"idade": pl.Int32})`
+-   Ao importar arquivos tabulares, o Polars os representa como um objeto de classe `DataFrame` no Python.
+-   Os tipos de arquivo abaixo podem ser importados da seguinte maneira:
+    -   Arquivos delimitados (como CSV e TSV): `pl.read_csv()`.
+    -   Arquivos Parquet: `pl.read_parquet()`.
+    -   Arquivos JSON: `pl.read_json()`.
+    -   Arquivos Excel: `pl.read_excel()`.
+        -   Necessita da biblioteca `fastexcel`!
 
 ## Argumentos Importantes
 
-* `infer_schema_length`:  Número de linhas para inferir o esquema.
-  - `pl.read_csv("dados.grande.csv", infer_schema_length=1000)`
-* `has_header`: Indica se o arquivo possui cabeçalho.
-  - `pl.read_csv("dados_sem_header.csv", has_header=False)`
-* `delimiter`: Delimitador usado no arquivo (padrão é ',').
-  - `pl.read_csv("dados.tsv", delimiter="\t")`
+-   `file`: Caminho para o arquivo ou objeto file-like (para URLs).
+    -   `pl.read_csv("dados.csv")`
+-   `columns`: Lista de colunas a serem lidas.
+    -   `pl.read_csv("dados.csv", columns=["coluna1", "coluna3"])`
+-   `dtypes`: Dicionário especificando os tipos de dados das colunas.
+    -   `pl.read_csv("dados.csv", dtypes={"idade": pl.Int32})`
+
+## Argumentos Importantes
+
+-   `infer_schema_length`: Número de linhas para inferir o esquema.
+    -   `pl.read_csv("dados.grande.csv", infer_schema_length=1000)`
+-   `has_header`: Indica se o arquivo possui cabeçalho.
+    -   `pl.read_csv("dados_sem_header.csv", has_header=False)`
+-   `delimiter`: Delimitador usado no arquivo (padrão é ',').
+    -   `pl.read_csv("dados.tsv", delimiter="\t")`
 
 ## Exemplo `airports.csv`
 
@@ -122,7 +121,6 @@ wdi = pl.read_excel("../dados/WDIEXCEL.xlsx", sheet_name = "Country",
                     columns = ["Short Name", "Region"])
 wdi.head(2)
 ```
-
 
 # Operações em DataFrames
 
@@ -166,7 +164,6 @@ df.select([
 ])
 ```
 
-
 ## Exemplo
 
 Quais são as médias da variável `valor1` e o valor mínimo da variável `valor2` para cada um dos grupos definidos por `grupo`?
@@ -197,7 +194,6 @@ voos.shape
 voos.head(3)
 ```
 
-
 ## De volta ao `flights.csv`
 
 Calcule o percentual de vôos das cias. aéreas "AA" e "DL" que atrasaram pelo menos 30 minutos nas chegadas aos aeroportos "SEA", "MIA" e "BWI".
@@ -224,4 +220,4 @@ resultado.sort("atraso_medio")
 
 ## Recomendação
 
-Consultem o site [https://pola.rs/](https://pola.rs/)!
+Consultem o site <https://pola.rs/>!
