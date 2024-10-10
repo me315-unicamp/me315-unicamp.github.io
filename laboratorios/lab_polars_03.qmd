@@ -1,0 +1,140 @@
+---
+title: "Laboratório 3: SQLite com Polars"
+author: "Benilton S Carvalho"
+format:
+  html:
+    self-contained: true
+runtime: python
+---
+
+## Objetivo
+
+Dados relacionais são uma constante no exercício da profissão do estatístico. Esta estratégia permite uma representação mais efetiva de dados estruturados, oferecendo a possibilidade de análises computacionalmente mais eficientes. Neste laboratório, trabalharemos com dados relacionais a partir de uma base de dados SQLite.
+
+## Os Dados
+
+O banco de dados para esta atividade é o "IMDb Movie Data", que possui informações sobre filmes, atores, diretores, gêneros e outros. Para os arquivos indicados abaixo, considere que o símbolo `\N` representa valores faltantes. Observe com cuidado a extensão dos arquivos para uma indicação do formato do mesmo.
+
+### 1. `title.basics0.tsv.gz` (Informações Básicas dos Filmes)
+
+* Link: [https://drive.google.com/file/d/1iYqAGTtIhRLK4ycFK41hYaWK3iKfOdT2/view?usp=sharing](https://drive.google.com/file/d/1iYqAGTtIhRLK4ycFK41hYaWK3iKfOdT2/view?usp=sharing)
+
+| Coluna           | Descrição                                              |
+|------------------|--------------------------------------------------------|
+| `tconst`         | Identificador único do título (ex: tt1234567)           |
+| `titleType`      | Tipo do título (ex: movie, short, tvSeries)             |
+| `primaryTitle`   | Título principal                                        |
+| `originalTitle`  | Título original                                         |
+| `isAdult`        | Indica se é conteúdo adulto (0: não, 1: sim)            |
+| `startYear`      | Ano de lançamento/início                                |
+| `endYear`        | Ano de término (para séries)                            |
+| `runtimeMinutes` | Duração em minutos                                      |
+| `genres`         | Gêneros separados por vírgula (ex: Action, Comedy)      |
+
+---
+
+### 2. `title.ratings.tsv.gz` (Avaliações dos Filmes)
+
+* Link: [https://drive.google.com/file/d/1kZuj1lnXkPrNURzwYuc4FXTM7Pvknr3o/view?usp=sharing](https://drive.google.com/file/d/1kZuj1lnXkPrNURzwYuc4FXTM7Pvknr3o/view?usp=sharing)
+
+| Coluna           | Descrição                                              |
+|------------------|--------------------------------------------------------|
+| `tconst`         | Identificador único do título (ex: tt1234567)           |
+| `averageRating`  | Nota média dos usuários (escala de 1 a 10)              |
+| `numVotes`       | Número de votos recebidos                               |
+
+---
+
+### 3. `title.principals0.tsv.gz` (Elenco e Equipe Técnica)
+
+* Link: [https://drive.google.com/file/d/1oLR2_mFyRHEiKlqFKt4QDVYlGH8LC4mn/view?usp=sharing](https://drive.google.com/file/d/1oLR2_mFyRHEiKlqFKt4QDVYlGH8LC4mn/view?usp=sharing)
+
+
+| Coluna           | Descrição                                              |
+|------------------|--------------------------------------------------------|
+| `tconst`         | Identificador único do título (ex: tt1234567)           |
+| `nconst`         | Identificador único da pessoa (ex: nm1234567)           |
+| `category`       | Categoria de trabalho da pessoa (ex: actor, director)   |
+| `job`            | Função específica desempenhada (para não-atores)        |
+| `characters`     | Personagens interpretados (para atores)                 |
+
+
+### 4. `movies.sqlite3` (Banco de Dados em SQLite)
+
+* Link: [https://drive.google.com/file/d/1l-rnMw2bsmbZ-e5h9SGydqGmv9fNAtWs/view?usp=sharing](https://drive.google.com/file/d/1l-rnMw2bsmbZ-e5h9SGydqGmv9fNAtWs/view?usp=sharing)
+
+## Atividade
+
+```{python}
+#| include: false
+import os
+cmd = os.getcwd()
+print(cmd)
+```
+
+1. Crie um banco de dados SQLite utilizando os 3 arquivos acima. O banco de dados deve conter as seguintes tabelas: `basics`, `ratings` e `principals`
+2. (**Utilizando SQL**, responda): Quais são os 5 filmes com as maiores notas (`averageRating`)? Apresente uma solução capaz de desempatar os filmes baseando-se no número de votos recebidos.
+3. (**Utilizando SQL**, responda): Qual é o gênero mais frequente entre os filmes com nota maior que 8?
+4. (**Utilizando SQL**, responda): Quais são os 3 atores/atrizes que mais participaram de filmes com nota maior que 7.5?
+
+```{r}
+#| include: false
+#| eval: false
+basics = readr::read_tsv("C:/Users/benil/Downloads/title.basics0.tsv.gz", na = "\\N")
+ratings = readr::read_tsv("C:/Users/benil/Downloads/title.ratings.tsv.gz", na = "\\N")
+principals = readr::read_tsv("C:/Users/benil/Downloads/title.principals0.tsv.gz", na = "\\N")
+library(RSQLite)
+conn = dbConnect(SQLite(), "C:/Users/benil/Downloads/movies.sqlite3")
+dbWriteTable(conn, "basics", basics)
+dbWriteTable(conn, "ratings", ratings)
+dbWriteTable(conn, "principals", principals)
+dbDisconnect(conn)
+```
+
+
+```{python}
+#| include: false
+import polars as pl
+import sqlite3
+conn = sqlite3.connect("movies.sqlite3")
+```
+
+```{python}
+#| include: false
+## Q1: top5 com as maiores notas
+pl.read_database("""
+   SELECT primaryTitle, averageRating, numVotes FROM ratings
+   INNER JOIN basics
+   ON ratings.tconst = basics.tconst
+   ORDER BY averageRating DESC, numVotes DESC
+   LIMIT 5
+""", conn)
+```
+
+```{python}
+#| include: false
+## Q2: genero mais frequente entre filmes com nota > 8
+pl.read_database("""
+   SELECT genres, COUNT(*) AS n FROM ratings
+   INNER JOIN basics
+   ON ratings.tconst = basics.tconst
+   WHERE averageRating > 8
+   GROUP BY genres
+   ORDER BY n DESC
+   LIMIT 5
+""", conn)
+```
+
+```{python}
+#| include: false
+## Q3 top3 atores que mais particip de filmes com notas > 7.5
+pl.read_database("""
+   SELECT nconst, COUNT(*) AS n FROM ratings
+   INNER JOIN principals
+   ON ratings.tconst = principals.tconst
+   WHERE averageRating > 7.5 AND category IN ('actor', 'actress')
+   GROUP BY nconst
+   ORDER BY n DESC
+   LIMIT 3
+""", conn)
+```

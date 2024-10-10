@@ -1,0 +1,138 @@
+---
+title: "Laboratório 2: Dados Relacionais com Polars"
+author: "Benilton S Carvalho"
+format:
+  html:
+    self-contained: true
+runtime: python
+---
+
+## Objetivo
+
+Dados relacionais são uma constante no exercício da profissão do estatístico. Esta estratégia permite uma representação mais efetiva de dados estruturados, oferecendo a possibilidade de análises computacionalmente mais eficientes.
+
+## Os Dados
+
+O banco de dados para esta atividade é o "IMDb Movie Data", que possui informações sobre filmes, atores, diretores, gêneros e outros. Para os arquivos indicados abaixo, considere que o símbolo `\N` representa valores faltantes. Observe com cuidado a extensão dos arquivos para uma indicação do formato do mesmo.
+
+### 1. `title.basics0.tsv.gz` (Informações Básicas dos Filmes)
+
+* Link: [https://drive.google.com/file/d/1iYqAGTtIhRLK4ycFK41hYaWK3iKfOdT2/view?usp=sharing](https://drive.google.com/file/d/1iYqAGTtIhRLK4ycFK41hYaWK3iKfOdT2/view?usp=sharing)
+
+| Coluna           | Descrição                                              |
+|------------------|--------------------------------------------------------|
+| `tconst`         | Identificador único do título (ex: tt1234567)           |
+| `titleType`      | Tipo do título (ex: movie, short, tvSeries)             |
+| `primaryTitle`   | Título principal                                        |
+| `originalTitle`  | Título original                                         |
+| `isAdult`        | Indica se é conteúdo adulto (0: não, 1: sim)            |
+| `startYear`      | Ano de lançamento/início                                |
+| `endYear`        | Ano de término (para séries)                            |
+| `runtimeMinutes` | Duração em minutos                                      |
+| `genres`         | Gêneros separados por vírgula (ex: Action, Comedy)      |
+
+---
+
+### 2. `title.ratings.tsv.gz` (Avaliações dos Filmes)
+
+* Link: [https://drive.google.com/file/d/1kZuj1lnXkPrNURzwYuc4FXTM7Pvknr3o/view?usp=sharing](https://drive.google.com/file/d/1kZuj1lnXkPrNURzwYuc4FXTM7Pvknr3o/view?usp=sharing)
+
+| Coluna           | Descrição                                              |
+|------------------|--------------------------------------------------------|
+| `tconst`         | Identificador único do título (ex: tt1234567)           |
+| `averageRating`  | Nota média dos usuários (escala de 1 a 10)              |
+| `numVotes`       | Número de votos recebidos                               |
+
+---
+
+### 3. `title.principals0.tsv.gz` (Elenco e Equipe Técnica)
+
+* Link: [https://drive.google.com/file/d/1oLR2_mFyRHEiKlqFKt4QDVYlGH8LC4mn/view?usp=sharing](https://drive.google.com/file/d/1oLR2_mFyRHEiKlqFKt4QDVYlGH8LC4mn/view?usp=sharing)
+
+| Coluna           | Descrição                                              |
+|------------------|--------------------------------------------------------|
+| `tconst`         | Identificador único do título (ex: tt1234567)           |
+| `nconst`         | Identificador único da pessoa (ex: nm1234567)           |
+| `category`       | Categoria de trabalho da pessoa (ex: actor, director)   |
+| `job`            | Função específica desempenhada (para não-atores)        |
+| `characters`     | Personagens interpretados (para atores)                 |
+
+
+
+## Atividade
+
+```{python}
+#| include: false
+import os
+cmd = os.getcwd()
+print(cmd)
+```
+
+Utilizando apenas operações por meio da biblioteca `polars`, responda:
+
+1. Quais são os 5 filmes com as maiores notas (`averageRating`)? Apresente uma solução capaz de desempatar os filmes baseando-se no número de votos recebidos.
+2. Qual é o gênero mais frequente entre os filmes com nota maior que 8?
+3. Quais são os 3 atores/atrizes que mais participaram de filmes com nota maior que 7.5?
+
+```{python}
+#| include: false
+import polars as pl
+
+basics = pl.read_csv("C:/Users/benil/Downloads/title.basics0.tsv.gz", separator = "\t", null_values = "\\N")
+ratings = pl.read_csv("C:/Users/benil/Downloads/title.ratings.tsv.gz", separator = "\t", null_values = "\\N")
+principals = pl.read_csv("C:/Users/benil/Downloads/title.principals0.tsv.gz", separator = "\t", null_values = "\\N")
+```
+
+```{python}
+#| include: false
+print(basics)
+```
+
+```{python}
+#| include: false
+print(ratings)
+```
+
+```{python}
+#| include: false
+print(principals)
+```
+
+```{python}
+#| include: false
+## Q1: top5 com as maiores notas
+top5 = (
+  ratings.join(basics, on = "tconst")
+  .sort(["averageRating", "numVotes"], descending = True)
+  .select(["primaryTitle", "numVotes", "averageRating"])
+  .head(5)
+)
+print(top5)
+```
+
+
+```{python}
+#| include: false
+## Q2: genero mais frequente entre filmes com nota > 8
+genres5 = (
+  ratings.filter(pl.col("averageRating") > 8)
+  .join(basics, on = "tconst", how = "inner")
+  .select(["primaryTitle", "genres", "averageRating"])
+  .group_by("genres").agg(pl.col("genres").len().alias("n"))
+  .sort("n", descending = True).head(5)
+)
+print(genres5)
+```
+
+```{python}
+#| include: false
+## Q3 top3 atores que mais particip de filmes com notas > 7.5
+actors3 = (
+  ratings.filter(pl.col("averageRating") > 7.5)
+  .join(principals.filter(pl.col("category").is_in(["actor", "actress"])),
+        on = "tconst", how = "inner")
+  .group_by("nconst").agg(pl.count("nconst").alias("n"))
+  .sort("n", descending = True).head(3)
+)
+print(actors3)
+```
