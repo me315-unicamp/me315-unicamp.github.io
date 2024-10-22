@@ -1,0 +1,302 @@
+---
+title: "Visualização de Dados (também em Python)"
+author: "Benilton S Carvalho"
+format:
+  revealjs:
+    embed-resources: true
+jupyter: python3
+execute: 
+  echo: true
+---
+
+## A importância da visualização de dados
+
+-   Vivemos na era do *Big Data*, inundados por informações.
+-   A análise de dados brutos é complexa e desafiadora.
+-   A visualização de dados facilita a compreensão e extração de *insights*.
+
+> Uma imagem vale mais que mil palavras!
+
+## Benefícios da visualização de dados
+
+- Identificação de padrões: Visualizações revelam tendências, outliers e correlações ocultas em dados brutos.
+- Comunicação eficaz: Gráficos e dashboards comunicam insights de forma clara e concisa para diferentes públicos.
+- Tomada de decisão: Visualizações facilitam a análise de cenários e a tomada de decisão estratégica.
+- Engajamento: Visualizações atraentes e interativas aumentam o interesse e a compreensão dos dados.
+
+## Tipos mais comuns de visualização
+
+- **Barras**: Comparação de categorias.
+- **Linhas**: Tendências ao longo do tempo.
+- **Setor (pizza)**: Proporções e percentuais.
+- **Mapas de calor**: Densidade e distribuição de dados.
+- **Gráficos de Pontos**: Correlação entre variáveis.
+- **Redes**: Relações entre entidades.
+
+## Boas práticas em visualização
+
+- **Simplicidade**: Evite gráficos complexos e poluídos.
+- **Clareza**: Utilize títulos, legendas e rótulos informativos.
+- **Precisão**: Represente os dados de forma honesta e objetiva.
+- **Relevância**: Escolha o tipo de gráfico adequado aos dados e à mensagem.
+- **Acessibilidade**: Crie visualizações acessíveis a pessoas com deficiência visual.
+- **Razão Tinta/Informação**: Crie visualizações que maximizem o volume de informação transmitida com o menos uso de tinta possível.
+
+## Top 10 Piores Gráficos (Karl Broman)
+
+[Piores Gráficos](https://www.biostat.wisc.edu/~kbroman/topten_worstgraphs/)
+
+## Paradigma da Gramática dos Gráficos
+
+- Gráficos baseados na gramática de gráficos.
+- Componentes principais:
+  1. Dados (`data.frame()`)
+  2. Mapeamento estético (`ggplot()`)
+  3. Geometria (`geom_*()`)
+  
+## Informações básicas
+
+Conjuntos de dados:
+
+- `economics`: série temporal de dados econômicos norte-americanos.
+- `mpg`: dados de consumo de combustível para diversos veículos.
+- `huron`: dados do Lago Huron entre os anos de 1875 e 1972.
+
+Biblioteca para gráficos:
+
+- `plotnine`: implementa `ggplot` no Python
+
+## Como se visualiza os dados?
+
+```{python}
+#| eval: False
+!pip install plotnine
+```
+
+```{python}
+from plotnine.data import economics
+print(economics)
+```
+
+## Quais são os dados?
+
+Informações econômicas mensais entre 1967 e 2015. Cada linha possui as seguintes variáveis:
+
+- `date`: mês em que os dados foram observados.
+- `pce`: despesas de consumo pessoal (em bilhões de dólares)
+- `pop`: população total (em milhares)
+- `psavert`: taxa de poupança pessoal
+- `uempmed`: duração mediana do desemprego (em semanas)
+- `unemploy`: número de desempregados (em milhares)
+
+## Visualização de dados
+
+Habitualmente, utilizamos gráficos de linhas para representar a evolução de uma certa observação ao longo do tempo.
+
+```{python}
+from plotnine import ggplot, aes, geom_line
+plot01 = (
+  ggplot(economics)
+  + aes(x = 'date', y = 'pop')
+  + geom_line()
+)
+```
+
+## Gráfico de Linhas
+
+```{python}
+plot01
+```
+
+## A Gramática de Gráficos
+
+Componentes obrigatórios:
+
+- **Dados**: a informação a ser utilizada para o gráfico.
+- **Estética (`aes`)**: o mapeamento entre os dados e a estética.
+- **Geometria (`geom_*`)**: a geometria a ser empregada na construção do gráfico.
+
+## A Gramática de Gráficos
+
+Componentes opcionais:
+
+- **Transformações estatísticas** especificam cálculos e agregações a serem aplicados aos dados antes de plotá-los.
+- **Escalas** aplicam alguma transformação durante o mapeamento dos dados para as estéticas. Por exemplo, às vezes você pode usar uma escala logarítmica para refletir melhor alguns aspectos dos seus dados.
+- **Facetas** permitem dividir os dados em grupos com base em alguns atributos e, em seguida, plotar cada grupo em um painel separado no mesmo gráfico.
+
+## A Gramática de Gráficos
+
+Componentes opcionais:
+
+- **Sistemas de coordenadas** mapeiam a posição dos objetos para uma localização gráfica 2D no gráfico. Por exemplo, você pode escolher inverter os eixos vertical e horizontal se isso fizer mais sentido na visualização que você está construindo.
+- **Temas** permitem controlar propriedades visuais como cores, fontes e formas.
+
+## Um outro conjunto de dados
+
+```{python}
+from plotnine.data import mpg
+print(mpg)
+```
+
+## Conjunto de dados `mpg`
+
+- `manufacturer`: fabricante
+- `model`: modelo
+- `displ`: tamanho do motor em litros
+- `year`: ano
+- `cyl`: número de cilindros
+- `trans`: tipo de câmbio
+- `cty`: consumo na cidade
+- `hwy`: consumo na estrada
+
+## Visualização 1
+
+```{python}
+from plotnine import ggplot, aes, geom_point
+(
+  ggplot(mpg)
+  + aes(x = 'class', y = 'hwy')
+  + geom_point()
+)
+
+```
+
+## Visualização 2
+
+```{python}
+from plotnine import (
+  ggplot, aes, geom_point, geom_boxplot,
+  geom_jitter, theme_bw, labs
+)
+plot02 = (
+  ggplot(mpg)
+  + aes(x = 'class', y = 'hwy')
+  + geom_boxplot()
+  + geom_jitter(width=0.2, alpha=0.5)
+  + theme_bw()
+  + labs(x = "Tipo de Veículo",
+         y = "Consumo na Estrada (mpg)")
+)
+
+```
+
+## Visualização 2 Melhorada
+
+```{python}
+plot02
+```
+
+## Visualização 2 Ainda Melhor
+
+```{python}
+from plotnine import (
+  ggplot, aes, geom_point, geom_boxplot,
+  geom_jitter, theme_bw, labs
+)
+plot03 = (
+  ggplot(mpg)
+  + aes(x = 'class', y = 'hwy * 0.4251')
+  + geom_boxplot()
+  + geom_jitter(width=0.2, alpha=0.5)
+  + theme_bw()
+  + labs(x = "Tipo de Veículo",
+         y = "Consumo na Estrada (km/l)",
+         title = "Consumo de Combustível",
+         subtitle = "Veículos fabricados entre 1999 e 2008")
+)
+
+```
+
+## Visualização 2 Ainda Melhor
+
+```{python}
+plot03
+```
+
+## Consumo vs. Número de Cilindros
+
+```{python}
+(
+  ggplot(mpg) + aes(x = 'cyl', y = 'hwy') + geom_point()
+)
+```
+
+## Consumo vs. Número de Cilindros
+
+- O número de cilindros é, na prática, visto como uma variável categórica
+
+```{python}
+from plotnine import ggplot, aes, geom_boxplot, coord_flip, theme_bw
+plot04 = (
+  ggplot(mpg) + aes(x = 'factor(cyl)', y = 'hwy*0.4251') + geom_boxplot()
+  + coord_flip() + theme_bw()
+  + labs(x = 'Número de Cilindros', y = 'Consumo na Estrada (km/L)')
+)
+```
+
+## Consumo vs. Número de Cilindros
+
+```{python}
+plot04
+```
+
+## Não aos gráficos 3D!
+
+Qual é a associação entre o consumo na estrada (`hwy`) e o tamanho do motor (`displ`) para cada combinação de tipo de veículo (`class`) e ano de fabricação (`year`)?
+
+> Este é um gráfico que requer o uso de mais que duas dimensões. Devemos fixar as duas primeiras dimensões na associação de interesse principal e utilizar outros recursos para representar as dimensões adicionais!
+
+## Representando mais que 2 dimensões
+
+```{python}
+from plotnine import ggplot, aes, geom_point, facet_grid
+plot05 = (
+  ggplot(mpg) + aes(x = 'displ', y = 'hwy*0.4251') + geom_point()
+  + facet_grid("year", "class") + theme_bw()
+  + labs(x = "Tamanho do Motor", y = "Consumo na Estrada (km/L)")
+)
+```
+
+## Uso de Facetas
+
+```{python}
+plot05
+```
+
+## Representando mais que 2 dimensões
+
+```{python}
+from plotnine import ggplot, aes, geom_point, facet_grid
+plot06 = (
+  ggplot(mpg) + aes(x = 'displ', y = 'hwy*0.4251', color = 'factor(year)')
+  + geom_point()
+  + facet_grid(cols = "class") + theme_bw()
+  + labs(x = "Tamanho do Motor", y = "Consumo na Estrada (km/L)",
+         color = "Ano de Fabricação",
+         title = "Consumo de Combustível em Função do Tamanho do Motor",
+         subtitle = "Motores maiores consomem mais combustível")
+)
+```
+
+## Mais Sobre Consumo
+
+```{python}
+print(plot06)
+```
+
+## Gravando Gráficos em Arquivos
+
+```{python}
+from plotnine import ggplot, aes, geom_point, facet_grid
+plot07 = (
+  ggplot(mpg) + aes(x = 'displ', y = 'hwy*0.4251', color = 'factor(year)')
+  + geom_point()
+  + facet_grid(cols = "class") + theme_bw()
+  + labs(x = "Tamanho do Motor", y = "Consumo na Estrada (km/L)",
+         color = "Ano de Fabricação",
+         title = "Consumo de Combustível em Função do Tamanho do Motor",
+         subtitle = "Motores maiores consomem mais combustível")
+)
+plot07.save("grafico07.png", dpi = 600)
+```
+

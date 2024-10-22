@@ -1245,7 +1245,7 @@ Benilton S Carvalho
 <li>Biblioteca Polars instalada</li>
 <li>SQLite disponível no sistema</li>
 </ul>
-<div id="ce5fbab8" class="cell" data-execution_count="1">
+<div id="961ce54e" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
 <span id="cb1-2"><a href></a><span class="im">import</span> sqlite3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -1256,12 +1256,12 @@ Benilton S Carvalho
 <li>A conexão com o banco de dados é feita com o método <code>connect</code>.</li>
 <li>Obtemos também o <code>cursor</code>, que é um objeto que permite interagir com o banco de dados</li>
 </ul>
-<div id="1605d3dd" class="cell" data-execution_count="2">
+<div id="c79b7738" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-stdout">
 <pre><code>rm: ../dados/data.db: No such file or directory</code></pre>
 </div>
 </div>
-<div id="339c0ff4" class="cell" data-execution_count="3">
+<div id="db7cc6cf" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href></a>conn <span class="op">=</span> sqlite3.<span class="ex">connect</span>(<span class="st">&#39;../dados/data.db&#39;</span>)</span>
 <span id="cb3-2"><a href></a>cursor <span class="op">=</span> conn.cursor()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -1271,7 +1271,7 @@ Benilton S Carvalho
 <ul>
 <li>O método <code>execute</code> é empregado para executar comandos dentro do banco SQL.</li>
 </ul>
-<div id="5ea74cb9" class="cell" data-execution_count="4">
+<div id="00b7a2c8" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href></a>cursor.execute(<span class="st">&#39;&#39;&#39;</span></span>
 <span id="cb4-2"><a href></a><span class="st">CREATE TABLE vendas (</span></span>
 <span id="cb4-3"><a href></a><span class="st">    id INTEGER PRIMARY KEY,</span></span>
@@ -1281,8 +1281,8 @@ Benilton S Carvalho
 <span id="cb4-7"><a href></a><span class="st">    data_venda DATE</span></span>
 <span id="cb4-8"><a href></a><span class="st">)</span></span>
 <span id="cb4-9"><a href></a><span class="st">&#39;&#39;&#39;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="216">
-<pre><code>&lt;sqlite3.Cursor at 0x10901f7c0&gt;</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<pre><code>&lt;sqlite3.Cursor at 0x10bbad8c0&gt;</code></pre>
 </div>
 </div>
 </section>
@@ -1291,7 +1291,7 @@ Benilton S Carvalho
 <ul>
 <li>Ao realizar uma inserção, deve-se executar o <code>commit</code>, que fará a confirmação da operação.</li>
 </ul>
-<div id="e8645445" class="cell" data-execution_count="5">
+<div id="de2f160a" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href></a>cursor.execute(<span class="st">&#39;&#39;&#39;</span></span>
 <span id="cb6-2"><a href></a><span class="st">INSERT INTO vendas (vendedor, produto, valor, data_venda)</span></span>
 <span id="cb6-3"><a href></a><span class="st">VALUES</span></span>
@@ -1306,7 +1306,7 @@ Benilton S Carvalho
 </section>
 <section id="consulta-simples-no-sqlite" class="slide level2">
 <h2>Consulta simples no SQLite</h2>
-<div id="76859c9a" class="cell" data-execution_count="6">
+<div id="15cc686f" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href></a>cursor.execute(<span class="st">&quot;SELECT * FROM vendas&quot;</span>)</span>
 <span id="cb7-2"><a href></a>rows <span class="op">=</span> cursor.fetchall()</span>
 <span id="cb7-3"><a href></a><span class="cf">for</span> row <span class="kw">in</span> rows:</span>
@@ -1322,7 +1322,7 @@ Benilton S Carvalho
 </section>
 <section id="integração-com-polars" class="slide level2">
 <h2>Integração com Polars</h2>
-<div id="633b3964" class="cell" data-execution_count="7">
+<div id="88554676" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
 <span id="cb9-2"><a href></a>dados <span class="op">=</span> pl.read_database(<span class="st">&quot;SELECT * FROM vendas&quot;</span>, conn)</span>
 <span id="cb9-3"><a href></a><span class="bu">print</span>(dados)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1347,7 +1347,7 @@ Benilton S Carvalho
 <ul>
 <li>Qual é o total de vendas por vendedor?</li>
 </ul>
-<div id="52290feb" class="cell" data-execution_count="8">
+<div id="e5065e61" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href></a>vendas_total <span class="op">=</span> pl.read_database(<span class="st">&#39;&#39;&#39;</span></span>
 <span id="cb11-2"><a href></a><span class="st">   SELECT vendedor, SUM(valor) as total_vendas</span></span>
 <span id="cb11-3"><a href></a><span class="st">   FROM vendas</span></span>
@@ -1373,7 +1373,7 @@ Benilton S Carvalho
 <ul>
 <li>Qual é o valor médio de venda por vendedor?</li>
 </ul>
-<div id="53c4f0fb" class="cell" data-execution_count="9">
+<div id="14bd517e" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href></a>vendas_medias <span class="op">=</span> pl.read_database(<span class="st">&#39;&#39;&#39;</span></span>
 <span id="cb13-2"><a href></a><span class="st">   SELECT vendedor, AVG(valor) as total_vendas</span></span>
 <span id="cb13-3"><a href></a><span class="st">   FROM vendas</span></span>
@@ -1399,7 +1399,7 @@ Benilton S Carvalho
 <ul>
 <li>Crie uma tabela contendo o nome do vendedor, o número de vendas realizadas, o total vendido e o valor médio por venda.</li>
 </ul>
-<div id="c5e5559a" class="cell" data-execution_count="10">
+<div id="5801ba89" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href></a>vendas_comb <span class="op">=</span> pl.read_database(<span class="st">&quot;&quot;&quot;</span></span>
 <span id="cb15-2"><a href></a><span class="st">SELECT vendedor, </span></span>
 <span id="cb15-3"><a href></a><span class="st">       COUNT(*) as numero_vendas,</span></span>
@@ -1412,7 +1412,7 @@ Benilton S Carvalho
 </section>
 <section id="exemplo-continuação" class="slide level2">
 <h2>Exemplo (continuação)</h2>
-<div id="a86dd4ed" class="cell" data-execution_count="11">
+<div id="411db5b8" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href></a><span class="bu">print</span>(vendas_comb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>shape: (3, 4)
@@ -1433,7 +1433,7 @@ Benilton S Carvalho
 <ul>
 <li>Quais foram as vendas de, pelo menos, $200.00?</li>
 </ul>
-<div id="16427d7c" class="cell" data-execution_count="12">
+<div id="0271a36e" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href></a>ticket_alto <span class="op">=</span> pl.read_database(<span class="st">&quot;&quot;&quot;</span></span>
 <span id="cb18-2"><a href></a><span class="st">SELECT * FROM vendas WHERE valor &gt;= 200</span></span>
 <span id="cb18-3"><a href></a><span class="st">&quot;&quot;&quot;</span>, conn)</span>
@@ -1456,7 +1456,7 @@ Benilton S Carvalho
 <ul>
 <li>Qual foi o volume mensal de vendas?</li>
 </ul>
-<div id="c09b89e9" class="cell" data-execution_count="13">
+<div id="1f1394ca" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href></a>vendas_mensais <span class="op">=</span> pl.read_database(<span class="st">&quot;&quot;&quot;</span></span>
 <span id="cb20-2"><a href></a><span class="st">SELECT strftime(&#39;%Y-%m&#39;, data_venda) AS mes, SUM(valor) AS total_vendas</span></span>
 <span id="cb20-3"><a href></a><span class="st">FROM vendas GROUP BY mes ORDER BY mes</span></span>
@@ -1478,7 +1478,7 @@ Benilton S Carvalho
 </section>
 <section id="criando-a-tabela-de-produtos" class="slide level2">
 <h2>Criando a tabela de produtos</h2>
-<div id="0fcf0cf9" class="cell" data-execution_count="14">
+<div id="90b83371" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href></a>cursor.execute(<span class="st">&#39;&#39;&#39;</span></span>
 <span id="cb22-2"><a href></a><span class="st">CREATE TABLE IF NOT EXISTS produtos (</span></span>
 <span id="cb22-3"><a href></a><span class="st">    id INTEGER PRIMARY KEY,</span></span>
@@ -1501,7 +1501,7 @@ Benilton S Carvalho
 </section>
 <section id="consultando-a-tabela-de-produtos" class="slide level2">
 <h2>Consultando a tabela de produtos</h2>
-<div id="25425b67" class="cell" data-execution_count="15">
+<div id="e9320a7a" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href></a>prods <span class="op">=</span> pl.read_database(<span class="st">&quot;SELECT * FROM produtos&quot;</span>, conn)</span>
 <span id="cb23-2"><a href></a><span class="bu">print</span>(prods)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1530,7 +1530,7 @@ Benilton S Carvalho
 </section>
 <section id="joins-de-vendas-e-produtos-1" class="slide level2">
 <h2>JOINs de <code>vendas</code> e <code>produtos</code></h2>
-<div id="d5f94459" class="cell" data-execution_count="16">
+<div id="045d69ac" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href></a>lucros <span class="op">=</span> pl.read_database(<span class="st">&quot;&quot;&quot;</span></span>
 <span id="cb25-2"><a href></a><span class="st">SELECT produto, valor AS compra, preco AS venda, preco-valor AS lucro</span></span>
 <span id="cb25-3"><a href></a><span class="st">FROM vendas</span></span>
@@ -1558,7 +1558,7 @@ Benilton S Carvalho
 <ul>
 <li>Qual foi o lucro médio por vendedor?</li>
 </ul>
-<div id="bfab6bb7" class="cell" data-execution_count="17">
+<div id="6a27b0fd" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href></a>lucro_medio <span class="op">=</span> pl.read_database(<span class="st">&quot;&quot;&quot;</span></span>
 <span id="cb27-2"><a href></a><span class="st">SELECT vendedor, produto, AVG(preco-valor) AS lucro_medio</span></span>
 <span id="cb27-3"><a href></a><span class="st">FROM vendas</span></span>
