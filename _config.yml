@@ -34,6 +34,7 @@ navbar-links:
     - WDIEXCEL.xls: "https://docs.google.com/spreadsheets/d/1w8tdjEE4mhZVpzEk34fTfxbKdfpCybOO/edit?usp=sharing&ouid=106453235251377938887&rtpof=true&sd=true"
     - disco.db: "dados/disco.db"
     - renda_adulta.csv.gz: "dados/renda_adulta.csv.gz"
+    - diamonds.csv.gz: "dados/diamonds.csv.gz"
   Cronograma: "cronograma"
 
 # Image to show in the navigation bar - image must be a square (width = height)
