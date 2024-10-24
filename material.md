@@ -37,6 +37,7 @@ Os materiais disponíveis aqui referem-se à versão 2023 da disciplina. Apesar 
 - [Laboratório 08: Introdução ao Polars/Python](laboratorios/lab_polars_01.html)
 - [Laboratório 09: Dados Relacionais e Polars/Python](laboratorios/lab_polars_02.html)
 - [Laboratório 10: SQLite e Polars/Python](laboratorios/lab_polars_03.html)
+- [Laboratório 11: Visualização de Dados](laboratorios/lab_polars_04.html)
 - ~~[Laboratório 09: MongoDB](laboratorios/lab09.html)~~
 - ~~[Laboratório 10: Python](definir)~~
 - ~~[Laboratório 11: Dashboards] - Realizado simultaneamente com Aula 10 (acima)~~

@@ -1,0 +1,143 @@
+---
+title: "Laboratório 4: Visualização de Dados com `plotnine`"
+author: "Benilton S Carvalho"
+format:
+  html:
+    self-contained: true
+runtime: python
+execute:
+  echo: false
+  messages: false
+  warnings: false
+  eval: false
+---
+
+## Objetivo
+
+Criar visualizações adequadas utilizando a biblioteca `plotnine`. A atividade será baseada em um conjunto de dados com o qual é necessário realizar agregação, filtragem e transformação de dados antes de aplicar estratégias de visualização.
+
+## O Conjunto de Dados
+
+O conjunto de dados para esta atividade é o `diamonds`, que está disponível na biblioteca `plotnine.data`. O conjunto de dados `diamonds` contém informações sobre 53.940 diamantes. Ele é amplamente utilizado para a prática de visualização e análise de dados e contém as seguintes variáveis:
+
+| Variável    | Tipo       | Descrição                                                                                 |
+|-------------|------------|-------------------------------------------------------------------------------------------|
+| `carat`     | Numérica   | Peso do diamante, em quilates (carats).                                                    |
+| `cut`       | Categórica | Qualidade do corte do diamante (Fair, Good, Very Good, Premium, Ideal).                    |
+| `color`     | Categórica | Cor do diamante, onde D é a melhor (mais transparente) e J é a pior.                       |
+| `clarity`   | Categórica | Clareza do diamante, categorizada por um padrão internacional (IF, VVS1, VVS2, etc.).      |
+| `depth`     | Numérica   | Profundidade total do diamante como porcentagem da média do diâmetro.                      |
+| `table`     | Numérica   | Largura da parte superior do diamante (mesa) como uma porcentagem da largura total.        |
+| `price`     | Numérica   | Preço do diamante, em dólares.                                                             |
+| `x`         | Numérica   | Comprimento do diamante, em milímetros.                                                    |
+| `y`         | Numérica   | Largura do diamante, em milímetros.                                                        |
+| `z`         | Numérica   | Altura do diamante, em milímetros.                                                         |
+
+### Significado das Variáveis Categóricas
+
+- **Cut (Corte):**
+  - *Fair*
+  - *Good*
+  - *Very Good*
+  - *Premium*
+  - *Ideal*
+
+- **Color (Cor):**
+  - D (Melhor)
+  - E
+  - F
+  - G
+  - H
+  - I
+  - J (Pior)
+
+- **Clarity (Clareza):**
+  - IF (Internally Flawless)
+  - VVS1 (Very, Very Slightly Included 1)
+  - VVS2 (Very, Very Slightly Included 2)
+  - VS1 (Very Slightly Included 1)
+  - VS2 (Very Slightly Included 2)
+  - SI1 (Slightly Included 1)
+  - SI2 (Slightly Included 2)
+  - I1 (Included 1)
+
+### Observações Importantes:
+- **Preço**: O preço dos diamantes varia de USD 326 a USD 18.823.
+- **Peso (Carat)**: A variável `carat` vai de 0,2 a 5,01 quilates.
+- **Proporções**: As variáveis `x`, `y` e `z` representam as dimensões físicas do diamante em milímetros.
+
+Este conjunto de dados é amplamente utilizado para explorar a relação entre variáveis categóricas (como `cut`, `color`, `clarity`) e numéricas (`price`, `carat`, etc.), especialmente em análises de regressão e visualizações de dados.
+
+## Atividades
+
+1. Importe o conjunto de dados `diamonds`, cujo arquivo está disponível no website da disciplina.
+
+```{python}
+import polars as pl
+diamonds = pl.read_csv("../dados/diamonds.csv.gz")
+print(diamonds)
+```
+
+```{python}
+diamonds = diamonds.with_columns(
+  pl.col("cut").cast(pl.Enum(["Fair", "Good", "Very Good", "Premium", "Ideal"])),
+  pl.col("color").cast(pl.Enum(["D", "E", "F", "G", "H", "I", "J"])),
+  pl.col("clarity").cast(pl.Enum(["IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2", "I1"]))
+)
+print(diamonds)
+```
+
+
+2. Crie uma visualização de dados que descreva a associação existente entre as variáveis peso (`carat`) e preço (`price`). Que ações você tomou para garantir que você produziu um gráfico de boa qualidade? Escreva um parágrafo comunicando os seus achados.
+
+```{python}
+from plotnine import ggplot, aes, geom_point, theme_bw, labs
+(
+  ggplot(diamonds) + aes(x = "carat", y = "price")
+  + geom_point(alpha = 0.1)
+  + theme_bw()
+  + labs(x = "Peso (quilates)", y = "Preço (USD)",
+         title = "Preço de Diamantes vs. Peso",
+         subtitle = "Preço em Dólares, Peso em Quilates")
+)
+```
+
+3. A relação identificada na questão anterior é a mesma relação presente nos diferentes cortes de diamantes? Crie uma visualização que demonstre seus achados eficientemente. Descreva sua conclusão em um parágrafo.
+
+```{python}
+from plotnine import facet_wrap
+(
+  ggplot(diamonds) + aes(x = "carat", y = "price")
+  + geom_point(alpha = 0.1)
+  + facet_wrap("cut")
+  + theme_bw()
+  + labs(x = "Peso (quilates)", y = "Preço (USD)",
+         title = "Preço de Diamantes vs. Peso",
+         subtitle = "Preço em Dólares, Peso em Quilates")
+)
+```
+
+
+4. Crie uma visualização que mostre a relação entre preço e peso do diamante, considerando as diferentes combinações de qualidade de corte, cor e clareza do diamante. Quais foram as dificuldades encontradas? A relação entre preço e peso é a mesma para diferentes configurações de diamantes?
+
+```{python}
+from plotnine import facet_grid, scale_color_gradient
+
+diamonds = diamonds.with_columns(
+  (8 - pl.col("clarity").to_physical()).alias("clareza")
+)
+
+(
+  ggplot(diamonds) + aes(x = "carat", y = "price", colour = "clareza")
+  + geom_point(alpha = 0.1)
+  + facet_grid(rows = "cut", cols = "color")
+  + theme_bw()
+  + labs(x = "Peso (quilates)", y = "Preço (USD)",
+         title = "Preço de Diamantes vs. Peso",
+         subtitle = "Preço em Dólares, Peso em Quilates")
+  + scale_color_gradient(low='blue', high='red',
+                         name='Clareza', breaks=range(1, 9),
+                         labels=['1', '2', '3', '4', '5', '6', '7', '8'])
+)
+```
+
